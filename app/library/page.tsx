@@ -9,12 +9,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { ArrowLeft, Plus, FolderPlus, MoreVertical, Trash2, Edit, Video, Loader2 } from 'lucide-react'
 import { getLibrary, createGroup, updateGroup, deleteGroup } from '@/lib/library-storage'
+import { LibraryService } from '@/lib/services/library-service'
+import { useAppStore } from '@/lib/store'
 import type { Library, LibraryGroup } from '@/lib/types'
 
 const EMOJI_OPTIONS = ['📁', '🎯', '🎤', '💪', '🧠', '📚', '🌟', '🔥', '💡', '🎬', '🎧', '🗣️']
 
 export default function LibraryPage() {
     const router = useRouter()
+    const { user } = useAppStore()
     const [library, setLibrary] = useState<Library | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [isCreating, setIsCreating] = useState(false)
@@ -24,10 +27,15 @@ export default function LibraryPage() {
 
     const loadLibrary = useCallback(async () => {
         setIsLoading(true)
-        const lib = await getLibrary()
-        setLibrary(lib)
+        if (user) {
+            const lib = await LibraryService.getLibrary()
+            setLibrary(lib)
+        } else {
+            const lib = await getLibrary()
+            setLibrary(lib)
+        }
         setIsLoading(false)
-    }, [])
+    }, [user])
 
     useEffect(() => {
         loadLibrary()
@@ -35,9 +43,23 @@ export default function LibraryPage() {
 
     const handleCreateGroup = async () => {
         if (!newGroupName.trim()) return
-
         setIsCreating(true)
-        await createGroup(newGroupName.trim(), newGroupEmoji)
+
+        if (user) {
+            const newGroup: LibraryGroup = {
+                id: crypto.randomUUID(),
+                name: newGroupName.trim(),
+                emoji: newGroupEmoji,
+                videos: [],
+                createdAt: Date.now(),
+                updatedAt: Date.now(),
+                order: library?.groups.length || 0
+            }
+            await LibraryService.createGroup(newGroup)
+        } else {
+            await createGroup(newGroupName.trim(), newGroupEmoji)
+        }
+
         setNewGroupName('')
         setNewGroupEmoji('📁')
         await loadLibrary()
@@ -47,10 +69,18 @@ export default function LibraryPage() {
     const handleUpdateGroup = async () => {
         if (!editingGroup || !newGroupName.trim()) return
 
-        await updateGroup(editingGroup.id, {
-            name: newGroupName.trim(),
-            emoji: newGroupEmoji
-        })
+        if (user) {
+            await LibraryService.updateGroup(editingGroup.id, {
+                name: newGroupName.trim(),
+                emoji: newGroupEmoji
+            })
+        } else {
+            await updateGroup(editingGroup.id, {
+                name: newGroupName.trim(),
+                emoji: newGroupEmoji
+            })
+        }
+
         setEditingGroup(null)
         setNewGroupName('')
         setNewGroupEmoji('📁')
@@ -59,7 +89,11 @@ export default function LibraryPage() {
 
     const handleDeleteGroup = async (groupId: string) => {
         if (confirm('Delete this group and all its videos?')) {
-            await deleteGroup(groupId)
+            if (user) {
+                await LibraryService.deleteGroup(groupId)
+            } else {
+                await deleteGroup(groupId)
+            }
             await loadLibrary()
         }
     }

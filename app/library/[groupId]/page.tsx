@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { ArrowLeft, Plus, MoreVertical, Trash2, Play, Loader2, Link, Clock, ExternalLink } from 'lucide-react'
 import { getLibrary, addVideoToGroup, removeVideoFromGroup } from '@/lib/library-storage'
+import { LibraryService } from '@/lib/services/library-service'
+import { useAppStore } from '@/lib/store'
 import type { LibraryGroup, LibraryVideo, TranscriptLine } from '@/lib/types'
 
 function formatDuration(seconds: number): string {
@@ -45,6 +47,7 @@ function extractVideoOrPlaylistId(url: string): { type: 'video' | 'playlist'; id
 export default function GroupPage({ params }: { params: Promise<{ groupId: string }> }) {
     const { groupId } = use(params)
     const router = useRouter()
+    const { user } = useAppStore()
     const [group, setGroup] = useState<LibraryGroup | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [isAddingVideo, setIsAddingVideo] = useState(false)
@@ -53,11 +56,17 @@ export default function GroupPage({ params }: { params: Promise<{ groupId: strin
 
     const loadGroup = useCallback(async () => {
         setIsLoading(true)
-        const library = await getLibrary()
-        const foundGroup = library.groups.find(g => g.id === groupId)
-        setGroup(foundGroup || null)
+        if (user) {
+            const lib = await LibraryService.getLibrary()
+            const foundGroup = lib?.groups.find(g => g.id === groupId)
+            setGroup(foundGroup || null)
+        } else {
+            const library = await getLibrary()
+            const foundGroup = library.groups.find(g => g.id === groupId)
+            setGroup(foundGroup || null)
+        }
         setIsLoading(false)
-    }, [groupId])
+    }, [groupId, user])
 
     useEffect(() => {
         loadGroup()
@@ -89,14 +98,32 @@ export default function GroupPage({ params }: { params: Promise<{ groupId: strin
                     const transcriptRes = await fetch(`/api/transcript?videoId=${video.id}`)
                     const transcriptData = await transcriptRes.json()
 
-                    await addVideoToGroup(groupId, {
-                        id: video.id,
-                        title: video.title,
-                        thumbnail: video.thumbnail,
-                        duration: video.duration,
-                        channelName: video.channelName,
-                        transcript: transcriptData.transcript || []
-                    })
+                    if (user) {
+                        const newVideo: LibraryVideo = {
+                            id: video.id,
+                            title: video.title,
+                            thumbnail: video.thumbnail,
+                            duration: video.duration, // Should be number? API returns text? Wait, types say number.
+                            // The API /api/youtube returns duration as number (seconds)
+                            // LibraryVideo definition: duration: number
+                            channelName: video.channelName,
+                            transcript: transcriptData.transcript || [],
+                            segments: [],
+                            recordings: [],
+                            addedAt: Date.now(),
+                            lastPracticedAt: null
+                        }
+                        await LibraryService.addVideoToGroup(groupId, newVideo)
+                    } else {
+                        await addVideoToGroup(groupId, {
+                            id: video.id,
+                            title: video.title,
+                            thumbnail: video.thumbnail,
+                            duration: video.duration,
+                            channelName: video.channelName,
+                            transcript: transcriptData.transcript || []
+                        })
+                    }
                 }
             } else {
                 // Single video
@@ -109,14 +136,30 @@ export default function GroupPage({ params }: { params: Promise<{ groupId: strin
                 const transcriptRes = await fetch(`/api/transcript?videoId=${extracted.id}`)
                 const transcriptData = await transcriptRes.json()
 
-                await addVideoToGroup(groupId, {
-                    id: data.video.id,
-                    title: data.video.title,
-                    thumbnail: data.video.thumbnail,
-                    duration: data.video.duration,
-                    channelName: data.video.channelName,
-                    transcript: transcriptData.transcript || []
-                })
+                if (user) {
+                    const newVideo: LibraryVideo = {
+                        id: data.video.id,
+                        title: data.video.title,
+                        thumbnail: data.video.thumbnail,
+                        duration: data.video.duration,
+                        channelName: data.video.channelName,
+                        transcript: transcriptData.transcript || [],
+                        segments: [],
+                        recordings: [],
+                        addedAt: Date.now(),
+                        lastPracticedAt: null
+                    }
+                    await LibraryService.addVideoToGroup(groupId, newVideo)
+                } else {
+                    await addVideoToGroup(groupId, {
+                        id: data.video.id,
+                        title: data.video.title,
+                        thumbnail: data.video.thumbnail,
+                        duration: data.video.duration,
+                        channelName: data.video.channelName,
+                        transcript: transcriptData.transcript || []
+                    })
+                }
             }
 
             setVideoUrl('')
@@ -130,8 +173,14 @@ export default function GroupPage({ params }: { params: Promise<{ groupId: strin
 
     const handleDeleteVideo = async (videoId: string) => {
         if (confirm('Remove this video from the group?')) {
-            await removeVideoFromGroup(groupId, videoId)
-            await loadGroup()
+            if (confirm('Remove this video from the group?')) {
+                if (user) {
+                    await LibraryService.removeVideoFromGroup(groupId, videoId)
+                } else {
+                    await removeVideoFromGroup(groupId, videoId)
+                }
+                await loadGroup()
+            }
         }
     }
 

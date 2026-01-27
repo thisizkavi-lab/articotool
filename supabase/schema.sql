@@ -57,6 +57,7 @@ create table library_videos (
   thumbnail text,
   duration text,
   transcript jsonb, -- Storing full transcript as JSON
+  segments jsonb default '[]'::jsonb, -- Storing library segments as JSON
   created_at bigint not null,
   
   primary key (group_id, id) -- Composite primary key? Or just UUID. Let's use simple PK.

@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Checkbox } from '@/components/ui/checkbox'
 import { ArrowLeft, Plus, ChevronLeft, ChevronRight, RotateCcw, Repeat, Mic, Video, Square, Loader2, Clock, Trash2, Download, Circle, Play, FileText } from 'lucide-react'
 import { getLibrary, addSegmentToVideo, deleteSegment, updateVideoLastPracticed } from '@/lib/library-storage'
+import { LibraryService } from '@/lib/services/library-service'
+import { useAppStore } from '@/lib/store'
 import type { LibraryGroup, LibraryVideo } from '@/lib/types'
 
 declare global {
@@ -65,6 +67,7 @@ function parseTime(timeStr: string): number | null {
 export default function PracticePage({ params }: { params: Promise<{ groupId: string; videoId: string }> }) {
     const { groupId, videoId } = use(params)
     const router = useRouter()
+    const { user } = useAppStore()
 
     const [group, setGroup] = useState<LibraryGroup | null>(null)
     const [video, setVideo] = useState<LibraryVideo | null>(null)
@@ -110,19 +113,29 @@ export default function PracticePage({ params }: { params: Promise<{ groupId: st
 
     const loadData = useCallback(async () => {
         setIsLoading(true)
-        const library = await getLibrary()
-        const foundGroup = library.groups.find(g => g.id === groupId)
-        const foundVideo = foundGroup?.videos.find(v => v.id === videoId)
+        if (user) {
+            const library = await LibraryService.getLibrary()
+            if (library) {
+                const foundGroup = library.groups.find(g => g.id === groupId)
+                const foundVideo = foundGroup?.videos.find(v => v.id === videoId)
+                setGroup(foundGroup || null)
+                setVideo(foundVideo || null)
+            }
+        } else {
+            const library = await getLibrary()
+            const foundGroup = library.groups.find(g => g.id === groupId)
+            const foundVideo = foundGroup?.videos.find(v => v.id === videoId)
+            setGroup(foundGroup || null)
+            setVideo(foundVideo || null)
+        }
 
-        setGroup(foundGroup || null)
-        setVideo(foundVideo || null)
-
-        if (foundVideo && foundGroup) {
+        // Note: keeping lastPracticed update local-only for now or need to add to LibraryService
+        if (!user) {
             await updateVideoLastPracticed(groupId, videoId)
         }
 
         setIsLoading(false)
-    }, [groupId, videoId])
+    }, [groupId, videoId, user])
 
     useEffect(() => {
         loadData()
@@ -482,12 +495,21 @@ export default function PracticePage({ params }: { params: Promise<{ groupId: st
             line => line.start >= segmentStart && line.start < segmentEnd
         )
 
-        await addSegmentToVideo(groupId, videoId, {
-            start: segmentStart,
-            end: segmentEnd,
-            label: segmentLabel.trim(),
-            lines
-        })
+        if (user) {
+            await LibraryService.addSegmentToVideo(groupId, videoId, {
+                start: segmentStart,
+                end: segmentEnd,
+                label: segmentLabel.trim(),
+                lines
+            })
+        } else {
+            await addSegmentToVideo(groupId, videoId, {
+                start: segmentStart,
+                end: segmentEnd,
+                label: segmentLabel.trim(),
+                lines
+            })
+        }
 
         setIsCreatingSegment(false)
         setSegmentStart(null)
@@ -500,7 +522,11 @@ export default function PracticePage({ params }: { params: Promise<{ groupId: st
 
     const handleDeleteSegment = async (segmentId: string) => {
         if (confirm('Delete this segment?')) {
-            await deleteSegment(groupId, videoId, segmentId)
+            if (user) {
+                await LibraryService.deleteSegment(groupId, videoId, segmentId)
+            } else {
+                await deleteSegment(groupId, videoId, segmentId)
+            }
             setActiveSegmentIndex(null)
             await loadData()
         }
