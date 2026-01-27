@@ -11,7 +11,7 @@ import { format } from 'date-fns'
 
 export default function HistoryPage() {
     const router = useRouter()
-    const { setVideoId, setVideoTitle, setTranscript, setSegments } = useAppStore()
+    const { setVideoId, setVideoTitle, setTranscript, setSegments, setNotes } = useAppStore()
     const [sessions, setSessions] = useState<SavedSession[]>([])
     const [isLoading, setIsLoading] = useState(true)
 
@@ -38,8 +38,8 @@ export default function HistoryPage() {
         // Update store state immediately (optional, but good for UX)
         setVideoId(session.videoId)
         setVideoTitle(session.videoTitle)
-        if (session.transcript) setTranscript(session.transcript) // Restore transcript
-        setSegments(session.segments) // Assumes this action exists or we add it
+        setSegments(session.segments)
+        setNotes(session.notes || '')
 
         // Navigate home
         router.push('/')
@@ -70,7 +70,7 @@ export default function HistoryPage() {
                 ) : (
                     <div className="grid gap-4">
                         {sessions.map((session) => (
-                            <Card key={session.id || session.lastUpdated}>
+                            <Card key={session.videoId || session.lastUpdated.toString()}>
                                 <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
                                     <div className="space-y-1">
                                         <CardTitle className="text-base font-medium">

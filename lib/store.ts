@@ -15,6 +15,7 @@ interface AppState {
   transcript: TranscriptLine[]
   isLoading: boolean
   error: string | null
+  notes: string
 
   // Segment state
   segments: Segment[]
@@ -47,6 +48,7 @@ interface AppState {
   setTranscript: (transcript: TranscriptLine[]) => void
   setLoading: (loading: boolean) => void
   setError: (error: string | null) => void
+  setNotes: (notes: string) => void
 
   addSegment: (segment: Segment) => void
   setSegments: (segments: Segment[]) => void
@@ -73,6 +75,7 @@ interface AppState {
 
   saveRecordingToCloud: (recording: Recording, blob: Blob) => Promise<void>
 
+  loadVideo: (id: string) => Promise<void>
   reset: () => void
 
   // Persistence
@@ -86,6 +89,7 @@ const initialState = {
   transcript: [],
   isLoading: false,
   error: null,
+  notes: '',
   segments: [],
   activeSegmentId: null,
   selectionStart: null,
@@ -110,6 +114,7 @@ export const useAppStore = create<AppState>((set) => ({
   setTranscript: (transcript) => set({ transcript }),
   setLoading: (loading) => set({ isLoading: loading }),
   setError: (error) => set({ error }),
+  setNotes: (notes) => set({ notes }),
 
   addSegment: (segment) => set((state) => ({
     segments: [...state.segments, segment],
@@ -214,8 +219,37 @@ export const useAppStore = create<AppState>((set) => ({
       videoTitle: state.videoTitle,
       transcript: state.transcript,
       segments: state.segments,
+      notes: state.notes,
       lastUpdated: Date.now()
     })
+  },
+
+  loadVideo: async (id: string) => {
+    const { reset, setLoading, setError, setVideoId, setTranscript, setVideoTitle } = useAppStore.getState()
+    reset()
+    setLoading(true)
+    setError(null)
+    setVideoId(id)
+
+    try {
+      const response = await fetch(`/api/transcript?videoId=${id}`)
+      const data = await response.json()
+
+      if (data.transcript && data.transcript.length > 0) {
+        setTranscript(data.transcript)
+      } else {
+        setError('No transcript available for this video. You can still practice without text.')
+      }
+
+      if (data.title) {
+        setVideoTitle(data.title)
+      }
+    } catch (err) {
+      setError('Failed to load video. Please check the URL and try again.')
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
   },
 
   reset: () => set(initialState),
@@ -266,6 +300,7 @@ export const useAppStore = create<AppState>((set) => ({
             videoTitle: session.videoTitle,
             transcript: session.transcript || [],
             segments: session.segments,
+            notes: session.notes || '',
           })
         }
       }
@@ -288,7 +323,8 @@ useAppStore.subscribe((state, prevState) => {
   if (
     state.videoId !== prevState.videoId ||
     state.segments !== prevState.segments ||
-    state.videoTitle !== prevState.videoTitle
+    state.videoTitle !== prevState.videoTitle ||
+    state.notes !== prevState.notes
   ) {
     if (state.videoId) {
       // Local Save
@@ -297,6 +333,7 @@ useAppStore.subscribe((state, prevState) => {
         videoTitle: state.videoTitle,
         transcript: state.transcript,
         segments: state.segments,
+        notes: state.notes,
         lastUpdated: Date.now()
       })
 

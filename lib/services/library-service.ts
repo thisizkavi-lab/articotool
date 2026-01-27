@@ -46,7 +46,8 @@ export const LibraryService = {
                     segments: v.segments || [],
                     recordings: [], // TODO: Fetch recordings
                     addedAt: Number(v.created_at),
-                    lastPracticedAt: null
+                    lastPracticedAt: null,
+                    notes: v.notes || ''
                 }))
         }))
 
@@ -240,6 +241,16 @@ export const LibraryService = {
         const { error } = await supabase
             .from('library_videos')
             .update({ segments: [] })
+            .eq('group_id', groupId)
+            .eq('id', videoId)
+        return !error
+    },
+
+    async updateVideoNotes(groupId: string, videoId: string, notes: string): Promise<boolean> {
+        const supabase = createClient()
+        const { error } = await supabase
+            .from('library_videos')
+            .update({ notes })
             .eq('group_id', groupId)
             .eq('id', videoId)
         return !error

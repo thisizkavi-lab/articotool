@@ -61,6 +61,21 @@ export const SessionService = {
         return { sessionId: data.id, videoId: data.video_id }
     },
 
+    async getAllSessions(): Promise<any[]> {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return []
+
+        const { data, error } = await supabase
+            .from('sessions')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('updated_at', { ascending: false })
+
+        if (error || !data) return []
+        return data
+    },
+
     async getSegments(sessionId: string): Promise<Segment[]> {
         const supabase = createClient()
 
@@ -77,7 +92,8 @@ export const SessionService = {
             start: dbSeg.start_time,
             end: dbSeg.end_time,
             label: dbSeg.text || `Segment`,
-            lines: []
+            lines: [],
+            createdAt: dbSeg.created_at ? new Date(dbSeg.created_at).getTime() : Date.now()
         }))
     },
 

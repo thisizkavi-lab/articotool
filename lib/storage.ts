@@ -8,10 +8,12 @@ const HISTORY_PREFIX = 'history-session-';
 const RECORDINGS_PREFIX = 'recording-';
 
 export interface SavedSession {
+    id?: string;
     videoId: string;
     videoTitle: string;
     transcript: TranscriptLine[]; // Added transcript support
     segments: Segment[];
+    notes?: string;
     lastUpdated: number;
 }
 
@@ -19,6 +21,33 @@ export const StorageService = {
     // Save the current workspace state (video + segments)
     async saveCurrentSession(session: SavedSession): Promise<void> {
         await set(CURRENT_SESSION_KEY, session);
+        // Also update history list whenever we save current
+        await this.addToHistory(session);
+    },
+
+    // Save/Update a session in history
+    async addToHistory(session: SavedSession): Promise<void> {
+        await set(HISTORY_PREFIX + session.videoId, session);
+    },
+
+    // Get all history sessions
+    async getHistory(): Promise<SavedSession[]> {
+        const allKeys = await keys();
+        const historyKeys = allKeys.filter(k =>
+            typeof k === 'string' && k.startsWith(HISTORY_PREFIX)
+        );
+
+        const history: SavedSession[] = [];
+        for (const key of historyKeys) {
+            const data = await get<SavedSession>(key);
+            if (data) history.push(data);
+        }
+
+        return history.sort((a, b) => b.lastUpdated - a.lastUpdated);
+    },
+
+    async deleteHistory(videoId: string): Promise<void> {
+        await del(HISTORY_PREFIX + videoId);
     },
 
     // Load the last active session
@@ -40,10 +69,6 @@ export const StorageService = {
 
     // Save a large recording blob
     async saveRecording(recording: Recording): Promise<void> {
-        // We assume the blobUrl is converted to a Blob before saving here, 
-        // or we handle the blob retrieval. 
-        // Actually, we can't save blobURL. We need the actual Blob.
-        // The store should pass us the Blob, or we fetch it from the URL.
         if (recording.blobUrl) {
             const response = await fetch(recording.blobUrl);
             const blob = await response.blob();
@@ -58,8 +83,6 @@ export const StorageService = {
     },
 
     // Get all recordings for a specific video/session
-    // Since we are doing a simple app, we'll scan keys. 
-    // Optimization: Keep a separate index if needed, but scanning <100 keys is fine.
     async getAllRecordings(): Promise<Recording[]> {
         const allKeys = await keys();
         const recordingKeys = allKeys.filter(k =>

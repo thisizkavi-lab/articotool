@@ -10,6 +10,7 @@ export interface Segment {
   end: number
   label: string
   lines: TranscriptLine[]
+  createdAt: number
 }
 
 export interface Recording {
@@ -26,6 +27,7 @@ export interface VideoSession {
   transcript: TranscriptLine[]
   segments: Segment[]
   recordings: Recording[]
+  notes?: string
 }
 
 export type PlaybackSpeed = 0.5 | 0.75 | 1 | 1.25 | 1.5
@@ -54,6 +56,7 @@ export interface LibraryVideo {
   recordings: Recording[]
   addedAt: number
   lastPracticedAt: number | null
+  notes?: string
 }
 
 export interface LibraryGroup {
@@ -113,6 +116,7 @@ export interface DbLibraryVideo {
   duration: string | null
   transcript: TranscriptLine[] | null
   created_at: number
+  notes: string | null
 }
 
 export interface DbRecording {

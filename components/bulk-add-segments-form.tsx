@@ -13,6 +13,7 @@ interface BulkAddSegmentsFormProps {
 
 export function BulkAddSegmentsForm({ onAdd, isLoading }: BulkAddSegmentsFormProps) {
     const [input, setInput] = useState("")
+    const [replaceTranscript, setReplaceTranscript] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
     // Helper to parse time string "HH:MM:SS", "MM:SS" or "SS" to seconds

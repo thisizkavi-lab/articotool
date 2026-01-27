@@ -24,39 +24,17 @@ function extractVideoId(input: string): string | null {
 
 export function VideoLoader() {
   const [url, setUrl] = useState('')
-  const { setVideoId, setTranscript, setLoading, setError, isLoading, reset } = useAppStore()
+  const { loadVideo, isLoading, setError, reset } = useAppStore()
 
   const handleLoad = async () => {
     const videoId = extractVideoId(url.trim())
-    
+
     if (!videoId) {
       setError('Invalid YouTube URL or video ID')
       return
     }
 
-    reset()
-    setLoading(true)
-    setError(null)
-
-    try {
-      // Set video ID to start loading the player
-      setVideoId(videoId)
-
-      // Fetch transcript
-      const response = await fetch(`/api/transcript?videoId=${videoId}`)
-      const data = await response.json()
-
-      if (data.transcript && data.transcript.length > 0) {
-        setTranscript(data.transcript)
-      } else {
-        setError('No transcript available for this video. You can still practice without text.')
-      }
-    } catch (err) {
-      setError('Failed to load video. Please check the URL and try again.')
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
+    await loadVideo(videoId)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -76,8 +54,8 @@ export function VideoLoader() {
         className="flex-1 bg-secondary/50 border-border/50 focus:border-primary/50"
         disabled={isLoading}
       />
-      <Button 
-        onClick={handleLoad} 
+      <Button
+        onClick={handleLoad}
         disabled={isLoading || !url.trim()}
         className="min-w-[100px]"
       >

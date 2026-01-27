@@ -7,14 +7,10 @@ import { LogOut, User as UserIcon, AlertCircle } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { VideoLoader } from '@/components/video-loader'
-import { YouTubePlayer } from '@/components/youtube-player'
-import { TranscriptViewer } from '@/components/transcript-viewer'
-import { SegmentCreator } from '@/components/segment-creator'
-import { SegmentList } from '@/components/segment-list'
-import { Recorder } from '@/components/recorder'
 import { KeyboardHelp } from '@/components/keyboard-help'
 import { useAppStore } from '@/lib/store'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { UnifiedPracticeView } from '@/components/unified-practice-view'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -99,32 +95,12 @@ function Header() {
 
 function HomeContent() {
   const searchParams = useSearchParams()
-  const { videoId, error, isLoading, initialize, setVideoId, setTranscript, setLoading, setError, reset } = useAppStore()
-
-  // Load video from URL query param
-  const loadVideoFromUrl = useCallback(async (id: string) => {
-    reset()
-    setLoading(true)
-    setError(null)
-
-    try {
-      setVideoId(id)
-
-      const response = await fetch(`/api/transcript?videoId=${id}`)
-      const data = await response.json()
-
-      if (data.transcript && data.transcript.length > 0) {
-        setTranscript(data.transcript)
-      } else {
-        setError('No transcript available for this video. You can still practice without text.')
-      }
-    } catch (err) {
-      setError('Failed to load video. Please check the URL and try again.')
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
-  }, [reset, setLoading, setError, setVideoId, setTranscript])
+  const {
+    videoId, error, isLoading, initialize,
+    segments, recordings, addSegment, removeSegment, setSegments,
+    addRecording, removeRecording, videoTitle, transcript,
+    notes, setNotes, loadVideo, setTranscript
+  } = useAppStore()
 
   // Initialize from local storage on mount
   useEffect(() => {
@@ -135,9 +111,49 @@ function HomeContent() {
   useEffect(() => {
     const urlVideoId = searchParams.get('v')
     if (urlVideoId && !videoId && !isLoading) {
-      loadVideoFromUrl(urlVideoId)
+      loadVideo(urlVideoId)
     }
-  }, [searchParams, videoId, isLoading, loadVideoFromUrl])
+  }, [searchParams, videoId, isLoading, loadVideo])
+
+  // Handlers for UnifiedPracticeView
+  const handleAddSegments = async (newSegments: any[], replaceTranscript?: boolean) => {
+    const formattedSegments = newSegments.map(s => ({
+      id: crypto.randomUUID(),
+      ...s,
+      createdAt: Date.now()
+    }))
+    setSegments([...segments, ...formattedSegments])
+    if (replaceTranscript) {
+      const allLines = newSegments.flatMap(s => s.lines).sort((a, b) => a.start - b.start)
+      setTranscript(allLines)
+    }
+  }
+
+  const handleClearSegments = async () => {
+    if (confirm("Clear all segments?")) {
+      setSegments([])
+    }
+  }
+
+  const handleDeleteSegment = async (id: string) => {
+    removeSegment(id)
+  }
+
+  const handleSaveRecording = async (rec: any) => {
+    addRecording(rec)
+  }
+
+  const handleDeleteRecording = async (id: string) => {
+    removeRecording(id)
+  }
+
+  const handleUpdateNotes = async (notes: string) => {
+    setNotes(notes)
+  }
+
+  const handleUpdateTranscript = async (newTranscript: any[]) => {
+    setTranscript(newTranscript)
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -145,7 +161,7 @@ function HomeContent() {
 
       <main className="flex-1 container mx-auto px-4 py-6">
         {/* Video URL Input */}
-        <div className="max-w-2xl mx-auto mb-6">
+        <div className="max-w-2xl mx-auto mb-10">
           <VideoLoader />
           {error && (
             <Alert variant="destructive" className="mt-3">
@@ -157,38 +173,25 @@ function HomeContent() {
 
         {/* Main Layout */}
         {videoId && (
-          <div className="space-y-6">
-            {/* Top Row: Video (left) + Toggle Panel (right) - Same size */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Left: Video Player */}
-              <div className="bg-card rounded-lg border border-border/50 p-4">
-                <YouTubePlayer />
-              </div>
-
-              {/* Right: Toggle Panel (Transcript / Record) - Same size as video */}
-              <div className="bg-card rounded-lg border border-border/50 overflow-hidden flex flex-col min-h-[400px]">
-                <Recorder />
-              </div>
-            </div>
-
-            {/* Bottom Row: Segment Creator + Segment List */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              {/* Segment Creator */}
-              <div className="bg-card rounded-lg border border-border/50">
-                <SegmentCreator />
-              </div>
-
-              {/* Segments List */}
-              <div className="bg-card rounded-lg border border-border/50 h-[350px]">
-                <SegmentList />
-              </div>
-
-              {/* Full Transcript (for reference) */}
-              <div className="bg-card rounded-lg border border-border/50 h-[350px]">
-                <TranscriptViewer />
-              </div>
-            </div>
-          </div>
+          <UnifiedPracticeView
+            video={{
+              id: videoId,
+              title: videoTitle || "Individual Video",
+              segments: segments.map(s => ({ ...s, createdAt: s.createdAt || Date.now() })) as any[],
+              transcript: transcript,
+              thumbnail: "", channelName: "", duration: 0, addedAt: 0, lastPracticedAt: null, recordings: [],
+              notes: notes
+            }}
+            recordings={recordings}
+            onAddSegments={handleAddSegments}
+            onClearSegments={handleClearSegments}
+            onDeleteSegment={handleDeleteSegment}
+            onSaveRecording={handleSaveRecording}
+            onDeleteRecording={handleDeleteRecording}
+            onUpdateNotes={handleUpdateNotes}
+            onUpdateTranscript={handleUpdateTranscript}
+            isLoading={isLoading}
+          />
         )}
 
         {/* Empty State */}

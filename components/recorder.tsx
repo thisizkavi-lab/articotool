@@ -21,7 +21,7 @@ export function Recorder() {
   } = useAppStore()
 
   // Panel mode: transcript or record
-  const [panelMode, setPanelMode] = useState<'transcript' | 'record'>('record')
+  const [panelMode, setPanelMode] = useState<'transcript' | 'record'>('transcript')
 
   // Recording options
   const [recordAudio, setRecordAudio] = useState(true)
@@ -61,9 +61,10 @@ export function Recorder() {
     let cancelled = false
 
     const setupStream = async () => {
-      // Only start preview when in record mode, not recording, no preview URL, and segment selected
-      if (panelMode === 'record' && !isRecording && !previewUrl && (recordVideo || recordAudio) && activeSegmentId) {
-        stopAllStreams()
+      const shouldBeActive = panelMode === 'record' && !isRecording && !previewUrl && (recordVideo || recordAudio) && activeSegmentId
+
+      if (shouldBeActive) {
+        if (streamRef.current) return // Already active
 
         try {
           const constraints: MediaStreamConstraints = {
@@ -87,7 +88,7 @@ export function Recorder() {
         } catch (err) {
           console.error('Failed to start media stream:', err)
         }
-      } else if (panelMode !== 'record' || !activeSegmentId) {
+      } else {
         stopAllStreams()
       }
     }
@@ -96,9 +97,7 @@ export function Recorder() {
 
     return () => {
       cancelled = true
-      if (panelMode !== 'record') {
-        stopAllStreams()
-      }
+      stopAllStreams()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [panelMode, isRecording, previewUrl, recordVideo, recordAudio, activeSegmentId])

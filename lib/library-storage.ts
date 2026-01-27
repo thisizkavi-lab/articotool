@@ -304,3 +304,14 @@ export async function clearVideoSegments(groupId: string, videoId: string): Prom
         await saveLibrary(library)
     }
 }
+
+export async function updateVideoNotes(groupId: string, videoId: string, notes: string): Promise<void> {
+    const library = await getLibrary()
+    const group = library.groups.find(g => g.id === groupId)
+    const video = group?.videos.find(v => v.id === videoId)
+
+    if (video) {
+        video.notes = notes
+        await saveLibrary(library)
+    }
+}
