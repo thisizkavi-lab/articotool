@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 function Header() {
-  const { user } = useAppStore()
+  const { user, isLoading } = useAppStore()
   const router = useRouter()
   const supabase = createClient()
 
@@ -62,7 +62,11 @@ function Header() {
 
           <div className="h-4 w-[1px] bg-border mx-2" />
 
-          {user ? (
+          {isLoading ? (
+            <Button variant="ghost" size="sm" disabled>
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            </Button>
+          ) : user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full">
