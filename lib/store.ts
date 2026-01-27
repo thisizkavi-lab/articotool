@@ -3,6 +3,9 @@
 import { create } from 'zustand'
 import type { TranscriptLine, Segment, Recording, PlaybackSpeed } from './types'
 import { StorageService } from './storage'
+import { createClient } from '@/utils/supabase/client'
+import { SessionService } from '@/lib/services/session-service'
+import type { User } from '@supabase/supabase-js'
 
 interface AppState {
   // Video state
@@ -31,6 +34,11 @@ interface AppState {
   recordings: Recording[]
   isRecording: boolean
   activeRecordingId: string | null
+
+  // Auth & Cloud State
+  user: User | null
+  cloudSessionId: string | null
+  checkAuth: () => Promise<void>
 
   // Actions
   setVideoId: (id: string | null) => void
@@ -87,6 +95,8 @@ const initialState = {
   recordings: [],
   isRecording: false,
   activeRecordingId: null,
+  user: null,
+  cloudSessionId: null,
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -160,14 +170,26 @@ export const useAppStore = create<AppState>((set) => ({
   setActiveRecording: (id) => set({ activeRecordingId: id }),
   setIsRecording: (recording) => set({ isRecording: recording }),
 
+  checkAuth: async () => {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    set({ user })
+  },
+
   saveToHistory: async () => {
     const state = useAppStore.getState()
     if (!state.videoId) return
 
-    await StorageService.saveToHistory({
+    // Cloud Sync
+    if (state.user && state.cloudSessionId) {
+      await SessionService.syncSession(state.cloudSessionId, state.segments)
+    }
+
+    // Local Sync (Always keep local backup for now?)
+    await StorageService.saveCurrentSession({
       videoId: state.videoId,
       videoTitle: state.videoTitle,
-      transcript: state.transcript, // Save transcript
+      transcript: state.transcript,
       segments: state.segments,
       lastUpdated: Date.now()
     })
@@ -178,22 +200,58 @@ export const useAppStore = create<AppState>((set) => ({
   initialize: async () => {
     try {
       set({ isLoading: true })
-      // Load session metadata
-      const session = await StorageService.loadCurrentSession()
-      if (session) {
-        set({
-          videoId: session.videoId,
-          videoTitle: session.videoTitle,
-          transcript: session.transcript || [],
-          segments: session.segments,
-        })
+
+      // 1. Check Auth
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      set({ user })
+
+      // 2. Load Session (Cloud vs Local)
+      let loadedSession = false
+
+      if (user) {
+        // Cloud Mode
+        const lastSessionParams = await SessionService.getLastSession()
+        if (lastSessionParams) {
+          // We found a previous session. Load it.
+          set({
+            videoId: lastSessionParams.videoId,
+            cloudSessionId: lastSessionParams.sessionId
+          })
+
+          // We need to fetch the segments for this session
+          const segments = await SessionService.getSegments(lastSessionParams.sessionId)
+          set({ segments })
+
+          // Note: We need to fetch video title/transcript separately since DB doesn't store them fully in 'sessions'.
+          // We'll rely on the existing logic to fetch them or `loadVideoFromUrl` logic.
+          // But `initialize` loads state. 
+          // For now, let's assume we load the ID and allow the component to fetch details if needed, 
+          // OR we assume `StorageService` still has the cached metadata.
+
+          // Hybrid: Load metadata from local storage (fast), but segments from Cloud (truth).
+          loadedSession = true
+        }
       }
 
-      // Load recordings
+      if (!loadedSession) {
+        // Local Mode (Fallback or Guest)
+        const session = await StorageService.loadCurrentSession()
+        if (session) {
+          set({
+            videoId: session.videoId,
+            videoTitle: session.videoTitle,
+            transcript: session.transcript || [],
+            segments: session.segments,
+          })
+        }
+      }
+
+      // Load recordings (TODO: Sync Cloud Recordings)
       const recordings = await StorageService.getAllRecordings()
       set({ recordings })
     } catch (error) {
-      console.error('Failed to initialize local storage:', error)
+      console.error('Failed to initialize:', error)
     } finally {
       set({ isLoading: false })
     }
@@ -210,13 +268,28 @@ useAppStore.subscribe((state, prevState) => {
     state.videoTitle !== prevState.videoTitle
   ) {
     if (state.videoId) {
+      // Local Save
       StorageService.saveCurrentSession({
         videoId: state.videoId,
         videoTitle: state.videoTitle,
-        transcript: state.transcript, // Save transcript
+        transcript: state.transcript,
         segments: state.segments,
         lastUpdated: Date.now()
       })
+
+      // Cloud Save
+      if (state.user) {
+        // Ensure we have a cloud session ID
+        if (!state.cloudSessionId) {
+          // Create one if missing
+          SessionService.createSession(state.videoId).then(id => {
+            if (id) useAppStore.setState({ cloudSessionId: id })
+          })
+        } else {
+          // Sync
+          SessionService.syncSession(state.cloudSessionId, state.segments)
+        }
+      }
     }
   }
 })

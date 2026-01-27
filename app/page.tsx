@@ -1,7 +1,9 @@
 "use client"
 
-import { useEffect, useCallback } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useEffect, useCallback, Suspense } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { createClient } from "@/utils/supabase/client"
+import { LogOut, User as UserIcon, AlertCircle } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { VideoLoader } from '@/components/video-loader'
@@ -13,9 +15,83 @@ import { Recorder } from '@/components/recorder'
 import { KeyboardHelp } from '@/components/keyboard-help'
 import { useAppStore } from '@/lib/store'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { AlertCircle } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
-import { Suspense } from 'react'
+function Header() {
+  const { user } = useAppStore()
+  const router = useRouter()
+  const supabase = createClient()
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    window.location.reload()
+  }
+
+  return (
+    <header className="border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <h1 className="text-xl font-semibold tracking-tight">artiCO shadowing tool</h1>
+          <span className="text-xs text-muted-foreground hidden sm:block">
+            Shadow. Record. Compare. Repeat.
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" asChild>
+            <a href="/library" className="text-xs">
+              Library
+            </a>
+          </Button>
+          <Button variant="ghost" size="sm" asChild>
+            <a href="/explore" className="text-xs">
+              Explore
+            </a>
+          </Button>
+          <Button variant="ghost" size="sm" asChild>
+            <a href="/history" className="text-xs">
+              History
+            </a>
+          </Button>
+
+          <div className="h-4 w-[1px] bg-border mx-2" />
+
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <div className="bg-primary/10 w-8 h-8 rounded-full flex items-center justify-center">
+                    <UserIcon className="h-4 w-4 text-primary" />
+                  </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button variant="default" size="sm" onClick={() => router.push('/login')}>
+              Login
+            </Button>
+          )}
+
+          <KeyboardHelp />
+        </div>
+      </div>
+    </header>
+  )
+}
 
 function HomeContent() {
   const searchParams = useSearchParams()
@@ -61,35 +137,7 @@ function HomeContent() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-semibold tracking-tight">artiCO shadowing tool</h1>
-            <span className="text-xs text-muted-foreground hidden sm:block">
-              Shadow. Record. Compare. Repeat.
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" asChild>
-              <a href="/library" className="text-xs">
-                Library
-              </a>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <a href="/explore" className="text-xs">
-                Explore
-              </a>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <a href="/history" className="text-xs">
-                History
-              </a>
-            </Button>
-            <KeyboardHelp />
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="flex-1 container mx-auto px-4 py-6">
         {/* Video URL Input */}

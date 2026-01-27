@@ -70,3 +70,56 @@ export interface Library {
   groups: LibraryGroup[]
   version: number               // For future migrations
 }
+
+// ================================
+// Database Types (Supabase)
+// ================================
+
+export interface DbSession {
+  id: string
+  user_id: string
+  video_id: string
+  created_at: number
+  updated_at: string
+}
+
+export interface DbSegment {
+  id: string
+  session_id: string
+  user_id: string
+  start_time: number
+  end_time: number
+  text: string | null
+  created_at: string
+}
+
+export interface DbLibraryGroup {
+  id: string
+  user_id: string
+  name: string
+  emoji: string | null
+  created_at: number
+  updated_at: number
+}
+
+export interface DbLibraryVideo {
+  row_id: string
+  id: string // video_id
+  group_id: string
+  user_id: string
+  title: string
+  channel_name: string | null
+  thumbnail: string | null
+  duration: string | null
+  transcript: TranscriptLine[] | null
+  created_at: number
+}
+
+export interface DbRecording {
+  id: string
+  user_id: string
+  segment_id: string | null
+  session_id: string | null
+  blob_path: string
+  created_at: number
+}
