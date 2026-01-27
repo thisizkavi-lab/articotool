@@ -5,6 +5,7 @@ import type { TranscriptLine, Segment, Recording, PlaybackSpeed } from './types'
 import { StorageService } from './storage'
 import { createClient } from '@/utils/supabase/client'
 import { SessionService } from '@/lib/services/session-service'
+import { AudioService } from '@/lib/services/audio-service'
 import type { User } from '@supabase/supabase-js'
 
 interface AppState {
@@ -69,6 +70,8 @@ interface AppState {
   removeRecording: (id: string) => void
   setActiveRecording: (id: string | null) => void
   setIsRecording: (recording: boolean) => void
+
+  saveRecordingToCloud: (recording: Recording, blob: Blob) => Promise<void>
 
   reset: () => void
 
@@ -169,6 +172,26 @@ export const useAppStore = create<AppState>((set) => ({
   }),
   setActiveRecording: (id) => set({ activeRecordingId: id }),
   setIsRecording: (recording) => set({ isRecording: recording }),
+
+  saveRecordingToCloud: async (recording, blob) => {
+    const state = useAppStore.getState()
+    if (!state.user || !state.cloudSessionId) return
+
+    // Upload
+    const result = await AudioService.uploadRecording(
+      state.cloudSessionId,
+      null,
+      blob,
+      recording.type
+    )
+
+    if (result) {
+      // Update the local recording with the public URL? 
+      // Or just keep the blob URL for now.
+      // Eventually we want to replace blobUrl with publicUrl next time we load.
+      console.log("Uploaded recording:", result.publicUrl)
+    }
+  },
 
   checkAuth: async () => {
     const supabase = createClient()

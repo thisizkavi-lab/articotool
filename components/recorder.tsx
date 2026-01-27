@@ -17,6 +17,7 @@ export function Recorder() {
     removeRecording,
     transcript,
     currentTime,
+    saveRecordingToCloud,
   } = useAppStore()
 
   // Panel mode: transcript or record
@@ -36,6 +37,7 @@ export function Recorder() {
   const playbackVideoRef = useRef<HTMLVideoElement>(null)
   const playbackAudioRef = useRef<HTMLAudioElement>(null)
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const blobRef = useRef<Blob | null>(null) // To store actual file
 
   const activeSegment = segments.find(s => s.id === activeSegmentId)
   const segmentRecordings = recordings.filter(r => r.segmentId === activeSegmentId)
@@ -158,6 +160,7 @@ export function Recorder() {
         if (chunksRef.current.length > 0) {
           const blob = new Blob(chunksRef.current, { type: mimeType })
           const url = URL.createObjectURL(blob)
+          blobRef.current = blob // Save for upload
           setPreviewUrl(url)
         }
 
@@ -208,7 +211,14 @@ export function Recorder() {
     }
 
     addRecording(recording)
+
+    // Trigger Async Cloud Upload (fire and forget)
+    if (blobRef.current) {
+      saveRecordingToCloud(recording, blobRef.current)
+    }
+
     setPreviewUrl(null)
+    blobRef.current = null
   }
 
   const discardRecording = () => {
