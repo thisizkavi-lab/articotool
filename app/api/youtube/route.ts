@@ -50,8 +50,35 @@ export async function GET(request: Request) {
     const playlistId = searchParams.get('playlistId')
     const query = searchParams.get('q')
 
+    // If no API key is configured, fallback to oEmbed for single videos, 
+    // but fail for search/playlist which require the API.
     if (!YOUTUBE_API_KEY) {
-        return NextResponse.json({ error: 'YouTube API key not configured' }, { status: 500 })
+        // Fallback for single video ID
+        if (videoId) {
+            try {
+                const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`
+                const response = await fetch(oembedUrl)
+                if (!response.ok) throw new Error('Failed to fetch oEmbed data')
+                const data = await response.json()
+
+                return NextResponse.json({
+                    video: {
+                        id: videoId,
+                        title: data.title,
+                        thumbnail: data.thumbnail_url,
+                        duration: 0, // oEmbed doesn't return duration, strict duration requires API key
+                        channelName: data.author_name,
+                        publishedAt: new Date().toISOString() // Unknown
+                    }
+                })
+            } catch (err) {
+                return NextResponse.json({ error: 'YouTube API key missing and oEmbed fallback failed' }, { status: 500 })
+            }
+        }
+
+        return NextResponse.json({
+            error: 'Searching and Playlists require a YOUTUBE_API_KEY to be configured in settings.'
+        }, { status: 500 })
     }
 
     try {
