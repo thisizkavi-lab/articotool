@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ArrowLeft, Plus, ChevronLeft, ChevronRight, RotateCcw, Repeat, Mic, Video, Square, Loader2, Clock, Trash2, Download, Circle, Play, FileText } from 'lucide-react'
-import { getLibrary, addSegmentToVideo, addSegmentsToVideo, deleteSegment, updateVideoLastPracticed, updateVideoTranscript } from '@/lib/library-storage'
+import { getLibrary, addSegmentToVideo, addSegmentsToVideo, deleteSegment, updateVideoLastPracticed, updateVideoTranscript, clearVideoSegments } from '@/lib/library-storage'
 import { LibraryService } from '@/lib/services/library-service'
 import { useAppStore } from '@/lib/store'
 import type { LibraryGroup, LibraryVideo } from '@/lib/types'
@@ -519,6 +519,21 @@ export default function PracticePage({ params }: { params: Promise<{ groupId: st
         }
     }
 
+    const handleClearSegments = async () => {
+        if (!confirm("Are you sure you want to delete ALL segments? This cannot be undone.")) return
+
+        try {
+            if (user) {
+                await LibraryService.clearVideoSegments(groupId, videoId)
+            } else {
+                await clearVideoSegments(groupId, videoId)
+            }
+            await loadData()
+        } catch (e) {
+            console.error("Failed to clear segments:", e)
+        }
+    }
+
     const handleCreateSegment = async () => {
         if (segmentStart === null || segmentEnd === null || !segmentLabel.trim() || !video) return
 
@@ -611,6 +626,35 @@ export default function PracticePage({ params }: { params: Promise<{ groupId: st
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Left: Video Player */}
                         <div className="bg-card rounded-lg border border-border/50 p-4">
+                            <div className="flex items-center justify-between mb-2">
+                                <h3 className="font-medium text-sm text-foreground">Video</h3>
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={handleClearSegments}
+                                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 text-xs px-2"
+                                        disabled={!video.segments.length}
+                                    >
+                                        <Trash2 className="h-3 w-3 mr-1" />
+                                        Clear Segments
+                                    </Button>
+                                    <Dialog open={isBulkAdding} onOpenChange={setIsBulkAdding}>
+                                        <DialogTrigger asChild>
+                                            <Button variant="outline" size="sm" className="h-7 text-xs px-2">
+                                                <FileText className="h-3 w-3 mr-1" />
+                                                Bulk Add
+                                            </Button>
+                                        </DialogTrigger>
+                                        <DialogContent className="max-w-2xl">
+                                            <DialogHeader>
+                                                <DialogTitle>Bulk Add Segments</DialogTitle>
+                                            </DialogHeader>
+                                            <BulkAddSegmentsForm onAdd={handleBulkAdd} isLoading={isBulkAdding} />
+                                        </DialogContent>
+                                    </Dialog>
+                                </div>
+                            </div>
                             <div className="aspect-video bg-black rounded overflow-hidden">
                                 <div id="youtube-player" className="w-full h-full" />
                             </div>

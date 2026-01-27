@@ -233,5 +233,15 @@ export const LibraryService = {
             .eq('id', videoId)
 
         return !updateError
+    },
+
+    async clearVideoSegments(groupId: string, videoId: string): Promise<boolean> {
+        const supabase = createClient()
+        const { error } = await supabase
+            .from('library_videos')
+            .update({ segments: [] })
+            .eq('group_id', groupId)
+            .eq('id', videoId)
+        return !error
     }
 }

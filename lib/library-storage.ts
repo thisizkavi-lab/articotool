@@ -293,3 +293,14 @@ export async function deleteRecording(groupId: string, videoId: string, recordin
         await saveLibrary(library)
     }
 }
+
+export async function clearVideoSegments(groupId: string, videoId: string): Promise<void> {
+    const library = await getLibrary()
+    const group = library.groups.find(g => g.id === groupId)
+    const video = group?.videos.find(v => v.id === videoId)
+
+    if (video) {
+        video.segments = []
+        await saveLibrary(library)
+    }
+}
