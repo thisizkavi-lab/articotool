@@ -12,6 +12,7 @@ import { getLibrary, addSegmentToVideo, deleteSegment, updateVideoLastPracticed 
 import { LibraryService } from '@/lib/services/library-service'
 import { useAppStore } from '@/lib/store'
 import type { LibraryGroup, LibraryVideo } from '@/lib/types'
+import { ScrollToActiveLine } from '@/components/ui/scroll-to-active'
 
 declare global {
     interface Window {
@@ -110,6 +111,8 @@ export default function PracticePage({ params }: { params: Promise<{ groupId: st
     const playerReadyRef = useRef(false)
     const timeUpdateRef = useRef<NodeJS.Timeout | null>(null)
     const progressBarRef = useRef<HTMLDivElement>(null)
+    const transcriptContainerRef = useRef<HTMLDivElement>(null)
+    const activeLineRef = useRef<HTMLDivElement>(null)
 
     const loadData = useCallback(async () => {
         setIsLoading(true)
@@ -658,17 +661,51 @@ export default function PracticePage({ params }: { params: Promise<{ groupId: st
                             <div className="flex-1 p-4 overflow-auto">
                                 {panelMode === 'transcript' ? (
                                     /* Transcript Mode */
-                                    <div className="space-y-4">
-                                        {activeSegment ? (
-                                            <>
-                                                <h3 className="font-medium">{activeSegment.label}</h3>
-                                                <p className="text-2xl leading-relaxed">
-                                                    {activeSegment.lines.map(line => line.text).join(' ')}
-                                                </p>
-                                            </>
+                                    <div className="h-full flex flex-col">
+                                        {video && video.transcript.length > 0 ? (
+                                            <div
+                                                ref={transcriptContainerRef}
+                                                className="flex-1 overflow-y-auto space-y-4 px-2 scroll-smooth"
+                                            >
+                                                {video.transcript.map((line, index) => {
+                                                    const isActive = currentTime >= line.start && currentTime < (line.start + line.duration + 0.5); // Add buffer
+                                                    // Auto-scroll logic
+                                                    if (isActive && transcriptContainerRef.current) {
+                                                        // Simple auto-scroll: ensure the active element is visible
+                                                        // We can use a ref callback or just document.getElementById if we gave IDs.
+                                                        // Better: Find this element in the DOM.
+                                                        // Let's use a subtle approach: render valid ID.
+                                                    }
+
+                                                    return (
+                                                        <div
+                                                            key={index}
+                                                            id={`transcript-line-${index}`}
+                                                            className={`p-3 rounded-lg transition-all duration-300 cursor-pointer ${isActive
+                                                                ? 'bg-primary/10 scale-105 border-l-4 border-primary shadow-sm'
+                                                                : 'hover:bg-secondary/50 text-muted-foreground'
+                                                                }`}
+                                                            onClick={() => playerRef.current?.seekTo(line.start, true)}
+                                                        >
+                                                            <p className={`text-lg leading-relaxed ${isActive ? 'font-medium text-foreground' : ''}`}>
+                                                                {line.text}
+                                                            </p>
+                                                            <span className="text-xs text-muted-foreground opacity-50 block mt-1">
+                                                                {formatTime(line.start)}
+                                                            </span>
+                                                        </div>
+                                                    )
+                                                })}
+                                                {/* Auto-scroll effect */}
+                                                <ScrollToActiveLine containerRef={transcriptContainerRef} currentIndex={video.transcript.findIndex(l => currentTime >= l.start && currentTime < (l.start + l.duration + 0.5))} />
+                                            </div>
                                         ) : (
-                                            <div className="h-full flex items-center justify-center text-muted-foreground">
-                                                <p>Select a segment to see its transcript</p>
+                                            <div className="h-full flex flex-col items-center justify-center text-muted-foreground space-y-4 text-center p-6">
+                                                <FileText className="h-12 w-12 opacity-20" />
+                                                <div>
+                                                    <p className="font-medium">No transcript available</p>
+                                                    <p className="text-sm">Try removing and re-adding this video to fetch the transcript.</p>
+                                                </div>
                                             </div>
                                         )}
                                     </div>
