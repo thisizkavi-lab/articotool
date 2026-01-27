@@ -15,10 +15,15 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Video ID required' }, { status: 400 })
   }
 
+  // Use youtube-transcript library to fetch captions
+  // Try to fetch English specifically, or fallback to default
+  const config = {
+    lang: 'en' // validation: strict 'en' works better for auto-generated
+  }
+
   try {
-    // Use youtube-transcript library to fetch captions
-    // It returns array of { text: string, duration: number, offset: number } (in ms)
-    const rawTranscript = await YoutubeTranscript.fetchTranscript(videoId)
+    // Attempt 1: Strict English
+    const rawTranscript = await YoutubeTranscript.fetchTranscript(videoId, config)
 
     const transcript: TranscriptSegment[] = rawTranscript.map(item => ({
       text: item.text,
@@ -28,12 +33,24 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ transcript })
 
-  } catch (error) {
-    console.error('Transcript fetch error:', error)
+  } catch (e) {
+    console.log(`First attempt failed for ${videoId}, trying default language...`)
 
-    return NextResponse.json({
-      error: 'Failed to fetch transcript. Captions likely disabled or unavailable.',
-      transcript: []
-    }, { status: 200 })
+    try {
+      // Attempt 2: Fallback to default (whatever YouTube serves first)
+      const rawTranscript = await YoutubeTranscript.fetchTranscript(videoId)
+      const transcript: TranscriptSegment[] = rawTranscript.map(item => ({
+        text: item.text,
+        start: item.offset / 1000,
+        duration: item.duration / 1000
+      }))
+      return NextResponse.json({ transcript })
+    } catch (finalError) {
+      console.error('Final transcript fetch error:', finalError)
+      return NextResponse.json({
+        error: 'Failed to fetch transcript. Captions likely disabled or unavailable.',
+        transcript: []
+      }, { status: 200 })
+    }
   }
 }
