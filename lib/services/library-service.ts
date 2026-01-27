@@ -161,6 +161,44 @@ export const LibraryService = {
         return !updateError
     },
 
+    async addSegmentsToVideo(
+        groupId: string,
+        videoId: string,
+        segmentsData: { start: number; end: number; label: string; lines: any[] }[]
+    ): Promise<boolean> {
+        const supabase = createClient()
+
+        // 1. Get current segments
+        const { data: video, error: fetchError } = await supabase
+            .from('library_videos')
+            .select('segments')
+            .eq('group_id', groupId)
+            .eq('id', videoId)
+            .single()
+
+        if (fetchError || !video) return false
+
+        const currentSegments = (video.segments as any[]) || []
+
+        // 2. Add new segments
+        const newSegments = segmentsData.map(s => ({
+            id: crypto.randomUUID(),
+            ...s,
+            createdAt: Date.now()
+        }))
+
+        const updatedSegments = [...currentSegments, ...newSegments]
+
+        // 3. Update DB
+        const { error: updateError } = await supabase
+            .from('library_videos')
+            .update({ segments: updatedSegments })
+            .eq('group_id', groupId)
+            .eq('id', videoId)
+
+        return !updateError
+    },
+
     async deleteSegment(groupId: string, videoId: string, segmentId: string): Promise<boolean> {
         const supabase = createClient()
 

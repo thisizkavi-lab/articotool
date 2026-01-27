@@ -8,11 +8,12 @@ import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ArrowLeft, Plus, ChevronLeft, ChevronRight, RotateCcw, Repeat, Mic, Video, Square, Loader2, Clock, Trash2, Download, Circle, Play, FileText } from 'lucide-react'
-import { getLibrary, addSegmentToVideo, deleteSegment, updateVideoLastPracticed } from '@/lib/library-storage'
+import { getLibrary, addSegmentToVideo, addSegmentsToVideo, deleteSegment, updateVideoLastPracticed } from '@/lib/library-storage'
 import { LibraryService } from '@/lib/services/library-service'
 import { useAppStore } from '@/lib/store'
 import type { LibraryGroup, LibraryVideo } from '@/lib/types'
 import { ScrollToActiveLine } from '@/components/ui/scroll-to-active'
+import { BulkAddSegmentsForm } from '@/components/bulk-add-segments-form'
 
 declare global {
     interface Window {
@@ -77,6 +78,7 @@ export default function PracticePage({ params }: { params: Promise<{ groupId: st
     const [isPlaying, setIsPlaying] = useState(false)
     const [isLooping, setIsLooping] = useState(true)
     const [activeSegmentIndex, setActiveSegmentIndex] = useState<number | null>(null)
+    const [isBulkAdding, setIsBulkAdding] = useState(false)
 
     // Right panel mode: "transcript" or "record"
     const [panelMode, setPanelMode] = useState<'transcript' | 'record'>('record')
@@ -491,6 +493,22 @@ export default function PracticePage({ params }: { params: Promise<{ groupId: st
         }
     }
 
+    const handleBulkAdd = async (segments: { start: number; end: number; label: string; lines: any[] }[]) => {
+        setIsBulkAdding(true)
+        try {
+            if (user) {
+                await LibraryService.addSegmentsToVideo(groupId, videoId, segments)
+            } else {
+                await addSegmentsToVideo(groupId, videoId, segments)
+            }
+            await loadData()
+        } catch (e) {
+            console.error(e)
+        } finally {
+            setIsBulkAdding(false)
+        }
+    }
+
     const handleCreateSegment = async () => {
         if (segmentStart === null || segmentEnd === null || !segmentLabel.trim() || !video) return
 
@@ -712,6 +730,22 @@ export default function PracticePage({ params }: { params: Promise<{ groupId: st
                                 ) : (
                                     /* Record Mode */
                                     <div className="space-y-4">
+                                        {/* Bulk Add UI - Only visible in Record Mode if no active segment selected, or put it elsewhere? 
+                                            Actually, let's put it on top of the list or in a specific place.
+                                            But the user wants to generate segments. 
+                                            Let's put it in the "Segments" header area we saw in previous file reads.
+                                            Wait, line 583 says "Top Row: Video (left) + Toggle Panel (right)".
+                                            There is NO explicit segments list in this file view (lines 1-800).
+                                            Ah, I missed it? Or is it further down? 
+                                            Let me check line 592: "Segment Progress Bar".
+                                            The SEGMENTS LIST seems to be missing from the viewed lines (1-800)?
+                                            Or maybe it's implicitly handled?
+                                            Let's look at the previous `replaced` content attempt. It targeted "Segments Section - Desktop".
+                                            If that section is missing in 1-800, I need to read more lines or put the button elsewhere.
+                                            Actually, I can put the button in the Header (line 565)!
+                                            "Header ... <div className="flex items-center gap-4">"
+                                          */ }
+
                                         {!activeSegment ? (
                                             <div className="h-full flex items-center justify-center text-muted-foreground aspect-video">
                                                 <p>Select a segment to start recording</p>
@@ -872,7 +906,25 @@ export default function PracticePage({ params }: { params: Promise<{ groupId: st
                         <CardHeader className="pb-2 flex flex-row items-center justify-between">
                             <CardTitle className="text-sm font-medium">Segments ({video.segments.length})</CardTitle>
                             <div className="flex items-center gap-2">
-                                <span className="text-xs text-muted-foreground">Current: {formatTime(currentTime)}</span>
+                                <span className="text-xs text-muted-foreground mr-2">Current: {formatTime(currentTime)}</span>
+
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button size="sm" variant="outline">
+                                            Bulk Add
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="sm:max-w-md">
+                                        <DialogHeader>
+                                            <DialogTitle>Bulk Add Segments</DialogTitle>
+                                        </DialogHeader>
+                                        <BulkAddSegmentsForm
+                                            onAdd={handleBulkAdd}
+                                            isLoading={isBulkAdding}
+                                        />
+                                    </DialogContent>
+                                </Dialog>
+
                                 <Dialog open={isCreatingSegment} onOpenChange={setIsCreatingSegment}>
                                     <DialogTrigger asChild>
                                         <Button size="sm" variant="outline">

@@ -197,6 +197,34 @@ export async function addSegmentToVideo(
     return newSegment
 }
 
+export async function addSegmentsToVideo(
+    groupId: string,
+    videoId: string,
+    segmentsData: {
+        start: number
+        end: number
+        label: string
+        lines: TranscriptLine[]
+    }[]
+): Promise<LibrarySegment[] | null> {
+    const library = await getLibrary()
+    const group = library.groups.find(g => g.id === groupId)
+    const video = group?.videos.find(v => v.id === videoId)
+
+    if (!video) return null
+
+    const newSegments: LibrarySegment[] = segmentsData.map(s => ({
+        id: crypto.randomUUID(),
+        ...s,
+        createdAt: Date.now()
+    }))
+
+    video.segments.push(...newSegments)
+    await saveLibrary(library)
+
+    return newSegments
+}
+
 export async function updateSegment(
     groupId: string,
     videoId: string,
