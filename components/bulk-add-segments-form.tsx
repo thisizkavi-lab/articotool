@@ -15,12 +15,14 @@ export function BulkAddSegmentsForm({ onAdd, isLoading }: BulkAddSegmentsFormPro
     const [input, setInput] = useState("")
     const [error, setError] = useState<string | null>(null)
 
-    // Helper to parse time string "MM:SS" or "SS" to seconds
+    // Helper to parse time string "HH:MM:SS", "MM:SS" or "SS" to seconds
     const parseTime = (str: string): number | null => {
         const parts = str.split(':').map(Number)
         if (parts.some(isNaN)) return null
 
-        if (parts.length === 2) {
+        if (parts.length === 3) {
+            return parts[0] * 3600 + parts[1] * 60 + parts[2]
+        } else if (parts.length === 2) {
             return parts[0] * 60 + parts[1]
         } else if (parts.length === 1) {
             return parts[0]
@@ -31,43 +33,64 @@ export function BulkAddSegmentsForm({ onAdd, isLoading }: BulkAddSegmentsFormPro
     const handleSubmit = async () => {
         setError(null)
         const lines = input.trim().split('\n')
-        const segments: { start: number; label: string }[] = []
+        const segments: { start: number; label: string; manualTranscript: string[] }[] = []
+        let currentSegmentIndex = -1
 
         // Pass 1: Parse input
         for (const line of lines) {
-            if (!line.trim()) continue
+            const trimmedLine = line.trim()
+            if (!trimmedLine) continue
 
-            // Expected format: "MM:SS Label"
-            const match = line.match(/^(\d{1,2}:\d{2}|\d+)\s*(.*)/)
+            // Check for Timestamp start: "HH:MM:SS", "MM:SS" or "SS"
+            const match = trimmedLine.match(/^(\d{1,2}:\d{1,2}:\d{2}|\d{1,2}:\d{2}|\d+)\s*(.*)/)
+
+            // If it looks like a timestamp, start a new segment
             if (match) {
                 const timeStr = match[1]
                 const label = match[2] || `Segment ${segments.length + 1}`
                 const start = parseTime(timeStr)
 
                 if (start !== null) {
-                    segments.push({ start, label })
+                    segments.push({ start, label, manualTranscript: [] })
+                    currentSegmentIndex = segments.length - 1
+                } else {
+                    // Failed parse, treat as text for previous segment
+                    if (currentSegmentIndex >= 0) {
+                        segments[currentSegmentIndex].manualTranscript.push(trimmedLine)
+                    }
+                }
+            } else {
+                // Not a timestamp, append to current segment's transcript
+                if (currentSegmentIndex >= 0) {
+                    segments[currentSegmentIndex].manualTranscript.push(trimmedLine)
                 }
             }
         }
 
         if (segments.length === 0) {
-            setError("No valid timestamps found. Use format: MM:SS Label")
+            setError("No valid timestamps found. Start lines with MM:SS or HH:MM:SS")
             return
         }
 
-        // Pass 2: Calculate end times (based on next segment)
-        // Note: For the last segment, we don't know the end time without video duration. 
-        // We will default it to start + 10s or similar, user can adjust.
+        // Pass 2: Calculate end times and format transcript
         const finalizedSegments = segments.map((seg, index) => {
             let end = seg.start + 10 // Default 10s duration
             if (index < segments.length - 1) {
                 end = segments[index + 1].start
             }
+
+            // Create a single TranscriptLine for the whole manual text block
+            const lines = seg.manualTranscript.length > 0 ? [{
+                text: seg.manualTranscript.join(' '),
+                start: seg.start,
+                duration: end - seg.start // rough estimate
+            }] : []
+
             return {
                 start: seg.start,
                 end,
                 label: seg.label,
-                lines: [] // Empty transcript initially
+                lines
             }
         })
 
@@ -78,15 +101,16 @@ export function BulkAddSegmentsForm({ onAdd, isLoading }: BulkAddSegmentsFormPro
     return (
         <div className="space-y-4">
             <div>
-                <Label>Paste Timestamps</Label>
-                <div className="text-xs text-muted-foreground mb-2">
-                    Format: <code>MM:SS Optional Label</code> (one per line)
+                <Label>Paste Timestamps & Text</Label>
+                <div className="text-xs text-muted-foreground mb-2 space-y-1">
+                    <p>Format: <code>MM:SS Label</code> or <code>HH:MM:SS Label</code></p>
+                    <p>Lines following a timestamp are added as transcript text.</p>
                 </div>
                 <Textarea
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="0:00 Intro&#10;0:30 Verse 1&#10;1:15 Chorus"
-                    className="h-40 font-mono text-sm"
+                    placeholder="0:00 Intro&#10;Hello everyone&#10;&#10;1:05:30 Long Segment&#10;Starting the deep dive..."
+                    className="h-60 font-mono text-sm"
                 />
             </div>
 
@@ -94,7 +118,7 @@ export function BulkAddSegmentsForm({ onAdd, isLoading }: BulkAddSegmentsFormPro
 
             <Button onClick={handleSubmit} disabled={!input.trim() || isLoading} className="w-full">
                 {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                Create {input.trim().split('\n').filter(l => l.trim()).length > 0 ? input.trim().split('\n').filter(l => l.trim()).length : ''} Segments
+                Create {input.trim().split('\n').filter(l => l.match(/^(\d{1,2}:\d{1,2}:\d{2}|\d{1,2}:\d{2}|\d+)/)).length} Segments
             </Button>
         </div>
     )
