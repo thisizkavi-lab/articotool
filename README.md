@@ -1,4 +1,4 @@
-# ArtiCO Shadowing Tool 🎙️
+# artiCO Shadowing Tool 🎙️
 
 **Shadow. Record. Compare. Repeat.**
 
@@ -29,7 +29,7 @@ ArtiCO is a web-based language learning tool designed to help you improve your s
 
 ### 1. Clone & Install
 ```bash
-git clone https://github.com/your-username/artico-shadowing-tool.git
+git clone https://github.com/thisizkavi-lab/articotool.git
 cd artico-shadowing-tool
 npm install
 ```
