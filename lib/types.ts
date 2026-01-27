@@ -23,6 +23,7 @@ export interface Recording {
 
 export interface VideoSession {
   videoId: string
+  platform: 'youtube' | 'instagram'
   title: string
   transcript: TranscriptLine[]
   segments: Segment[]
@@ -47,6 +48,7 @@ export interface LibrarySegment {
 
 export interface LibraryVideo {
   id: string                    // YouTube video ID
+  platform: 'youtube' | 'instagram'
   title: string
   thumbnail: string
   duration: number              // in seconds

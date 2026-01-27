@@ -99,7 +99,7 @@ function HomeContent() {
     videoId, error, isLoading, initialize,
     segments, recordings, addSegment, removeSegment, setSegments,
     addRecording, removeRecording, videoTitle, transcript,
-    notes, setNotes, loadVideo, setTranscript
+    notes, setNotes, loadVideo, setTranscript, platform
   } = useAppStore()
 
   // Initialize from local storage on mount
@@ -180,7 +180,8 @@ function HomeContent() {
               segments: segments.map(s => ({ ...s, createdAt: s.createdAt || Date.now() })) as any[],
               transcript: transcript,
               thumbnail: "", channelName: "", duration: 0, addedAt: 0, lastPracticedAt: null, recordings: [],
-              notes: notes
+              notes: notes,
+              platform: platform || 'youtube'
             }}
             recordings={recordings}
             onAddSegments={handleAddSegments}

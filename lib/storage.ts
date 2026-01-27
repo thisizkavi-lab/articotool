@@ -14,6 +14,7 @@ export interface SavedSession {
     transcript: TranscriptLine[]; // Added transcript support
     segments: Segment[];
     notes?: string;
+    platform?: 'youtube' | 'instagram';
     lastUpdated: number;
 }
 

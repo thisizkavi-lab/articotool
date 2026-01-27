@@ -85,6 +85,7 @@ export function UnifiedPracticeView({
     const timeUpdateRef = useRef<NodeJS.Timeout | null>(null)
     const progressBarRef = useRef<HTMLDivElement>(null)
     const transcriptContainerRef = useRef<HTMLDivElement>(null)
+    const youtubeContainerRef = useRef<HTMLDivElement>(null)
 
     const stopAllStreams = useCallback(() => {
         if (streamRef.current) {
@@ -138,10 +139,15 @@ export function UnifiedPracticeView({
 
     // YouTube integration
     useEffect(() => {
-        if (!video) return
+        if (!video || video.platform !== 'youtube') return
         const initPlayer = () => {
             if (playerRef.current) playerRef.current.destroy()
-            playerRef.current = new window.YT.Player('youtube-player', {
+            if (!youtubeContainerRef.current) return // Guard against missing ref
+
+            // Check if the container has already been replaced by iframe (if API loaded fast)
+            // Actually, we should point to a div inside the container.
+
+            playerRef.current = new window.YT.Player(youtubeContainerRef.current, {
                 videoId: video.id,
                 playerVars: { autoplay: 0, controls: 1, modestbranding: 1, rel: 0 },
                 events: {
@@ -166,7 +172,7 @@ export function UnifiedPracticeView({
             }
             playerReadyRef.current = false
         }
-    }, [video.id])
+    }, [video.id, video.platform])
 
     // Time update loop
     useEffect(() => {
@@ -185,16 +191,19 @@ export function UnifiedPracticeView({
             }
         }, 100)
         return () => { if (timeUpdateRef.current) clearInterval(timeUpdateRef.current) }
-    }, [isLooping, activeSegmentIndex, video.segments])
+    }, [isLooping, activeSegmentIndex, video.segments, video.platform]) // Added platform dependency
 
     const playSegment = (index: number) => {
-        if (!playerRef.current || !playerReadyRef.current) return
         const segment = video.segments[index]
         if (!segment) return
         setActiveSegmentIndex(index)
-        setIsLooping(true)
-        playerRef.current.seekTo(segment.start, true)
-        playerRef.current.playVideo()
+
+        // Only control player if it's YouTube
+        if (video.platform === 'youtube' && playerRef.current && playerReadyRef.current) {
+            setIsLooping(true)
+            playerRef.current.seekTo(segment.start, true)
+            playerRef.current.playVideo()
+        }
     }
 
     const stopRecording = useCallback(() => {
@@ -244,7 +253,7 @@ export function UnifiedPracticeView({
             setIsRecording(true)
             setRecordingTime(0)
             const activeSegment = video.segments[activeSegmentIndex]
-            if (playerRef.current && activeSegment) {
+            if (activeSegment && video.platform === 'youtube' && playerRef.current) {
                 playerRef.current.seekTo(activeSegment.start, true)
                 playerRef.current.playVideo()
             }
@@ -298,8 +307,21 @@ export function UnifiedPracticeView({
                             </Dialog>
                         </div>
                     </div>
-                    <div className="aspect-video bg-black rounded overflow-hidden">
-                        <div id="youtube-player" className="w-full h-full" />
+                    <div className={`bg-black rounded overflow-hidden ${video.platform === 'youtube' ? 'aspect-video' : 'aspect-[9/16] max-w-[350px] mx-auto'}`}>
+                        {video.platform === 'youtube' ? (
+                            <div className="w-full h-full">
+                                <div ref={youtubeContainerRef} className="w-full h-full" />
+                            </div>
+                        ) : (
+                            <iframe
+                                className="w-full h-full"
+                                src={`https://www.instagram.com/p/${video.id}/embed/`}
+                                frameBorder="0"
+                                scrolling="no"
+                                // @ts-ignore
+                                allowtransparency="true"
+                            />
+                        )}
                     </div>
                     {activeSegment && (
                         <div className="mt-3">
@@ -308,8 +330,9 @@ export function UnifiedPracticeView({
                                 <span className="font-medium text-foreground">{activeSegment.label}</span>
                                 <span>{formatTime(activeSegment.end)}</span>
                             </div>
-                            <div ref={progressBarRef} className="h-3 bg-secondary rounded-full overflow-hidden cursor-pointer hover:h-4 transition-all"
+                            <div ref={progressBarRef} className={`h-3 bg-secondary rounded-full overflow-hidden ${video.platform === 'youtube' ? 'cursor-pointer hover:h-4 transition-all' : 'opacity-50 cursor-not-allowed'}`}
                                 onClick={(e) => {
+                                    if (video.platform !== 'youtube') return
                                     if (!activeSegment || !progressBarRef.current || !playerRef.current) return
                                     const rect = progressBarRef.current.getBoundingClientRect()
                                     const percent = (e.clientX - rect.left) / rect.width
@@ -322,17 +345,23 @@ export function UnifiedPracticeView({
                     <div className="flex items-center justify-center gap-4 mt-4">
                         {activeSegment ? (
                             <>
-                                <Button variant="outline" size="sm" onClick={() => setActiveSegmentIndex(null)}>Full Video</Button>
-                                <Button variant="outline" size="icon" onClick={() => {
-                                    if (activeSegmentIndex !== null && activeSegmentIndex > 0) playSegment(activeSegmentIndex - 1)
-                                }} disabled={activeSegmentIndex === 0}><ChevronLeft className="h-4 w-4" /></Button>
-                                <Button variant="outline" size="icon" onClick={() => {
-                                    if (activeSegmentIndex !== null) playSegment(activeSegmentIndex)
-                                }}><RotateCcw className="h-4 w-4" /></Button>
-                                <Button variant={isLooping ? "default" : "outline"} size="icon" onClick={() => setIsLooping(!isLooping)}><Repeat className="h-4 w-4" /></Button>
-                                <Button variant="outline" size="icon" onClick={() => {
-                                    if (activeSegmentIndex !== null && activeSegmentIndex < video.segments.length - 1) playSegment(activeSegmentIndex + 1)
-                                }} disabled={activeSegmentIndex === video.segments.length - 1}><ChevronRight className="h-4 w-4" /></Button>
+                                <Button variant="outline" size="sm" onClick={() => setActiveSegmentIndex(null)}>
+                                    {video.platform === 'youtube' ? 'Full Video' : 'Deselect Segment'}
+                                </Button>
+                                {video.platform === 'youtube' && (
+                                    <>
+                                        <Button variant="outline" size="icon" onClick={() => {
+                                            if (activeSegmentIndex !== null && activeSegmentIndex > 0) playSegment(activeSegmentIndex - 1)
+                                        }} disabled={activeSegmentIndex === 0}><ChevronLeft className="h-4 w-4" /></Button>
+                                        <Button variant="outline" size="icon" onClick={() => {
+                                            if (activeSegmentIndex !== null) playSegment(activeSegmentIndex)
+                                        }}><RotateCcw className="h-4 w-4" /></Button>
+                                        <Button variant={isLooping ? "default" : "outline"} size="icon" onClick={() => setIsLooping(!isLooping)}><Repeat className="h-4 w-4" /></Button>
+                                        <Button variant="outline" size="icon" onClick={() => {
+                                            if (activeSegmentIndex !== null && activeSegmentIndex < video.segments.length - 1) playSegment(activeSegmentIndex + 1)
+                                        }} disabled={activeSegmentIndex === video.segments.length - 1}><ChevronRight className="h-4 w-4" /></Button>
+                                    </>
+                                )}
                             </>
                         ) : <p className="text-sm text-muted-foreground">Select a segment below to practice</p>}
                     </div>
