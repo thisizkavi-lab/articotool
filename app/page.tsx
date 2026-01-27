@@ -15,7 +15,9 @@ import { useAppStore } from '@/lib/store'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AlertCircle } from 'lucide-react'
 
-export default function Home() {
+import { Suspense } from 'react'
+
+function HomeContent() {
   const searchParams = useSearchParams()
   const { videoId, error, isLoading, initialize, setVideoId, setTranscript, setLoading, setError, reset } = useAppStore()
 
@@ -160,5 +162,13 @@ export default function Home() {
         <p>All recordings stay in your browser. Nothing is uploaded.</p>
       </footer>
     </div>
+  )
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <HomeContent />
+    </Suspense>
   )
 }
