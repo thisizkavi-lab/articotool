@@ -123,6 +123,16 @@ export const LibraryService = {
         return !error
     },
 
+    async updateVideoTranscript(groupId: string, videoId: string, transcript: any[]): Promise<boolean> {
+        const supabase = createClient()
+        const { error } = await supabase
+            .from('library_videos')
+            .update({ transcript })
+            .eq('group_id', groupId)
+            .eq('id', videoId)
+        return !error
+    },
+
     async addSegmentToVideo(
         groupId: string,
         videoId: string,

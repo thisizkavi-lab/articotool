@@ -165,6 +165,17 @@ export async function updateVideoLastPracticed(groupId: string, videoId: string)
     }
 }
 
+export async function updateVideoTranscript(groupId: string, videoId: string, transcript: TranscriptLine[]): Promise<void> {
+    const library = await getLibrary()
+    const group = library.groups.find(g => g.id === groupId)
+    const video = group?.videos.find(v => v.id === videoId)
+
+    if (video) {
+        video.transcript = transcript
+        await saveLibrary(library)
+    }
+}
+
 // ================================
 // Segment Operations
 // ================================

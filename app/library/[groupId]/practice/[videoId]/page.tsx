@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ArrowLeft, Plus, ChevronLeft, ChevronRight, RotateCcw, Repeat, Mic, Video, Square, Loader2, Clock, Trash2, Download, Circle, Play, FileText } from 'lucide-react'
-import { getLibrary, addSegmentToVideo, addSegmentsToVideo, deleteSegment, updateVideoLastPracticed } from '@/lib/library-storage'
+import { getLibrary, addSegmentToVideo, addSegmentsToVideo, deleteSegment, updateVideoLastPracticed, updateVideoTranscript } from '@/lib/library-storage'
 import { LibraryService } from '@/lib/services/library-service'
 import { useAppStore } from '@/lib/store'
 import type { LibraryGroup, LibraryVideo } from '@/lib/types'
@@ -493,9 +493,19 @@ export default function PracticePage({ params }: { params: Promise<{ groupId: st
         }
     }
 
-    const handleBulkAdd = async (segments: { start: number; end: number; label: string; lines: any[] }[]) => {
+    const handleBulkAdd = async (segments: { start: number; end: number; label: string; lines: any[] }[], replaceTranscript?: boolean) => {
         setIsBulkAdding(true)
         try {
+            // Aggregate all lines if replacing transcript
+            if (replaceTranscript) {
+                const allLines = segments.flatMap(s => s.lines).sort((a, b) => a.start - b.start)
+                if (user) {
+                    await LibraryService.updateVideoTranscript(groupId, videoId, allLines)
+                } else {
+                    await updateVideoTranscript(groupId, videoId, allLines)
+                }
+            }
+
             if (user) {
                 await LibraryService.addSegmentsToVideo(groupId, videoId, segments)
             } else {
