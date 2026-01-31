@@ -24,6 +24,7 @@ interface YTPlayer {
     getCurrentTime: () => number
     getPlayerState: () => number
     destroy: () => void
+    cueVideoById: (videoId: string) => void
 }
 
 interface UnifiedPracticeViewProps {
@@ -137,37 +138,141 @@ export function UnifiedPracticeView({
         }
     }, [panelMode, isRecording, previewUrl, recordVideo, recordAudio, activeSegmentIndex, stopAllStreams])
 
-    // YouTube integration
-    useEffect(() => {
-        if (!video) return
-        const initPlayer = () => {
-            if (playerRef.current) playerRef.current.destroy()
-            if (!youtubeContainerRef.current) return // Guard against missing ref
+    // YouTube integration - use stable container and cueVideoById instead of recreating
+    const currentVideoIdRef = useRef<string | null>(null)
 
-            playerRef.current = new window.YT.Player(youtubeContainerRef.current, {
-                videoId: video.id,
-                playerVars: { autoplay: 0, controls: 1, modestbranding: 1, rel: 0 },
-                events: {
-                    onReady: () => { playerReadyRef.current = true },
-                    onStateChange: (event: any) => { setIsPlaying(event.data === window.YT.PlayerState.PLAYING) },
-                },
-            })
+    useEffect(() => {
+        if (!video || !video.id) {
+            console.log('[YT Debug] No video or video.id, skipping initialization')
+            return
         }
-        if (window.YT && window.YT.Player) {
-            initPlayer()
-        } else {
-            const tag = document.createElement('script')
-            tag.src = 'https://www.youtube.com/iframe_api'
-            const firstScriptTag = document.getElementsByTagName('script')[0]
-            firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag)
-            window.onYouTubeIframeAPIReady = initPlayer
-        }
-        return () => {
+
+        const containerId = 'youtube-player-container'
+        console.log('[YT Debug] Starting player initialization for:', video.id)
+        console.log('[YT Debug] Current videoId in ref:', currentVideoIdRef.current)
+        console.log('[YT Debug] window.YT exists:', !!window.YT)
+        console.log('[YT Debug] playerRef.current exists:', !!playerRef.current)
+
+        const initPlayer = () => {
+            console.log('[YT Debug] initPlayer called')
+            const container = document.getElementById(containerId)
+            console.log('[YT Debug] container element found:', !!container)
+
+            if (!container) {
+                console.log('[YT Debug] Container not found in DOM, cannot initialize player')
+                return false
+            }
+
+            // Check if container has an iframe (player is attached to DOM)
+            const existingIframe = container.querySelector('iframe')
+            console.log('[YT Debug] Container has iframe:', !!existingIframe)
+
+            // If player exists but iframe is missing, the player was detached by React - destroy it
+            if (playerRef.current && !existingIframe) {
+                console.log('[YT Debug] Player exists but iframe missing - player detached, destroying stale reference')
+                try {
+                    playerRef.current.destroy()
+                } catch (e) {
+                    console.log('[YT Debug] Error destroying detached player:', e)
+                }
+                playerRef.current = null
+                playerReadyRef.current = false
+            }
+
+            // If player already exists AND iframe exists, just load the new video
+            if (playerRef.current && playerReadyRef.current && existingIframe) {
+                if (currentVideoIdRef.current !== video.id) {
+                    console.log('[YT Debug] Player exists and attached, loading new video via cueVideoById')
+                    try {
+                        playerRef.current.cueVideoById(video.id)
+                        currentVideoIdRef.current = video.id
+                    } catch (e) {
+                        console.log('[YT Debug] Error loading video:', e)
+                    }
+                } else {
+                    console.log('[YT Debug] Same video already loaded, skipping')
+                }
+                return true
+            }
+
+            // Destroy existing player if it exists but isn't ready
             if (playerRef.current) {
-                playerRef.current.destroy()
+                console.log('[YT Debug] Destroying existing unready player')
+                try {
+                    playerRef.current.destroy()
+                } catch (e) {
+                    console.log('[YT Debug] Error destroying player:', e)
+                }
                 playerRef.current = null
             }
-            playerReadyRef.current = false
+
+            console.log('[YT Debug] Creating new YT.Player')
+            // @ts-ignore - YouTube API accepts string ID
+            playerRef.current = new window.YT.Player(containerId, {
+                videoId: video.id,
+                width: '100%',
+                height: '100%',
+                playerVars: { autoplay: 0, controls: 1, modestbranding: 1, rel: 0 },
+                events: {
+                    onReady: () => {
+                        console.log('[YT Debug] Player ready!')
+                        playerReadyRef.current = true
+                        currentVideoIdRef.current = video.id
+                    },
+                    onStateChange: (event: any) => { setIsPlaying(event.data === window.YT.PlayerState.PLAYING) },
+                    // @ts-ignore - onError is a valid YouTube API event
+                    onError: (event: any) => { console.error('[YT Debug] Player error:', event.data) },
+                },
+            })
+            return true
+        }
+
+        // Retry mechanism - wait for container to be available
+        let retryCount = 0
+        const maxRetries = 20
+        const retryInterval = 100 // ms
+
+        const tryInitPlayer = () => {
+            if (window.YT && window.YT.Player) {
+                console.log('[YT Debug] YT API ready, attempt', retryCount + 1)
+                if (initPlayer()) {
+                    return // Success
+                }
+            }
+
+            retryCount++
+            if (retryCount < maxRetries) {
+                console.log('[YT Debug] Retrying in', retryInterval, 'ms (attempt', retryCount, 'of', maxRetries, ')')
+                timeoutId = setTimeout(tryInitPlayer, retryInterval)
+            } else {
+                console.error('[YT Debug] Failed to initialize player after', maxRetries, 'attempts')
+            }
+        }
+
+        let timeoutId: NodeJS.Timeout
+
+        // Check if YT API is loaded, if not load it
+        if (!window.YT) {
+            console.log('[YT Debug] Loading YT API script')
+            const existingScript = document.querySelector('script[src="https://www.youtube.com/iframe_api"]')
+            if (!existingScript) {
+                const tag = document.createElement('script')
+                tag.src = 'https://www.youtube.com/iframe_api'
+                const firstScriptTag = document.getElementsByTagName('script')[0]
+                firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag)
+            }
+            window.onYouTubeIframeAPIReady = () => {
+                console.log('[YT Debug] onYouTubeIframeAPIReady called')
+                tryInitPlayer()
+            }
+        } else {
+            // Small initial delay then start retrying
+            timeoutId = setTimeout(tryInitPlayer, 50)
+        }
+
+        return () => {
+            clearTimeout(timeoutId)
+            // Don't destroy the player on cleanup - keep it stable
         }
     }, [video.id])
 
@@ -305,9 +410,7 @@ export function UnifiedPracticeView({
                         </div>
                     </div>
                     <div className="bg-black rounded overflow-hidden aspect-video">
-                        <div className="w-full h-full">
-                            <div ref={youtubeContainerRef} className="w-full h-full" />
-                        </div>
+                        <div id="youtube-player-container" className="w-full h-full" />
                     </div>
                     {activeSegment && (
                         <div className="mt-3">

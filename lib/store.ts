@@ -225,10 +225,13 @@ export const useAppStore = create<AppState>((set) => ({
   },
 
   loadVideo: async (id: string) => {
-    const { reset, setLoading, setError, setVideoId, setTranscript, setVideoTitle } = useAppStore.getState()
-    reset()
-    setLoading(true)
+    const { setLoading, setError, setVideoId, setTranscript, setVideoTitle, setSegments } = useAppStore.getState()
+
+    // Clear relevant state without full reset (preserves player stability)
     setError(null)
+    setTranscript([])
+    setSegments([])
+    setLoading(true)
     setVideoId(id)
 
     try {
