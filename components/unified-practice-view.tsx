@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Plus, ChevronLeft, ChevronRight, RotateCcw, Repeat, Mic, Video, Square, Loader2, Clock, Trash2, Download, Circle, Play, FileText, StickyNote, Edit, Check } from 'lucide-react'
+import { Input } from '@/components/ui/input'
 import { BulkAddSegmentsForm } from '@/components/bulk-add-segments-form'
 import { ScrollToActiveLine } from '@/components/ui/scroll-to-active'
 import { Textarea } from '@/components/ui/textarea'
@@ -15,6 +16,23 @@ function formatTime(seconds: number): string {
     const mins = Math.floor(seconds / 60)
     const secs = Math.floor(seconds % 60)
     return `${mins}:${secs.toString().padStart(2, '0')}`
+}
+
+function parseTimeInput(input: string): number | null {
+    if (!input) return null
+    // Support "mm:ss" or just "s"
+    if (input.includes(':')) {
+        const parts = input.split(':')
+        if (parts.length === 2) {
+            const m = parseInt(parts[0])
+            const s = parseInt(parts[1])
+            if (!isNaN(m) && !isNaN(s)) return m * 60 + s
+        }
+    } else {
+        const s = parseInt(input)
+        if (!isNaN(s)) return s
+    }
+    return null
 }
 
 interface YTPlayer {
@@ -57,6 +75,8 @@ export function UnifiedPracticeView({
     const [isLooping, setIsLooping] = useState(true)
     const [activeSegmentIndex, setActiveSegmentIndex] = useState<number | null>(null)
     const [isBulkAdding, setIsBulkAdding] = useState(false)
+    const [isManualAdding, setIsManualAdding] = useState(false)
+    const [manualSegment, setManualSegment] = useState({ start: '', end: '', label: '' })
     const [isBulkLoading, setIsBulkLoading] = useState(false)
     const [panelMode, setPanelMode] = useState<'transcript' | 'record' | 'notes'>('transcript')
     const [isEditingNotes, setIsEditingNotes] = useState(false)
@@ -385,6 +405,63 @@ export function UnifiedPracticeView({
                             <Button variant="ghost" size="sm" onClick={onClearSegments} className="text-destructive h-7 text-xs px-2" disabled={!video.segments.length}>
                                 <Trash2 className="h-3 w-3 mr-1" /> Clear Segments
                             </Button>
+
+                            <Dialog open={isManualAdding} onOpenChange={setIsManualAdding}>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline" size="sm" className="h-7 text-xs px-2">
+                                        <Plus className="h-3 w-3 mr-1" /> Add Segment
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader><DialogTitle>Add Segment</DialogTitle></DialogHeader>
+                                    <div className="space-y-4 py-2">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">Start Time</label>
+                                                <Input
+                                                    placeholder="mm:ss (e.g. 1:30)"
+                                                    value={manualSegment.start}
+                                                    onChange={(e) => setManualSegment(prev => ({ ...prev, start: e.target.value }))}
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium">End Time</label>
+                                                <Input
+                                                    placeholder="mm:ss (e.g. 1:45)"
+                                                    value={manualSegment.end}
+                                                    onChange={(e) => setManualSegment(prev => ({ ...prev, end: e.target.value }))}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium">Label (Optional)</label>
+                                            <Input
+                                                placeholder="Segment Name"
+                                                value={manualSegment.label}
+                                                onChange={(e) => setManualSegment(prev => ({ ...prev, label: e.target.value }))}
+                                            />
+                                        </div>
+                                        <Button onClick={async () => {
+                                            const start = parseTimeInput(manualSegment.start)
+                                            const end = parseTimeInput(manualSegment.end)
+                                            if (start !== null && end !== null && end > start) {
+                                                await onAddSegments([{
+                                                    start,
+                                                    end,
+                                                    label: manualSegment.label || `Segment ${video.segments.length + 1}`,
+                                                    lines: []
+                                                }])
+                                                setManualSegment({ start: '', end: '', label: '' })
+                                                setIsManualAdding(false)
+                                            } else {
+                                                alert("Invalid times. Ensure End Time is after Start Time and format is mm:ss")
+                                            }
+                                        }} disabled={!manualSegment.start || !manualSegment.end}>
+                                            Add Segment
+                                        </Button>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
                             <Dialog open={isBulkAdding} onOpenChange={setIsBulkAdding}>
                                 <DialogTrigger asChild>
                                     <Button variant="outline" size="sm" className="h-7 text-xs px-2">
@@ -697,10 +774,10 @@ export function UnifiedPracticeView({
                         )}
                     </div>
                 </Card>
-            </div>
+            </div >
 
             {/* Segments Grid */}
-            <div className="space-y-4">
+            < div className="space-y-4" >
                 <div className="flex items-center justify-between">
                     <h3 className="font-semibold">Segments ({video.segments.length})</h3>
                 </div>
@@ -717,10 +794,10 @@ export function UnifiedPracticeView({
                         </Card>
                     ))}
                 </div>
-            </div>
+            </div >
 
             <video ref={playbackVideoRef} className="hidden" />
             <audio ref={playbackAudioRef} className="hidden" />
-        </div>
+        </div >
     )
 }

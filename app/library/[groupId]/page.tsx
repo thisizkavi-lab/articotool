@@ -94,9 +94,10 @@ export default function GroupPage({ params }: { params: Promise<{ groupId: strin
 
                 // Add each video
                 for (const video of data.videos || []) {
-                    // Fetch transcript for each video
-                    const transcriptRes = await fetch(`/api/transcript?videoId=${video.id}`)
-                    const transcriptData = await transcriptRes.json()
+                    // Skip transcript fetch for now
+                    // const transcriptRes = await fetch(`/api/transcript?videoId=${video.id}`)
+                    // const transcriptData = await transcriptRes.json()
+                    const transcriptData = { transcript: [] }
 
                     if (user) {
                         const newVideo: LibraryVideo = {
@@ -107,7 +108,7 @@ export default function GroupPage({ params }: { params: Promise<{ groupId: strin
                             // The API /api/youtube returns duration as number (seconds)
                             // LibraryVideo definition: duration: number
                             channelName: video.channelName,
-                            transcript: transcriptData.transcript || [],
+                            transcript: [], // transcriptData.transcript || [],
                             segments: [],
                             recordings: [],
                             addedAt: Date.now(),
@@ -132,9 +133,10 @@ export default function GroupPage({ params }: { params: Promise<{ groupId: strin
 
                 if (data.error) throw new Error(data.error)
 
-                // Fetch transcript
-                const transcriptRes = await fetch(`/api/transcript?videoId=${extracted.id}`)
-                const transcriptData = await transcriptRes.json()
+                // Skip transcript fetch for now to ensure video adds instantly
+                // const transcriptRes = await fetch(`/api/transcript?videoId=${extracted.id}`)
+                // const transcriptData = await transcriptRes.json()
+                const transcriptData = { transcript: [] }
 
                 if (user) {
                     const newVideo: LibraryVideo = {
@@ -143,7 +145,7 @@ export default function GroupPage({ params }: { params: Promise<{ groupId: strin
                         thumbnail: data.video.thumbnail,
                         duration: data.video.duration,
                         channelName: data.video.channelName,
-                        transcript: transcriptData.transcript || [],
+                        transcript: [], // transcriptData.transcript || [],
                         segments: [],
                         recordings: [],
                         addedAt: Date.now(),
@@ -157,7 +159,7 @@ export default function GroupPage({ params }: { params: Promise<{ groupId: strin
                         thumbnail: data.video.thumbnail,
                         duration: data.video.duration,
                         channelName: data.video.channelName,
-                        transcript: transcriptData.transcript || []
+                        transcript: [] // transcriptData.transcript || []
                     })
                 }
             }
