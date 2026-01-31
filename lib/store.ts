@@ -11,7 +11,6 @@ import type { User } from '@supabase/supabase-js'
 interface AppState {
   // Video state
   videoId: string | null
-  platform: 'youtube' | 'instagram'
   videoTitle: string
   transcript: TranscriptLine[]
   isLoading: boolean
@@ -44,7 +43,7 @@ interface AppState {
   checkAuth: () => Promise<void>
 
   // Actions
-  setVideoId: (id: string | null, platform?: 'youtube' | 'instagram') => void
+  setVideoId: (id: string | null) => void
   setVideoTitle: (title: string) => void
   setTranscript: (transcript: TranscriptLine[]) => void
   setLoading: (loading: boolean) => void
@@ -76,7 +75,7 @@ interface AppState {
 
   saveRecordingToCloud: (recording: Recording, blob: Blob) => Promise<void>
 
-  loadVideo: (id: string, platform?: 'youtube' | 'instagram') => Promise<void>
+  loadVideo: (id: string) => Promise<void>
   reset: () => void
 
   // Persistence
@@ -86,7 +85,6 @@ interface AppState {
 
 const initialState = {
   videoId: null,
-  platform: 'youtube' as const,
   videoTitle: '',
   transcript: [],
   isLoading: false,
@@ -111,7 +109,7 @@ const initialState = {
 export const useAppStore = create<AppState>((set) => ({
   ...initialState,
 
-  setVideoId: (id, platform = 'youtube') => set({ videoId: id, platform }),
+  setVideoId: (id) => set({ videoId: id }),
   setVideoTitle: (title) => set({ videoTitle: title }),
   setTranscript: (transcript) => set({ transcript }),
   setLoading: (loading) => set({ isLoading: loading }),
@@ -222,36 +220,29 @@ export const useAppStore = create<AppState>((set) => ({
       transcript: state.transcript,
       segments: state.segments,
       notes: state.notes,
-      platform: state.platform,
       lastUpdated: Date.now()
     })
   },
 
-  loadVideo: async (id: string, platform: 'youtube' | 'instagram' = 'youtube') => {
+  loadVideo: async (id: string) => {
     const { reset, setLoading, setError, setVideoId, setTranscript, setVideoTitle } = useAppStore.getState()
     reset()
     setLoading(true)
     setError(null)
-    setVideoId(id, platform)
+    setVideoId(id)
 
     try {
-      if (platform === 'youtube') {
-        const response = await fetch(`/api/transcript?videoId=${id}`)
-        const data = await response.json()
+      const response = await fetch(`/api/transcript?videoId=${id}`)
+      const data = await response.json()
 
-        if (data.transcript && data.transcript.length > 0) {
-          setTranscript(data.transcript)
-        } else {
-          setError('No transcript available for this video. You can still practice without text.')
-        }
-
-        if (data.title) {
-          setVideoTitle(data.title)
-        }
+      if (data.transcript && data.transcript.length > 0) {
+        setTranscript(data.transcript)
       } else {
-        // Instagram: No transcript API, set basic info
-        setVideoTitle('Instagram Reel')
-        setTranscript([])
+        setError('No transcript available for this video. You can still practice without text.')
+      }
+
+      if (data.title) {
+        setVideoTitle(data.title)
       }
     } catch (err) {
       setError('Failed to load video. Please check the URL and try again.')
@@ -310,7 +301,6 @@ export const useAppStore = create<AppState>((set) => ({
             transcript: session.transcript || [],
             segments: session.segments,
             notes: session.notes || '',
-            platform: session.platform || 'youtube', // Assuming old sessions are youtube
           })
         }
       }
@@ -344,7 +334,6 @@ useAppStore.subscribe((state, prevState) => {
         transcript: state.transcript,
         segments: state.segments,
         notes: state.notes,
-        platform: state.platform,
         lastUpdated: Date.now()
       })
 

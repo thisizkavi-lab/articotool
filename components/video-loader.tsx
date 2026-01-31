@@ -8,17 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
 
-function extractVideoInfo(input: string): { id: string, platform: 'youtube' | 'instagram' } | null {
-  // Instagram Patterns
-  const instagramPatterns = [
-    /(?:instagram\.com\/(?:p|reel)\/)([\w-]+)/,
-  ]
-
-  for (const pattern of instagramPatterns) {
-    const match = input.match(pattern)
-    if (match) return { id: match[1], platform: 'instagram' }
-  }
-
+function extractVideoId(input: string): string | null {
   // YouTube Patterns
   const youtubePatterns = [
     /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
@@ -27,7 +17,7 @@ function extractVideoInfo(input: string): { id: string, platform: 'youtube' | 'i
 
   for (const pattern of youtubePatterns) {
     const match = input.match(pattern)
-    if (match) return { id: match[1], platform: 'youtube' }
+    if (match) return match[1]
   }
   return null
 }
@@ -37,14 +27,14 @@ export function VideoLoader() {
   const { loadVideo, isLoading, setError, reset } = useAppStore()
 
   const handleLoad = async () => {
-    const videoInfo = extractVideoInfo(url.trim())
+    const videoId = extractVideoId(url.trim())
 
-    if (!videoInfo) {
-      setError('Invalid URL. Please use a YouTube or Instagram link.')
+    if (!videoId) {
+      setError('Invalid URL. Please use a YouTube link.')
       return
     }
 
-    await loadVideo(videoInfo.id, videoInfo.platform)
+    await loadVideo(videoId)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -57,7 +47,7 @@ export function VideoLoader() {
     <div className="flex gap-3">
       <Input
         type="text"
-        placeholder="Paste YouTube or Instagram URL..."
+        placeholder="Paste YouTube URL..."
         value={url}
         onChange={(e) => setUrl(e.target.value)}
         onKeyDown={handleKeyDown}

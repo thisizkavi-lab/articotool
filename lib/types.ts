@@ -48,7 +48,6 @@ export interface LibrarySegment {
 
 export interface LibraryVideo {
   id: string                    // YouTube video ID
-  platform: 'youtube' | 'instagram'
   title: string
   thumbnail: string
   duration: number              // in seconds
