@@ -531,7 +531,7 @@ export function UnifiedPracticeView({
                 </Card>
 
                 {/* Right: Transcript/Record/Notes */}
-                <Card className="overflow-hidden flex flex-col border-border/50 bg-card h-[400px] lg:h-[500px]">
+                <Card className="overflow-hidden flex flex-col border-border/50 bg-card h-full">
                     <div className="flex border-b border-border/50">
                         <button className={`flex-1 py-3 text-sm font-medium flex items-center justify-center gap-2 ${panelMode === 'transcript' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary/50'}`} onClick={() => setPanelMode('transcript')}>
                             <FileText className="h-4 w-4" /> Transcript
@@ -710,30 +710,13 @@ export function UnifiedPracticeView({
                             <div className="h-full flex flex-col space-y-4">
                                 {!activeSegment ? <div className="flex-1 flex items-center justify-center text-muted-foreground italic text-sm">Select a segment to record</div> : (
                                     <div className="flex-1 flex flex-col space-y-3 min-h-0">
-                                        {/* Transcript Preview for Record Mode */}
-                                        <div className="bg-secondary/20 p-3 rounded-lg border border-border/50 max-h-[120px] overflow-y-auto">
-                                            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1.5 opacity-50">Transcript</p>
-                                            <div className="space-y-1.5">
-                                                {video.transcript
-                                                    .filter(l => l.start >= activeSegment.start - 1 && l.start < activeSegment.end + 1)
-                                                    .map((line, i) => {
-                                                        const isActive = currentTime >= line.start && currentTime < (line.start + line.duration + 0.5)
-                                                        return (
-                                                            <p key={i} className={`text-sm leading-snug ${isActive ? 'text-primary font-medium' : 'text-muted-foreground opacity-60'}`}>
-                                                                {line.text}
-                                                            </p>
-                                                        )
-                                                    })}
-                                            </div>
-                                        </div>
-
                                         <div className="flex justify-center gap-6">
                                             <label className="flex items-center gap-2 cursor-pointer"><Checkbox checked={recordAudio} onCheckedChange={(v) => setRecordAudio(!!v)} disabled={isRecording} /><span className="text-xs font-medium uppercase tracking-wider">Audio</span></label>
                                             <label className="flex items-center gap-2 cursor-pointer"><Checkbox checked={recordVideo} onCheckedChange={(v) => setRecordVideo(!!v)} disabled={isRecording} /><span className="text-xs font-medium uppercase tracking-wider">Video</span></label>
                                         </div>
-                                        <div className="aspect-video bg-black rounded relative overflow-hidden">
+                                        <div className="flex-1 bg-black rounded relative overflow-hidden flex items-center justify-center">
                                             {countdown !== null && <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-10 text-6xl font-bold text-white">{countdown}</div>}
-                                            {previewUrl ? (recordVideo ? <video src={previewUrl} controls className="w-full h-full object-cover" /> : <div className="h-full flex items-center justify-center"><audio src={previewUrl} controls /></div>) : recordVideo ? <video ref={liveVideoRef} className="w-full h-full object-cover" muted playsInline /> : <div className="h-full flex items-center justify-center text-muted-foreground opacity-50"><Mic className="h-12 w-12" /></div>}
+                                            {previewUrl ? (recordVideo ? <video src={previewUrl} controls className="w-full h-full object-contain" /> : <div className="h-full flex items-center justify-center"><audio src={previewUrl} controls /></div>) : recordVideo ? <video ref={liveVideoRef} className="w-full h-full object-cover" muted playsInline /> : <div className="h-full flex items-center justify-center text-muted-foreground opacity-50"><Mic className="h-12 w-12" /></div>}
                                             {isRecording && <div className="absolute top-2 left-2 bg-destructive text-white px-2 py-0.5 rounded text-xs font-mono flex items-center gap-1.5"><div className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />{formatTime(recordingTime)}</div>}
                                         </div>
                                         <div className="flex justify-center gap-3">
