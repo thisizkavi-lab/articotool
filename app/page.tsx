@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useCallback, Suspense } from 'react'
+import { useEffect, useCallback, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { createClient } from "@/utils/supabase/client"
 import { LogOut, User as UserIcon, AlertCircle } from 'lucide-react'
@@ -11,6 +11,7 @@ import { KeyboardHelp } from '@/components/keyboard-help'
 import { useAppStore } from '@/lib/store'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { UnifiedPracticeView } from '@/components/unified-practice-view'
+import { getCuratedCollection } from '@/lib/curated-library'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,6 +44,11 @@ function Header() {
           <Button variant="ghost" size="sm" asChild>
             <a href="/library" className="text-xs">
               Library
+            </a>
+          </Button>
+          <Button variant="ghost" size="sm" asChild>
+            <a href="/curated" className="text-xs">
+              Curated
             </a>
           </Button>
           <Button variant="ghost" size="sm" asChild>
@@ -95,6 +101,9 @@ function Header() {
 
 function HomeContent() {
   const searchParams = useSearchParams()
+  const urlVideoId = searchParams.get('v')
+  const curatedId = searchParams.get('curated')
+  const [initialized, setInitialized] = useState(false)
   const {
     videoId, error, isLoading, initialize,
     segments, recordings, addSegment, removeSegment, setSegments,
@@ -102,18 +111,34 @@ function HomeContent() {
     notes, setNotes, loadVideo, setTranscript
   } = useAppStore()
 
-  // Initialize from local storage on mount
+  // Initialize persisted state first so a URL-selected source can reliably override it.
   useEffect(() => {
-    initialize()
+    let cancelled = false
+
+    initialize().finally(() => {
+      if (!cancelled) setInitialized(true)
+    })
+
+    return () => {
+      cancelled = true
+    }
   }, [initialize])
 
-  // Handle URL query parameter for video loading
+  // A URL-selected video should override whichever session was previously open.
   useEffect(() => {
-    const urlVideoId = searchParams.get('v')
-    if (urlVideoId && !videoId && !isLoading) {
+    if (initialized && urlVideoId && urlVideoId !== videoId && !isLoading) {
       loadVideo(urlVideoId)
     }
-  }, [searchParams, videoId, isLoading, loadVideo])
+  }, [initialized, urlVideoId, videoId, isLoading, loadVideo])
+
+  // Load source-controlled curated segments after the requested video is ready.
+  // This intentionally replaces session segments only when entering through a curated URL.
+  useEffect(() => {
+    const collection = getCuratedCollection(curatedId)
+    if (!initialized || !collection || isLoading || videoId !== collection.videoId) return
+
+    setSegments(collection.segments.map(segment => ({ ...segment })))
+  }, [initialized, curatedId, videoId, isLoading, setSegments])
 
   // Handlers for UnifiedPracticeView
   const handleAddSegments = async (newSegments: any[], replaceTranscript?: boolean) => {
