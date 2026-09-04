@@ -132,25 +132,31 @@ function HomeContent() {
     setSegments(curatedCollection.segments.map(segment => ({ ...segment })))
   }, [initialized, curatedCollection, videoId, isLoading, setSegments])
 
-  // Curated practice uses a dedicated transcript endpoint that avoids the legacy
-  // debug-file path and has two caption-fetch strategies. This keeps the panel
-  // beside the video populated even when an old local session has no transcript.
+  // Curated sources are deterministic. Always refresh the transcript for the selected
+  // source instead of trusting whatever transcript happens to be in local browser state.
+  // The endpoint first uses a source-specific transcript page fixed to this video, then
+  // falls back to YouTube only if that source is unavailable.
   useEffect(() => {
     if (
       !initialized ||
       !curatedCollection ||
       isLoading ||
-      videoId !== curatedCollection.videoId ||
-      transcript.length > 0
+      videoId !== curatedCollection.videoId
     ) return
 
     let cancelled = false
 
-    fetch(`/api/curated-transcript?videoId=${curatedCollection.videoId}`)
+    // Avoid briefly rendering a stale transcript from a different video/session.
+    setTranscript([])
+
+    fetch(`/api/curated-transcript?videoId=${curatedCollection.videoId}`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
-        if (!cancelled && Array.isArray(data.transcript) && data.transcript.length > 0) {
+        if (cancelled) return
+        if (Array.isArray(data.transcript) && data.transcript.length > 0) {
           setTranscript(data.transcript)
+        } else {
+          console.error('Curated transcript unavailable:', data.error || data.source || 'unknown source')
         }
       })
       .catch(err => console.error('Curated transcript fetch failed:', err))
@@ -163,13 +169,11 @@ function HomeContent() {
     curatedCollection,
     videoId,
     isLoading,
-    transcript.length,
     setTranscript,
   ])
 
   // Curated practice deliberately narrows the transcript to our selected material.
-  // Each segment also receives the matching caption lines plus honest pause cues
-  // derived from timestamp gaps. Spoken text timing is never fabricated.
+  // Each segment receives the transcript lines overlapping its exact start/end bounds.
   const practiceSegments = useMemo(() => {
     if (!isCuratedSession || transcript.length === 0) return segments
     return hydrateCuratedSegments(segments, transcript)
