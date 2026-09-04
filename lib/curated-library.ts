@@ -156,6 +156,16 @@ export const CURATED_SPEAKERS: CuratedSpeaker[] = [
       queuedSource('naval-tim-ferriss-473', 'The Tim Ferriss Show #473 · 2020', 'Precise responses to abstract questions with careful qualification.', ['Definition', 'Qualification', 'Precision']),
       queuedSource('naval-how-to-get-rich', 'How to Get Rich · Naval + Nivi', 'Short proposition-by-proposition explanations; ideal for micro-shadowing.', ['Compression', 'Explanation', 'Sentence construction']),
       queuedSource('naval-smart-friends-2025', 'Smart Friends conversations · 2025', 'Recent Naval revisiting wealth, judgment, learning, happiness, and philosophy.', ['Current style', 'Judgment', 'Reflection']),
+
+      // Scientific / epistemology conversations — important for studying how Naval
+      // asks, reframes, and explains around genuinely technical thinkers.
+      queuedSource('naval-deutsch-knowledge-1', 'David Deutsch · Knowledge Creation and the Human Race · Part 1', 'Naval in sustained conversation with physicist David Deutsch on knowledge, AGI, explanations, and quantum computing.', ['Scientific dialogue', 'Questions', 'Clarification']),
+      queuedSource('naval-deutsch-knowledge-2', 'David Deutsch · Knowledge Creation and the Human Race · Part 2', 'A denser follow-up on Popper, experiments, theories, science, and the Enlightenment.', ['Scientific dialogue', 'Epistemology', 'Follow-up questions']),
+      queuedSource('naval-deutsch-files-1', 'The Deutsch Files I · 2024', 'Free-form conversation with David Deutsch and Brett Hall; useful for listening, probing, and intellectual humility.', ['Scientific dialogue', 'Listening', 'Question framing']),
+      queuedSource('naval-deutsch-files-2', 'The Deutsch Files II · 2024', 'The four strands of The Fabric of Reality and difficult explanatory territory.', ['Scientific explanation', 'Clarification', 'First principles']),
+      queuedSource('naval-deutsch-files-3', 'The Deutsch Files III · 2024', 'Technical conversation around AGI, Popper, misunderstanding, and explanation.', ['Scientific dialogue', 'Disagreement', 'Precision']),
+      queuedSource('naval-deutsch-files-4', 'The Deutsch Files IV · 2024', 'Long-form attempt to connect Deutsch’s major theories into one coherent picture.', ['Synthesis', 'Technical questioning', 'Conceptual structure']),
+      queuedSource('naval-tim-ferriss-662', 'Tim Ferriss #662 · David Deutsch + Naval Ravikant', 'Naval alongside a leading physicist discussing reality, knowledge, AGI, quantum computing, optimism, and wealth.', ['Scientific dialogue', 'Translation', 'High-level synthesis']),
     ],
   },
 ]

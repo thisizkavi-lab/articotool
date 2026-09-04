@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useCallback, useState, Suspense } from 'react'
+import { useEffect, useMemo, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { createClient } from "@/utils/supabase/client"
 import { LogOut, User as UserIcon, AlertCircle } from 'lucide-react'
@@ -12,6 +12,7 @@ import { useAppStore } from '@/lib/store'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { UnifiedPracticeView } from '@/components/unified-practice-view'
 import { getCuratedCollection } from '@/lib/curated-library'
+import { buildCuratedTranscript, hydrateCuratedSegments } from '@/lib/curated-transcript'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,24 +43,16 @@ function Header() {
         </div>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" asChild>
-            <a href="/library" className="text-xs">
-              Library
-            </a>
+            <a href="/library" className="text-xs">Library</a>
           </Button>
           <Button variant="ghost" size="sm" asChild>
-            <a href="/curated" className="text-xs">
-              Curated
-            </a>
+            <a href="/curated" className="text-xs">Curated</a>
           </Button>
           <Button variant="ghost" size="sm" asChild>
-            <a href="/explore" className="text-xs">
-              Explore
-            </a>
+            <a href="/explore" className="text-xs">Explore</a>
           </Button>
           <Button variant="ghost" size="sm" asChild>
-            <a href="/history" className="text-xs">
-              History
-            </a>
+            <a href="/history" className="text-xs">History</a>
           </Button>
 
           <div className="h-4 w-[1px] bg-border mx-2" />
@@ -87,9 +80,7 @@ function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button variant="default" size="sm" onClick={() => router.push('/login')}>
-              Login
-            </Button>
+            <Button variant="default" size="sm" onClick={() => router.push('/login')}>Login</Button>
           )}
 
           <KeyboardHelp />
@@ -106,12 +97,16 @@ function HomeContent() {
   const [initialized, setInitialized] = useState(false)
   const {
     videoId, error, isLoading, initialize,
-    segments, recordings, addSegment, removeSegment, setSegments,
+    segments, recordings, removeSegment, setSegments,
     addRecording, removeRecording, videoTitle, transcript,
     notes, setNotes, loadVideo, setTranscript
   } = useAppStore()
 
-  // Initialize persisted state first so a URL-selected source can reliably override it.
+  const curatedCollection = useMemo(() => getCuratedCollection(curatedId), [curatedId])
+  const isCuratedSession = Boolean(
+    curatedCollection && videoId && curatedCollection.videoId === videoId,
+  )
+
   useEffect(() => {
     let cancelled = false
 
@@ -131,16 +126,59 @@ function HomeContent() {
     }
   }, [initialized, urlVideoId, videoId, isLoading, loadVideo])
 
-  // Load source-controlled curated segments after the requested video is ready.
-  // This intentionally replaces session segments only when entering through a curated URL.
+  // Source-controlled boundaries always win when entering through a curated URL.
   useEffect(() => {
-    const collection = getCuratedCollection(curatedId)
-    if (!initialized || !collection || isLoading || videoId !== collection.videoId) return
+    if (!initialized || !curatedCollection || isLoading || videoId !== curatedCollection.videoId) return
+    setSegments(curatedCollection.segments.map(segment => ({ ...segment })))
+  }, [initialized, curatedCollection, videoId, isLoading, setSegments])
 
-    setSegments(collection.segments.map(segment => ({ ...segment })))
-  }, [initialized, curatedId, videoId, isLoading, setSegments])
+  // If this exact video was already persisted locally without captions, recover the
+  // timed YouTube transcript instead of leaving the curated practice surface empty.
+  useEffect(() => {
+    if (
+      !initialized ||
+      !curatedCollection ||
+      isLoading ||
+      videoId !== curatedCollection.videoId ||
+      transcript.length > 0
+    ) return
 
-  // Handlers for UnifiedPracticeView
+    let cancelled = false
+
+    fetch(`/api/transcript?videoId=${curatedCollection.videoId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (!cancelled && Array.isArray(data.transcript) && data.transcript.length > 0) {
+          setTranscript(data.transcript)
+        }
+      })
+      .catch(err => console.error('Curated transcript fetch failed:', err))
+
+    return () => {
+      cancelled = true
+    }
+  }, [
+    initialized,
+    curatedCollection,
+    videoId,
+    isLoading,
+    transcript.length,
+    setTranscript,
+  ])
+
+  // Curated practice deliberately narrows the transcript to our selected material.
+  // Each segment also receives the matching caption lines plus honest pause cues
+  // derived from timestamp gaps. Spoken text timing is never fabricated.
+  const practiceSegments = useMemo(() => {
+    if (!isCuratedSession || transcript.length === 0) return segments
+    return hydrateCuratedSegments(segments, transcript)
+  }, [isCuratedSession, segments, transcript])
+
+  const practiceTranscript = useMemo(() => {
+    if (!isCuratedSession || transcript.length === 0) return transcript
+    return buildCuratedTranscript(transcript, segments)
+  }, [isCuratedSession, transcript, segments])
+
   const handleAddSegments = async (newSegments: any[], replaceTranscript?: boolean) => {
     const formattedSegments = newSegments.map(s => ({
       id: crypto.randomUUID(),
@@ -155,37 +193,20 @@ function HomeContent() {
   }
 
   const handleClearSegments = async () => {
-    if (confirm("Clear all segments?")) {
-      setSegments([])
-    }
+    if (confirm("Clear all segments?")) setSegments([])
   }
 
-  const handleDeleteSegment = async (id: string) => {
-    removeSegment(id)
-  }
-
-  const handleSaveRecording = async (rec: any) => {
-    addRecording(rec)
-  }
-
-  const handleDeleteRecording = async (id: string) => {
-    removeRecording(id)
-  }
-
-  const handleUpdateNotes = async (notes: string) => {
-    setNotes(notes)
-  }
-
-  const handleUpdateTranscript = async (newTranscript: any[]) => {
-    setTranscript(newTranscript)
-  }
+  const handleDeleteSegment = async (id: string) => removeSegment(id)
+  const handleSaveRecording = async (rec: any) => addRecording(rec)
+  const handleDeleteRecording = async (id: string) => removeRecording(id)
+  const handleUpdateNotes = async (nextNotes: string) => setNotes(nextNotes)
+  const handleUpdateTranscript = async (newTranscript: any[]) => setTranscript(newTranscript)
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
 
       <main className="flex-1 container mx-auto px-4 py-6">
-        {/* Video URL Input */}
         <div className="max-w-2xl mx-auto mb-10">
           <VideoLoader />
           {error && (
@@ -196,15 +217,19 @@ function HomeContent() {
           )}
         </div>
 
-        {/* Main Layout */}
         {videoId && (
           <UnifiedPracticeView
             video={{
               id: videoId,
               title: videoTitle || "Individual Video",
-              segments: segments.map(s => ({ ...s, createdAt: s.createdAt || Date.now() })) as any[],
-              transcript: transcript,
-              thumbnail: "", channelName: "", duration: 0, addedAt: 0, lastPracticedAt: null, recordings: [],
+              segments: practiceSegments.map(s => ({ ...s, createdAt: s.createdAt || Date.now() })) as any[],
+              transcript: practiceTranscript,
+              thumbnail: "",
+              channelName: "",
+              duration: 0,
+              addedAt: 0,
+              lastPracticedAt: null,
+              recordings: [],
               notes: notes
             }}
             recordings={recordings}
@@ -219,7 +244,6 @@ function HomeContent() {
           />
         )}
 
-        {/* Empty State */}
         {!videoId && !isLoading && (
           <div className="text-center py-20">
             <h2 className="text-2xl font-semibold mb-3">Your Personal Speaking Gym</h2>
@@ -237,7 +261,6 @@ function HomeContent() {
         )}
       </main>
 
-      {/* Footer */}
       <footer className="border-t border-border/50 py-4 text-center text-xs text-muted-foreground">
         <p>All recordings stay in your browser. Nothing is uploaded.</p>
       </footer>

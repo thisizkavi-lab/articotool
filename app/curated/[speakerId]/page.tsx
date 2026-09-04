@@ -1,7 +1,6 @@
 import { ArrowLeft, Clock, Play, Sparkles, CheckCircle2, CircleDashed } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { getCuratedSpeaker } from '@/lib/curated-library'
 
 function formatTime(seconds: number): string {
@@ -32,103 +31,114 @@ export default async function CuratedSpeakerPage({ params }: { params: Promise<{
           </Button>
           <div>
             <h1 className="text-xl font-semibold tracking-tight">{speaker.name}</h1>
-            <p className="text-xs text-muted-foreground">{readySources.length} ready sources · {readyClips} curated clips</p>
+            <p className="text-xs text-muted-foreground">{readySources.length} ready sources · {readyClips} curated clips · {speaker.sources.length} sources tracked</p>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="grid gap-8 lg:grid-cols-[280px_1fr] mb-12">
-          <div className="aspect-[4/3] overflow-hidden rounded-xl bg-secondary">
+      <main className="container mx-auto px-4 py-7 max-w-7xl">
+        <section className="grid gap-6 md:grid-cols-[180px_1fr] items-center mb-9">
+          <div className="aspect-square overflow-hidden rounded-xl bg-secondary max-w-[180px]">
             <img src={speaker.portrait} alt={speaker.name} className="h-full w-full object-cover" />
           </div>
-          <div className="flex flex-col justify-center">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-              <Sparkles className="h-4 w-4" />
+          <div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+              <Sparkles className="h-3.5 w-3.5" />
               Articulation study
             </div>
-            <h2 className="text-3xl font-semibold tracking-tight mb-3">Learn the underlying speaking machinery.</h2>
-            <p className="text-muted-foreground leading-relaxed max-w-3xl mb-5">{speaker.description}</p>
-            <div className="flex flex-wrap gap-2">
+            <h2 className="text-2xl font-semibold tracking-tight mb-2">Learn the speaking machinery, source by source.</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-3xl mb-4">{speaker.description}</p>
+            <div className="flex flex-wrap gap-1.5">
               {speaker.focus.map(item => (
-                <span key={item} className="text-xs px-2.5 py-1 rounded-md bg-secondary text-secondary-foreground">
+                <span key={item} className="text-[11px] px-2 py-1 rounded-md bg-secondary text-secondary-foreground">
                   {item}
                 </span>
               ))}
             </div>
           </div>
+        </section>
+
+        <div className="flex items-end justify-between gap-4 mb-4">
+          <div>
+            <h3 className="text-lg font-semibold tracking-tight">Sources</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">Dense by design: this collection is expected to grow into dozens of conversations.</p>
+          </div>
+          <p className="text-xs text-muted-foreground hidden sm:block">Open a curated source to load its clips + synchronized transcript.</p>
         </div>
 
-        <div className="mb-5">
-          <h3 className="text-xl font-semibold tracking-tight">Sources</h3>
-          <p className="text-sm text-muted-foreground mt-1">We curate one long-form source at a time. Ready sources open directly in the practice engine.</p>
-        </div>
-
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid gap-x-4 gap-y-7 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {speaker.sources.map(source => {
             const isReady = source.status === 'ready' && source.videoId !== null
             const totalPracticeSeconds = source.segments.reduce((sum, item) => sum + (item.end - item.start), 0)
             const practiceUrl = isReady ? `/?v=${source.videoId}&curated=${source.id}` : undefined
 
-            return (
-              <Card key={source.id} className={`overflow-hidden ${!isReady ? 'opacity-75' : ''}`}>
-                {source.thumbnail ? (
-                  <div className="aspect-video overflow-hidden bg-secondary">
-                    <img src={source.thumbnail} alt={source.videoTitle} className="h-full w-full object-cover" />
-                  </div>
-                ) : (
-                  <div className="aspect-video bg-secondary/50 flex items-center justify-center">
-                    <CircleDashed className="h-10 w-10 text-muted-foreground/40" />
-                  </div>
-                )}
+            const card = (
+              <article className={`group ${!isReady ? 'opacity-65' : ''}`}>
+                <div className="relative aspect-video overflow-hidden rounded-lg bg-secondary border border-border/40">
+                  {source.thumbnail ? (
+                    <img
+                      src={source.thumbnail}
+                      alt={source.videoTitle}
+                      className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center bg-secondary/50">
+                      <CircleDashed className="h-7 w-7 text-muted-foreground/35" />
+                    </div>
+                  )}
 
-                <CardContent className="p-5">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                  <div className="absolute top-2 left-2 rounded bg-black/75 px-1.5 py-0.5 text-[10px] text-white flex items-center gap-1">
+                    {isReady ? <CheckCircle2 className="h-3 w-3" /> : <CircleDashed className="h-3 w-3" />}
+                    {isReady ? 'Curated' : 'Queued'}
+                  </div>
+
+                  {source.duration > 0 && (
+                    <span className="absolute bottom-2 right-2 rounded bg-black/80 px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-white">
+                      {formatTime(source.duration)}
+                    </span>
+                  )}
+
+                  {isReady && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all group-hover:bg-black/25 group-hover:opacity-100">
+                      <div className="h-10 w-10 rounded-full bg-white text-black flex items-center justify-center shadow-lg">
+                        <Play className="h-4 w-4 fill-current ml-0.5" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="pt-2.5 px-0.5">
+                  <h4 className="text-sm font-semibold leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                    {source.sourceTitle}
+                  </h4>
+                  <p className="text-[11px] text-muted-foreground mt-1 truncate">
+                    {source.channelName || 'Naval corpus'}
+                  </p>
+
+                  <div className="flex items-center gap-2 mt-1.5 text-[11px] text-muted-foreground">
                     {isReady ? (
                       <>
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                        Curated
+                        <span>{source.segments.length} clips</span>
+                        <span>·</span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {formatTime(totalPracticeSeconds)} selected
+                        </span>
                       </>
                     ) : (
-                      <>
-                        <CircleDashed className="h-3.5 w-3.5" />
-                        In the curation queue
-                      </>
+                      <span>Transcript audit + clip selection queued</span>
                     )}
                   </div>
+                </div>
+              </article>
+            )
 
-                  <h4 className="text-lg font-semibold leading-snug mb-2">{source.sourceTitle}</h4>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">{source.description}</p>
-
-                  <div className="flex flex-wrap gap-2 mb-5">
-                    {source.focus.slice(0, 4).map(item => (
-                      <span key={item} className="text-xs px-2 py-1 rounded bg-secondary text-secondary-foreground">
-                        {item}
-                      </span>
-                    ))}
-                  </div>
-
-                  {isReady ? (
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="text-xs text-muted-foreground">
-                        <div>{source.segments.length} clips</div>
-                        <div className="flex items-center gap-1 mt-1">
-                          <Clock className="h-3.5 w-3.5" />
-                          {formatTime(totalPracticeSeconds)} selected practice
-                        </div>
-                      </div>
-                      <Button asChild size="sm">
-                        <a href={practiceUrl}>
-                          <Play className="h-4 w-4 mr-2" />
-                          Practice
-                        </a>
-                      </Button>
-                    </div>
-                  ) : (
-                    <p className="text-xs text-muted-foreground">Transcript audit and segment selection still to be completed.</p>
-                  )}
-                </CardContent>
-              </Card>
+            return isReady && practiceUrl ? (
+              <a key={source.id} href={practiceUrl} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg">
+                {card}
+              </a>
+            ) : (
+              <div key={source.id}>{card}</div>
             )
           })}
         </div>
