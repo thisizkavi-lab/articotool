@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useCallback, Suspense } from 'react'
+import { useEffect, useCallback, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { createClient } from "@/utils/supabase/client"
 import { LogOut, User as UserIcon, AlertCircle } from 'lucide-react'
@@ -103,6 +103,7 @@ function HomeContent() {
   const searchParams = useSearchParams()
   const urlVideoId = searchParams.get('v')
   const curatedId = searchParams.get('curated')
+  const [initialized, setInitialized] = useState(false)
   const {
     videoId, error, isLoading, initialize,
     segments, recordings, addSegment, removeSegment, setSegments,
@@ -110,27 +111,34 @@ function HomeContent() {
     notes, setNotes, loadVideo, setTranscript
   } = useAppStore()
 
-  // Initialize from local storage on mount
+  // Initialize persisted state first so a URL-selected source can reliably override it.
   useEffect(() => {
-    initialize()
+    let cancelled = false
+
+    initialize().finally(() => {
+      if (!cancelled) setInitialized(true)
+    })
+
+    return () => {
+      cancelled = true
+    }
   }, [initialize])
 
-  // Handle URL query parameter for video loading.
   // A URL-selected video should override whichever session was previously open.
   useEffect(() => {
-    if (urlVideoId && urlVideoId !== videoId && !isLoading) {
+    if (initialized && urlVideoId && urlVideoId !== videoId && !isLoading) {
       loadVideo(urlVideoId)
     }
-  }, [urlVideoId, videoId, isLoading, loadVideo])
+  }, [initialized, urlVideoId, videoId, isLoading, loadVideo])
 
   // Load source-controlled curated segments after the requested video is ready.
   // This intentionally replaces session segments only when entering through a curated URL.
   useEffect(() => {
     const collection = getCuratedCollection(curatedId)
-    if (!collection || isLoading || videoId !== collection.videoId) return
+    if (!initialized || !collection || isLoading || videoId !== collection.videoId) return
 
     setSegments(collection.segments.map(segment => ({ ...segment })))
-  }, [curatedId, videoId, isLoading, setSegments])
+  }, [initialized, curatedId, videoId, isLoading, setSegments])
 
   // Handlers for UnifiedPracticeView
   const handleAddSegments = async (newSegments: any[], replaceTranscript?: boolean) => {
