@@ -75,6 +75,15 @@ export function buildCuratedTranscript(
       seen.add(key)
       result.push(line)
     }
+
+    // The existing transcript UI always shows an "Up Next" line. A tiny loop-point
+    // cue prevents it from jumping visually to a caption from a different curated
+    // clip that may be many minutes later in the original podcast.
+    result.push({
+      text: '↻ clip loops here',
+      start: segment.end,
+      duration: 0.05,
+    })
   }
 
   return result.sort((a, b) => a.start - b.start)
