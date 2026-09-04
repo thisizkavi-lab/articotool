@@ -52,14 +52,21 @@ function parseTimedText(text: string): TranscriptLine[] {
 async function fetchWithPackage(videoId: string): Promise<TranscriptLine[]> {
   try {
     const items = await YoutubeTranscript.fetchTranscript(videoId)
+    if (!items.length) return []
+
+    // youtube-transcript has returned both second-based and millisecond-based
+    // offset/duration values across releases. Caption durations make the unit easy
+    // to infer: a normal caption is a few seconds, not hundreds/thousands of seconds.
+    const sampleDuration = items
+      .map((item: any) => Number(item.duration || 0))
+      .find((duration: number) => duration > 0)
+    const scale = sampleDuration && sampleDuration > 100 ? 1000 : 1
 
     return items
       .map((item: any) => {
-        // youtube-transcript v1.2.x exposes offset/duration in milliseconds.
-        // Keep support for start-based variants too so this endpoint is resilient to upgrades.
         const hasOffset = item.offset !== undefined && item.offset !== null
-        const start = hasOffset ? Number(item.offset) / 1000 : Number(item.start || 0)
-        const duration = hasOffset ? Number(item.duration || 0) / 1000 : Number(item.duration || 0)
+        const start = hasOffset ? Number(item.offset) / scale : Number(item.start || 0)
+        const duration = Number(item.duration || 0) / (hasOffset ? scale : 1)
 
         return {
           text: String(item.text || '').trim(),
@@ -139,7 +146,6 @@ export async function GET(request: Request) {
     { transcript, source },
     {
       headers: {
-        // Curated sources are stable; cache successful captions for a day at the edge.
         'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
       },
     },
