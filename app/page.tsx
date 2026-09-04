@@ -132,8 +132,9 @@ function HomeContent() {
     setSegments(curatedCollection.segments.map(segment => ({ ...segment })))
   }, [initialized, curatedCollection, videoId, isLoading, setSegments])
 
-  // If this exact video was already persisted locally without captions, recover the
-  // timed YouTube transcript instead of leaving the curated practice surface empty.
+  // Curated practice uses a dedicated transcript endpoint that avoids the legacy
+  // debug-file path and has two caption-fetch strategies. This keeps the panel
+  // beside the video populated even when an old local session has no transcript.
   useEffect(() => {
     if (
       !initialized ||
@@ -145,7 +146,7 @@ function HomeContent() {
 
     let cancelled = false
 
-    fetch(`/api/transcript?videoId=${curatedCollection.videoId}`)
+    fetch(`/api/curated-transcript?videoId=${curatedCollection.videoId}`)
       .then(res => res.json())
       .then(data => {
         if (!cancelled && Array.isArray(data.transcript) && data.transcript.length > 0) {
