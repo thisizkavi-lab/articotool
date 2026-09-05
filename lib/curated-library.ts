@@ -434,6 +434,35 @@ const navalDeutschKnowledge2: CuratedCollection = {
   ],
 }
 
+const navalDeutschFiles1: CuratedCollection = {
+  id: 'naval-deutsch-files-1',
+  speakerId: 'naval-ravikant',
+  speaker: 'Naval Ravikant',
+  sourceTitle: 'The Deutsch Files I · 2024',
+  videoId: 'NI1l94sT4oc',
+  videoTitle: 'The Deutsch Files I',
+  channelName: 'Naval',
+  thumbnail: 'https://i.ytimg.com/vi/NI1l94sT4oc/hqdefault.jpg',
+  duration: 3292,
+  description: 'Naval and Brett Hall in free-form conversation with David Deutsch on ChatGPT, creativity, personhood, life philosophy, Taking Children Seriously, relationships, and civilizational confidence. Curated from Naval’s official full transcript and a dense transcript layer aligned to the official YouTube timebase; selection is intentionally tight because Naval is often the questioner rather than the primary explainer.',
+  focus: ['Formulation', 'Articulation', 'Question framing', 'Synthesis', 'Reframing', 'Distinction'],
+  status: 'ready',
+  segments: [
+    segment('DF1-001', 309, 333, 'Analogy · Borges changes one rule then follows every logical consequence'),
+    segment('DF1-002', 642, 669, 'Steelman · emergent algorithms as the strongest case for model understanding'),
+    segment('DF1-003', 677, 702, 'Question framing · multimodal embodiment as the baby-learning argument'),
+    segment('DF1-004', 813, 849, 'Formulation · creativity is more than remixing; humans make narrow leaps through vast search spaces'),
+    segment('DF1-005', 849, 870, 'Explanation · risky conjectures cut through an almost infinite search space'),
+    segment('DF1-006', 983, 1010, 'Synthesis · bounded formal systems cannot contain unbounded creativity'),
+    segment('DF1-007', 1010, 1032, 'Counterargument · language combinatorics as a case for social creativity'),
+    segment('DF1-008', 1253, 1274, 'Critique · fluent verbiage can add no information and lose what matters'),
+    segment('DF1-009', 1274, 1297, 'Distinction · extrapolation is easy; synthesis requires separating core from superfluous'),
+    segment('DF1-010', 1927, 1968, 'Question framing · derive a life philosophy from error correction, optimism, and fun'),
+    segment('DF1-011', 2232, 2264, 'Reframing · Taking Children Seriously as a test for taking adults seriously'),
+    segment('DF1-012', 3254, 3270, 'Compression · ideology persists until consequences become real and cascades reverse'),
+  ],
+}
+
 const queuedSource = (
   id: string,
   sourceTitle: string,
@@ -481,7 +510,7 @@ export const CURATED_SPEAKERS: CuratedSpeaker[] = [
       // asks, reframes, and explains around genuinely technical thinkers.
       queuedSource('naval-deutsch-knowledge-1', 'David Deutsch · Knowledge Creation and the Human Race · Part 1', 'Naval in sustained conversation with physicist David Deutsch on knowledge, AGI, explanations, and quantum computing.', ['Scientific dialogue', 'Questions', 'Clarification']),
       navalDeutschKnowledge2,
-      queuedSource('naval-deutsch-files-1', 'The Deutsch Files I · 2024', 'Free-form conversation with David Deutsch and Brett Hall; useful for listening, probing, and intellectual humility.', ['Scientific dialogue', 'Listening', 'Question framing']),
+      navalDeutschFiles1,
       queuedSource('naval-deutsch-files-2', 'The Deutsch Files II · 2024', 'The four strands of The Fabric of Reality and difficult explanatory territory.', ['Scientific explanation', 'Clarification', 'First principles']),
       queuedSource('naval-deutsch-files-3', 'The Deutsch Files III · 2024', 'Technical conversation around AGI, Popper, misunderstanding, and explanation.', ['Scientific dialogue', 'Disagreement', 'Precision']),
       queuedSource('naval-deutsch-files-4', 'The Deutsch Files IV · 2024', 'Long-form attempt to connect Deutsch’s major theories into one coherent picture.', ['Synthesis', 'Technical questioning', 'Conceptual structure']),
