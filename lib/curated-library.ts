@@ -259,6 +259,50 @@ const navalHowToGetRich: CuratedCollection = {
   ],
 }
 
+const navalSmartFriendsBuildingWealth: CuratedCollection = {
+  id: 'naval-smart-friends-building-wealth',
+  speakerId: 'naval-ravikant',
+  speaker: 'Naval Ravikant',
+  sourceTitle: 'Smart Friends · Building Wealth · 2025',
+  videoId: 'fEPkweR086A',
+  videoTitle: 'My Conversation with Naval on Building Wealth',
+  channelName: 'Eric Jorgenson',
+  thumbnail: 'https://i.ytimg.com/vi/fEPkweR086A/hqdefault.jpg',
+  duration: 2275,
+  description: 'A compact 2025 update to Naval’s wealth thinking: assets, knowledge, ethical capitalism, optimism, small-group competition, hard-to-vary products, and technology. Curated for formulation, clean conceptual pivots, analogy, and explanation.',
+  focus: ['Formulation', 'Articulation', 'Definition', 'Analogy', 'Reframing', 'Explanation'],
+  status: 'ready',
+  segments: [
+    segment('SFBW-001', 86, 111, 'Formulation · escape the input-tied-to-output trap'),
+    segment('SFBW-002', 114, 131, 'Reframing · laziness as leverage and efficiency'),
+    segment('SFBW-003', 303, 333, 'Analogy · gold points to value; people create value'),
+    segment('SFBW-004', 399, 434, 'Distinction · wisdom must be recreated inside the listener'),
+    segment('SFBW-005', 487, 510, 'Analogy · unpack a nursery rhyme into a life philosophy'),
+    segment('SFBW-006', 578, 603, 'Reframing · timeless topics inevitably become clichés'),
+    segment('SFBW-007', 666, 704, 'Analogy · slicing the pie versus baking the pie'),
+    segment('SFBW-008', 764, 791, 'Qualification · capitalism, externalities, and human flourishing'),
+    segment('SFBW-009', 805, 839, 'Reframing · stop treating the whole game as rigged'),
+    segment('SFBW-010', 899, 927, 'Strong ending · possibility precedes long-term success'),
+    segment('SFBW-011', 927, 963, 'Explanation · optimism grounded in good explanations'),
+    segment('SFBW-012', 1028, 1066, 'Analogy · everyone improving their life is a little scientist'),
+    segment('SFBW-013', 1070, 1112, 'Synthesis · science, business, and evolution share one filtering pattern'),
+    segment('SFBW-014', 1115, 1152, 'Definition · ethical risk means bearing your own consequences'),
+    segment('SFBW-015', 1246, 1284, 'Qualification · morality is easy from outside the arena'),
+    segment('SFBW-016', 1313, 1340, 'Distinction · groups seek consensus; individuals can seek truth'),
+    segment('SFBW-017', 1340, 1378, 'Explanation · small groups need skin in the game and competition'),
+    segment('SFBW-018', 1474, 1507, 'Reframing · alignment becomes coercion when strangers must agree'),
+    segment('SFBW-019', 1688, 1710, 'Definition · a hard-to-vary product cannot change without breaking'),
+    segment('SFBW-020', 1710, 1740, 'Analogy · puzzle pieces explain hard-to-vary design'),
+    segment('SFBW-021', 1781, 1810, 'Reframing · constraints can create higher-order capability'),
+    segment('SFBW-022', 1810, 1844, 'Explanation · creation requires voluntary constraints'),
+    segment('SFBW-023', 1846, 1874, 'Definition · elegance means nothing unnecessary remains'),
+    segment('SFBW-024', 1897, 1930, 'Compression · technology automates, scales, and distributes knowledge'),
+    segment('SFBW-025', 2013, 2040, 'Explanation · great products have surprising reach'),
+    segment('SFBW-026', 2166, 2200, 'Reframing · the internet destroys the mediocre middle'),
+    segment('SFBW-027', 2194, 2225, 'Explanation · scale economies make the best technology broadly accessible'),
+  ],
+}
+
 const queuedSource = (
   id: string,
   sourceTitle: string,
@@ -293,7 +337,11 @@ export const CURATED_SPEAKERS: CuratedSpeaker[] = [
       navalKnowledgeProject18,
       navalTimFerriss473,
       navalHowToGetRich,
-      queuedSource('naval-smart-friends-2025', 'Smart Friends conversations · 2025', 'Recent Naval revisiting wealth, judgment, learning, happiness, and philosophy.', ['Current style', 'Judgment', 'Reflection']),
+      navalSmartFriendsBuildingWealth,
+      queuedSource('naval-smart-friends-philosophy', 'Smart Friends · Philosophy · 2025', 'Recent Naval on meaning, truth, authenticity, philosophy, risk, and end games.', ['Current style', 'Philosophy', 'Reflection']),
+      queuedSource('naval-smart-friends-learning-happiness', 'Smart Friends · Learning Happiness · 2025', 'Recent Naval revisiting happiness, desire, learning, and self-observation.', ['Current style', 'Happiness', 'Learning']),
+      queuedSource('naval-smart-friends-saving-yourself', 'Smart Friends · Saving Yourself · 2025', 'Recent Naval on authenticity, environment, iteration, envy, and self-direction.', ['Current style', 'Self-direction', 'Reflection']),
+      queuedSource('naval-smart-friends-building-judgement', 'Smart Friends · Building Judgement · 2025', 'Recent Naval on judgment, decisions, knowledge, and long-term thinking.', ['Current style', 'Judgment', 'Decision-making']),
 
       // Scientific / epistemology conversations — important for studying how Naval
       // asks, reframes, and explains around genuinely technical thinkers.
