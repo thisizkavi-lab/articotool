@@ -463,6 +463,36 @@ const navalDeutschFiles1: CuratedCollection = {
   ],
 }
 
+const navalDeutschFiles2: CuratedCollection = {
+  id: 'naval-deutsch-files-2',
+  speakerId: 'naval-ravikant',
+  speaker: 'Naval Ravikant',
+  sourceTitle: 'The Deutsch Files II · 2024',
+  videoId: 'I6GNK6BR4E8',
+  videoTitle: 'The Deutsch Files II',
+  channelName: 'Naval',
+  thumbnail: 'https://i.ytimg.com/vi/I6GNK6BR4E8/hqdefault.jpg',
+  duration: 4468,
+  description: 'Naval and Brett Hall continue with David Deutsch across computation, epistemology, evolution, quantum theory, knowledge, optimism, constructor theory, and individual agency. Curated from Naval’s official full transcript plus a dense timestamped transcript aligned to the full recording; selection intentionally favors Naval’s own synthesis, clarification, and question framing over guest-heavy exposition.',
+  focus: ['Formulation', 'Articulation', 'Synthesis', 'Question framing', 'Clarification', 'Analogy'],
+  status: 'ready',
+  segments: [
+    segment('DF2-001', 0, 21, 'Question framing · open the four strands by asking what even experts fail to appreciate'),
+    segment('DF2-002', 1336, 1349, 'Distinction · instruments inherit problems from outside rather than generating their own'),
+    segment('DF2-003', 2068, 2080, 'Synthesis · knowledge, wealth, optimism, error correction, and fun converge on universal explanation'),
+    segment('DF2-004', 2391, 2424, 'Clarification · restate emergence as equally valid higher-level explanation'),
+    segment('DF2-005', 2788, 2809, 'Synthesis · problem → creative solution → knowledge → causal replication'),
+    segment('DF2-006', 2813, 2833, 'Analogy · knowledge propagates through the multiverse like a growing crystal'),
+    segment('DF2-007', 2854, 2871, 'Qualification · knowledge only exists relative to the problem it actually solves'),
+    segment('DF2-008', 3051, 3071, 'Synthesis · the right problems plus solutions grow both knowledge and wealth'),
+    segment('DF2-009', 3377, 3390, 'Compression · the inanimate universe has immense scale but little diversity of knowledge'),
+    segment('DF2-010', 3390, 3414, 'Synthesis · evolution creates knowledge slowly; human creativity accelerates it dramatically'),
+    segment('DF2-011', 3415, 3431, 'Formulation · universal explainers stand at the beginning of an infinity of knowledge'),
+    segment('DF2-012', 3672, 3699, 'Reframing · timeless explanation beats reducing reality to initial conditions'),
+    segment('DF2-013', 4205, 4227, 'Question framing · translate the four strands into a better life and a better world'),
+  ],
+}
+
 const queuedSource = (
   id: string,
   sourceTitle: string,
@@ -511,7 +541,7 @@ export const CURATED_SPEAKERS: CuratedSpeaker[] = [
       queuedSource('naval-deutsch-knowledge-1', 'David Deutsch · Knowledge Creation and the Human Race · Part 1', 'Naval in sustained conversation with physicist David Deutsch on knowledge, AGI, explanations, and quantum computing.', ['Scientific dialogue', 'Questions', 'Clarification']),
       navalDeutschKnowledge2,
       navalDeutschFiles1,
-      queuedSource('naval-deutsch-files-2', 'The Deutsch Files II · 2024', 'The four strands of The Fabric of Reality and difficult explanatory territory.', ['Scientific explanation', 'Clarification', 'First principles']),
+      navalDeutschFiles2,
       queuedSource('naval-deutsch-files-3', 'The Deutsch Files III · 2024', 'Technical conversation around AGI, Popper, misunderstanding, and explanation.', ['Scientific dialogue', 'Disagreement', 'Precision']),
       queuedSource('naval-deutsch-files-4', 'The Deutsch Files IV · 2024', 'Long-form attempt to connect Deutsch’s major theories into one coherent picture.', ['Synthesis', 'Technical questioning', 'Conceptual structure']),
       queuedSource('naval-tim-ferriss-662', 'Tim Ferriss #662 · David Deutsch + Naval Ravikant', 'Naval alongside a leading physicist discussing reality, knowledge, AGI, quantum computing, optimism, and wealth.', ['Scientific dialogue', 'Translation', 'High-level synthesis']),
