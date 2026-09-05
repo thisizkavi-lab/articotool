@@ -303,6 +303,53 @@ const navalSmartFriendsBuildingWealth: CuratedCollection = {
   ],
 }
 
+const navalTimFerriss97: CuratedCollection = {
+  id: 'naval-tim-ferriss-97',
+  speakerId: 'naval-ravikant',
+  speaker: 'Naval Ravikant',
+  sourceTitle: 'The Tim Ferriss Show #97 · 2015',
+  videoId: '-7J-Gwc9pVg',
+  videoTitle: 'The Person I Call Most for Startup Advice - Naval Ravikant',
+  channelName: 'Tim Ferriss',
+  thumbnail: 'https://i.ytimg.com/vi/-7J-Gwc9pVg/hqdefault.jpg',
+  duration: 8037,
+  description: 'Naval’s first Tim Ferriss appearance: an unusually rich early snapshot of his thinking on happiness, honesty, integrity, reading, attention, self-observation, commitment, time, and desire. Curated primarily for memorable formulation and complete trainable thoughts.',
+  focus: ['Formulation', 'Articulation', 'Reframing', 'Integrity', 'Self-observation', 'Reading'],
+  status: 'ready',
+  segments: [
+    segment('TF97-001', 447, 489, 'Reframing · humans are meant for changing problems, not repetitive specialization'),
+    segment('TF97-002', 641, 679, 'Distinction · success intensity and happiness pull in opposite directions'),
+    segment('TF97-003', 679, 713, 'Reframing · comparison-driven success quietly manufactures unhappiness'),
+    segment('TF97-004', 713, 748, 'Formulation · happiness is internal, chosen, and trainable'),
+    segment('TF97-005', 1082, 1126, 'Formulation · Feynman-style honesty means refusing to fool yourself'),
+    segment('TF97-006', 1166, 1206, 'Explanation · dishonesty creates a second mental thread you must maintain'),
+    segment('TF97-007', 1396, 1431, 'Reframing · the information revolution reverses the logic of the industrial firm'),
+    segment('TF97-008', 1515, 1541, 'Formulation · humans are built to work for themselves, not inside hierarchies'),
+    segment('TF97-009', 1584, 1628, 'Framework · intelligence and energy are necessary but not sufficient'),
+    segment('TF97-010', 1628, 1666, 'Definition · intelligence plus energy without integrity creates a smart crook'),
+    segment('TF97-011', 1666, 1709, 'Decision rule · unfairness toward others predicts future unfairness toward you'),
+    segment('TF97-012', 1709, 1745, 'Formulation · scarce time and mental energy matter more than money'),
+    segment('TF97-013', 1956, 1999, 'Reframing · being right when everyone disagrees is where the payoff lives'),
+    segment('TF97-014', 2618, 2654, 'Reframing · old human problems often have older, time-tested solutions'),
+    segment('TF97-015', 2686, 2728, 'Method · treat books like disposable posts so curiosity can beat completion'),
+    segment('TF97-016', 2812, 2849, 'Distinction · more facts can leave you with no more wisdom'),
+    segment('TF97-017', 3631, 3676, 'Definition · the real winners step out of the status game entirely'),
+    segment('TF97-018', 3810, 3837, 'Definition · enlightenment as the space between thoughts'),
+    segment('TF97-019', 3964, 4001, 'Self-observation · watch fear clearly and it begins to dissolve'),
+    segment('TF97-020', 4918, 4958, 'Reframing · saying “I’ll try” often disguises postponement'),
+    segment('TF97-021', 4958, 4998, 'Instruction · external commitment removes the escape hatch'),
+    segment('TF97-022', 4998, 5039, 'Qualification · choose a smaller honest change when you are not ready for total change'),
+    segment('TF97-023', 5769, 5799, 'Analogy · live as the star of the movie of your own life'),
+    segment('TF97-024', 5945, 5985, 'Self-observation · most waking thought is a dream you can catch yourself inside'),
+    segment('TF97-025', 6038, 6071, 'Meta-formulation · use a written vocabulary while speaking'),
+    segment('TF97-026', 6313, 6349, 'Reframing · freedom to skip and abandon books makes reading sustainable'),
+    segment('TF97-027', 6655, 6688, 'Formulation · learning how to learn is the ultimate meta-skill'),
+    segment('TF97-028', 6751, 6775, 'Instruction · be yourself, say no more, and protect your finite time'),
+    segment('TF97-029', 7526, 7569, 'Definition · desire is a contract to be unhappy until you get what you want'),
+    segment('TF97-030', 7610, 7640, 'Framework · change it, accept it, or leave it'),
+  ],
+}
+
 const queuedSource = (
   id: string,
   sourceTitle: string,
@@ -342,6 +389,7 @@ export const CURATED_SPEAKERS: CuratedSpeaker[] = [
       queuedSource('naval-smart-friends-learning-happiness', 'Smart Friends · Learning Happiness · 2025', 'Recent Naval revisiting happiness, desire, learning, and self-observation.', ['Current style', 'Happiness', 'Learning']),
       queuedSource('naval-smart-friends-saving-yourself', 'Smart Friends · Saving Yourself · 2025', 'Recent Naval on authenticity, environment, iteration, envy, and self-direction.', ['Current style', 'Self-direction', 'Reflection']),
       queuedSource('naval-smart-friends-building-judgement', 'Smart Friends · Building Judgement · 2025', 'Recent Naval on judgment, decisions, knowledge, and long-term thinking.', ['Current style', 'Judgment', 'Decision-making']),
+      navalTimFerriss97,
 
       // Scientific / epistemology conversations — important for studying how Naval
       // asks, reframes, and explains around genuinely technical thinkers.
