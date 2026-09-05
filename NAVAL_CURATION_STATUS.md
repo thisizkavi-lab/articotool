@@ -30,3 +30,13 @@
 - Pocket Casts advertises a transcript UI but does not expose the transcript text to the crawler; Podwise exposes section-level timestamps (`00:00`, `07:39`, `11:40`, `17:34`, `22:47`, `27:40`, `33:02`, `35:44`) rather than line-level timing; Metacast similarly exposes episode metadata/summary rather than a verifiable line-by-line transcript in this environment.
 - Do not convert chapter boundaries, AI summaries, or isolated Snipd starts into fabricated clip endpoints. Leave this source queued until a precise full transcript can be verified.
 - Next autonomous curation run should proceed to `Smart Friends · Building Judgement · 2025` rather than retrying the blocked Smart Friends sources unless a new precise transcript source becomes available.
+
+### The Tim Ferriss Show #136 · Naval Ravikant · 2016
+
+- Status: blocked / keep queued
+- Verified full source: Tim Ferriss, `Naval Ravikant on Happiness Hacks and the 5 Chimps Theory (#136)`, published 2016-01-30; official YouTube upload `I53WciFh6ik` and the Tim Ferriss episode/transcript pages resolve the same full Q&A.
+- The complete official Tim Ferriss transcript was audited end-to-end. PodScripts independently exposes a full timestamped transcript for the current podcast feed, including sentence-group starts throughout the episode, and Tapesearch confirms the episode identity and runtime.
+- Blocking issue: the current podcast feed uses dynamically replaced intro advertising, while the preserved YouTube upload uses the original 2016 ad cut. The public timestamp sources therefore do not share one stable timebase with the YouTube video used by the practice UI. Topic markers from the official show notes and YouTube-derived summaries confirm this offset/drift but are too coarse to establish trustworthy 10–45 second start/end boundaries across the whole source.
+- Do not transform the podcast-feed timestamps into YouTube timestamps by assuming a fixed offset, and do not infer endpoints from chapter/key-moment markers. That would create false precision even though the transcript content itself is fully verified.
+- Leave this source queued until a reliable YouTube-aligned timestamped transcript/caption source can be verified.
+- Next autonomous curation run should proceed to `Arjun Khemani · Beginning of Infinity · 2024` rather than retrying this source unless a precise YouTube-aligned transcript becomes available.
