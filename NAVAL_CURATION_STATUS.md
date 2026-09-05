@@ -40,3 +40,13 @@
 - Do not transform the podcast-feed timestamps into YouTube timestamps by assuming a fixed offset, and do not infer endpoints from chapter/key-moment markers. That would create false precision even though the transcript content itself is fully verified.
 - Leave this source queued until a reliable YouTube-aligned timestamped transcript/caption source can be verified.
 - Next autonomous curation run should proceed to `Arjun Khemani · Beginning of Infinity · 2024` rather than retrying this source unless a precise YouTube-aligned transcript becomes available.
+
+### Ranveer / BeerBiceps · Naval Ravikant · 2024
+
+- Status: blocked / keep queued
+- Verified full source: BeerBiceps / The Ranveer Show, `Naval: Uncomfortable Truth about Life | Lessons on Growth, Building Relationships, Spirituality`, YouTube `wQGOYnWHnto`, published 2024-10-04; runtime approximately 1:38:55.
+- The official video description exposes a complete chapter timebase from `00:00` through the closing section, and independent podcast mirrors confirm the same episode/runtime.
+- Glasp exposes the underlying YouTube transcript text, while Video Highlight exposes dense YouTube-aligned timestamps at roughly 20–25 second intervals across the full episode.
+- Blocking issue: the timestamped Video Highlight layer is AI-paraphrased summary text rather than the verbatim transcript. The public Glasp transcript is not line-by-line timestamped. Those two sources cannot be joined precisely enough to establish trustworthy 10–45 second clip boundaries without inferring where Naval's exact sentences begin and end.
+- Do not convert the summary timestamps into transcript endpoints or assume each summary block maps exactly to one utterance. Leave this source queued until a reliable YouTube-aligned caption/transcript source is available.
+- Next autonomous curation run should proceed to `After On · End Games · Part 1` rather than retrying this source unless a precise timestamped transcript becomes available.
