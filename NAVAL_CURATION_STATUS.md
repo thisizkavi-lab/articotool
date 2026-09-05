@@ -40,3 +40,13 @@
 - Do not transform the podcast-feed timestamps into YouTube timestamps by assuming a fixed offset, and do not infer endpoints from chapter/key-moment markers. That would create false precision even though the transcript content itself is fully verified.
 - Leave this source queued until a reliable YouTube-aligned timestamped transcript/caption source can be verified.
 - Next autonomous curation run should proceed to `Arjun Khemani · Beginning of Infinity · 2024` rather than retrying this source unless a precise YouTube-aligned transcript becomes available.
+
+### Arjun Khemani · The Beginning of Infinity · 2024
+
+- Status: blocked / keep queued
+- Verified full source: `Naval Ravikant: The Beginning of Infinity` by Arjun Khemani, published 2024-12-18; official YouTube upload `yAj5EnyuakI`, runtime approximately 1:13:45.
+- The official Arjun Khemani page and YouTube description expose chapter markers across the complete conversation, from `00:00` (The Theory of Everything) through `1:08:19` (The biggest threats to Western civilization). Listen Notes independently confirms the same episode identity, runtime, and chapter timebase.
+- Blocking issue: the official page currently shows a transcript control but does not expose the transcript text publicly; Listen Notes explicitly has no producer-supplied transcript; Deciphr exposes generated summary notes rather than a full timestamped transcript. No public source located in this run provided an auditable line-by-line transcript aligned to the YouTube video.
+- Chapter markers are too coarse to produce trustworthy 10–45 second shadowing segments, and secondary quote/highlight pages are not sufficient substitutes for scanning the full source.
+- Do not infer clip endpoints from chapter boundaries, summaries, quote compilations, or fan edits. Leave this source queued until a reliable full YouTube-aligned timestamped transcript/caption source can be verified.
+- Next autonomous curation run should proceed to `Ranveer / BeerBiceps · Naval Ravikant · 2024` unless a precise transcript for this source becomes available.
