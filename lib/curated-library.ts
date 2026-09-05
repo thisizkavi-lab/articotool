@@ -350,6 +350,34 @@ const navalTimFerriss97: CuratedCollection = {
   ],
 }
 
+const navalAfterOnEndGames1: CuratedCollection = {
+  id: 'naval-after-on-end-games-1',
+  speakerId: 'naval-ravikant',
+  speaker: 'Naval Ravikant',
+  sourceTitle: 'After On · End Games · Part 1 · 2019',
+  videoId: 'brUC8Vh2gms',
+  videoTitle: '44: End Games (part 1) | Naval Ravikant',
+  channelName: 'After On Podcast',
+  thumbnail: 'https://i.ytimg.com/vi/brUC8Vh2gms/hqdefault.jpg',
+  duration: 4423,
+  description: 'Naval with Rob Reid on existential risk, destructive-power asymmetry, drones, AI, incentives, and civilization-scale technological risk. Curated conservatively from the official timestamped transcript, prioritizing complete trainable thoughts with auditable boundaries.',
+  focus: ['Formulation', 'Articulation', 'Analogy', 'Risk', 'Incentives', 'Qualification'],
+  status: 'ready',
+  segments: [
+    segment('AOEG1-001', 865, 902, 'Reframing · overestimate technology in the short run, underestimate it in the long run'),
+    segment('AOEG1-002', 971, 1002, 'Distinction · destructive capability arrives before safe, scalable creation'),
+    segment('AOEG1-003', 1096, 1137, 'Analogy · drones become guided bullets as targeting gets cheaper'),
+    segment('AOEG1-004', 1389, 1401, 'Reframing · technological scrutiny eventually reaches heads of state too'),
+    segment('AOEG1-005', 1650, 1688, 'Qualification · Pascal’s wager fails when humans reason badly about infinities'),
+    segment('AOEG1-006', 1807, 1819, 'Compression · privatized gains and socialized losses distort existential-risk incentives'),
+    segment('AOEG1-007', 1946, 1979, 'Explanation · incentives shape expert judgment; seek disinterested observers'),
+    segment('AOEG1-008', 2892, 2918, 'Analogy · infer how AI may treat us from how humans treat weaker creatures'),
+    segment('AOEG1-009', 3045, 3067, 'Qualification · even a benevolent superintelligence could reduce humans to irrelevance'),
+    segment('AOEG1-010', 3452, 3465, 'Formulation · taming nature may eventually imply possessing the power to end it'),
+    segment('AOEG1-011', 3598, 3627, 'Historical example · technical capability plus state incentives can cross moral lines'),
+  ],
+}
+
 const queuedSource = (
   id: string,
   sourceTitle: string,
@@ -390,6 +418,7 @@ export const CURATED_SPEAKERS: CuratedSpeaker[] = [
       queuedSource('naval-smart-friends-saving-yourself', 'Smart Friends · Saving Yourself · 2025', 'Recent Naval on authenticity, environment, iteration, envy, and self-direction.', ['Current style', 'Self-direction', 'Reflection']),
       queuedSource('naval-smart-friends-building-judgement', 'Smart Friends · Building Judgement · 2025', 'Recent Naval on judgment, decisions, knowledge, and long-term thinking.', ['Current style', 'Judgment', 'Decision-making']),
       navalTimFerriss97,
+      navalAfterOnEndGames1,
 
       // Scientific / epistemology conversations — important for studying how Naval
       // asks, reframes, and explains around genuinely technical thinkers.
