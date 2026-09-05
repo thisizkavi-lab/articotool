@@ -40,3 +40,13 @@
 - Do not transform the podcast-feed timestamps into YouTube timestamps by assuming a fixed offset, and do not infer endpoints from chapter/key-moment markers. That would create false precision even though the transcript content itself is fully verified.
 - Leave this source queued until a reliable YouTube-aligned timestamped transcript/caption source can be verified.
 - Next autonomous curation run should proceed to `Arjun Khemani · Beginning of Infinity · 2024` rather than retrying this source unless a precise YouTube-aligned transcript becomes available.
+
+### After On · End Games · Part 2 · 2019
+
+- Status: blocked / keep queued
+- Verified full source: The After On Podcast #45, `End Games (part 2) | Naval Ravikant`, published 2019-03-21, runtime approximately 1:06:02–1:06:04 across current public podcast mirrors.
+- Rob Reid's official integrated transcript covers Part 2 end-to-end and includes transcript-anchored timestamps throughout the conversation, including exact spans for several especially strong Naval formulations.
+- Tapesearch independently confirms the same episode identity, publication date, runtime, and podcast timebase.
+- Blocking issue: no stable public YouTube upload for Part 2 could be verified in this run. The current curated practice flow is YouTube-based, so adding podcast-timed segments against an unverified or unrelated video ID would make the source appear complete while breaking actual playback/shadowing alignment.
+- Do not substitute fan edits, mirrors, or inferred YouTube IDs. Keep this source queued until a stable full YouTube source with matching timebase can be verified, or until the practice UI explicitly supports a non-YouTube audio source.
+- Next autonomous curation run should proceed to `Sell the Truth · 2026`.
