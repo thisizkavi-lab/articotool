@@ -5,7 +5,27 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Plus, ChevronLeft, ChevronRight, RotateCcw, Repeat, Mic, Square, Loader2, Clock, Trash2, Circle, Play, FileText, StickyNote, Edit, Check } from 'lucide-react'
+import {
+    Plus,
+    ChevronLeft,
+    ChevronRight,
+    RotateCcw,
+    Repeat,
+    Mic,
+    Square,
+    Loader2,
+    Clock,
+    Trash2,
+    Circle,
+    Play,
+    FileText,
+    StickyNote,
+    Edit,
+    Check,
+    Camera,
+    CameraOff,
+    X,
+} from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { BulkAddSegmentsForm } from '@/components/bulk-add-segments-form'
 import { Textarea } from '@/components/ui/textarea'
@@ -52,6 +72,9 @@ interface UnifiedPracticeViewProps {
     isLoading?: boolean
 }
 
+type CameraStatus = 'idle' | 'starting' | 'ready' | 'error'
+type PreviewType = 'audio' | 'video' | null
+
 export function UnifiedPracticeView({
     video,
     recordings,
@@ -80,6 +103,10 @@ export function UnifiedPracticeView({
     const [countdown, setCountdown] = useState<number | null>(null)
     const [recordingTime, setRecordingTime] = useState(0)
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+    const [previewType, setPreviewType] = useState<PreviewType>(null)
+    const [previewIsUnsaved, setPreviewIsUnsaved] = useState(false)
+    const [cameraStatus, setCameraStatus] = useState<CameraStatus>('idle')
+    const [cameraError, setCameraError] = useState('')
 
     const playerRef = useRef<YTPlayer | null>(null)
     const playerReadyRef = useRef(false)
@@ -89,30 +116,102 @@ export function UnifiedPracticeView({
 
     const mediaRecorderRef = useRef<MediaRecorder | null>(null)
     const chunksRef = useRef<Blob[]>([])
-    const streamRef = useRef<MediaStream | null>(null)
+    const previewStreamRef = useRef<MediaStream | null>(null)
+    const recordingStreamRef = useRef<MediaStream | null>(null)
     const liveVideoRef = useRef<HTMLVideoElement>(null)
-    const playbackVideoRef = useRef<HTMLVideoElement>(null)
-    const playbackAudioRef = useRef<HTMLAudioElement>(null)
     const recordingTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-    const stopAllStreams = useCallback(() => {
-        if (streamRef.current) {
-            streamRef.current.getTracks().forEach(track => track.stop())
-            streamRef.current = null
+    const stopPreviewCamera = useCallback(() => {
+        if (previewStreamRef.current) {
+            previewStreamRef.current.getTracks().forEach(track => track.stop())
+            previewStreamRef.current = null
         }
         if (liveVideoRef.current) liveVideoRef.current.srcObject = null
+        setCameraStatus('idle')
     }, [])
+
+    const stopRecordingStream = useCallback(() => {
+        if (recordingStreamRef.current) {
+            recordingStreamRef.current.getTracks().forEach(track => track.stop())
+            recordingStreamRef.current = null
+        }
+    }, [])
+
+    const attachPreviewStream = useCallback(async (stream: MediaStream) => {
+        if (!liveVideoRef.current) return
+        if (liveVideoRef.current.srcObject !== stream) liveVideoRef.current.srcObject = stream
+        await liveVideoRef.current.play().catch(() => { })
+    }, [])
+
+    const ensurePreviewCamera = useCallback(async (): Promise<MediaStream | null> => {
+        const existing = previewStreamRef.current
+        const existingTrack = existing?.getVideoTracks()[0]
+
+        if (existing && existingTrack?.readyState === 'live') {
+            await attachPreviewStream(existing)
+            setCameraStatus('ready')
+            return existing
+        }
+
+        if (!navigator.mediaDevices?.getUserMedia) {
+            setCameraStatus('error')
+            setCameraError('Camera access is not available in this browser.')
+            return null
+        }
+
+        setCameraStatus('starting')
+        setCameraError('')
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: 'user',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                },
+                audio: false,
+            })
+
+            previewStreamRef.current = stream
+            await attachPreviewStream(stream)
+            setCameraStatus('ready')
+            return stream
+        } catch (error) {
+            console.error('Failed to start camera preview:', error)
+            setCameraStatus('error')
+            setCameraError('Camera permission is blocked. Allow camera access and try again.')
+            return null
+        }
+    }, [attachPreviewStream])
 
     useEffect(() => {
         setNotesText(video.notes || '')
     }, [video.id, video.notes])
 
     useEffect(() => {
+        if (panelMode !== 'record') {
+            stopPreviewCamera()
+            return
+        }
+
+        let active = true
+        ensurePreviewCamera().then(stream => {
+            if (!active && stream) stopPreviewCamera()
+        })
+
         return () => {
-            stopAllStreams()
+            active = false
+            stopPreviewCamera()
+        }
+    }, [panelMode, video.id, ensurePreviewCamera, stopPreviewCamera])
+
+    useEffect(() => {
+        return () => {
+            stopPreviewCamera()
+            stopRecordingStream()
             if (recordingTimerRef.current) clearInterval(recordingTimerRef.current)
         }
-    }, [stopAllStreams])
+    }, [stopPreviewCamera, stopRecordingStream])
 
     useEffect(() => {
         if (!video.id) return
@@ -215,6 +314,8 @@ export function UnifiedPracticeView({
 
         setActiveSegmentIndex(index)
         setPreviewUrl(null)
+        setPreviewType(null)
+        setPreviewIsUnsaved(false)
         setIsLooping(true)
 
         if (playerRef.current && playerReadyRef.current) {
@@ -237,19 +338,31 @@ export function UnifiedPracticeView({
     const startRecording = async () => {
         if (activeSegmentIndex === null || (!recordAudio && !recordVideo)) return
 
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: recordVideo ? { facingMode: 'user', width: 640, height: 480 } : false,
-                audio: recordAudio,
-            })
+        const pendingTracks: MediaStreamTrack[] = []
 
-            streamRef.current = stream
-            if (liveVideoRef.current && recordVideo) {
-                liveVideoRef.current.srcObject = stream
-                await liveVideoRef.current.play().catch(() => { })
+        try {
+            setPreviewUrl(null)
+            setPreviewType(null)
+            setPreviewIsUnsaved(false)
+
+            if (recordVideo) {
+                const previewStream = await ensurePreviewCamera()
+                const cameraTrack = previewStream?.getVideoTracks()[0]
+                if (!cameraTrack) throw new Error('Camera is unavailable')
+                pendingTracks.push(cameraTrack.clone())
             }
 
-            setPreviewUrl(null)
+            if (recordAudio) {
+                const audioStream = await navigator.mediaDevices.getUserMedia({
+                    audio: true,
+                    video: false,
+                })
+                pendingTracks.push(...audioStream.getAudioTracks())
+            }
+
+            const recordingStream = new MediaStream(pendingTracks)
+            recordingStreamRef.current = recordingStream
+
             setCountdown(3)
             await new Promise(resolve => setTimeout(resolve, 1000))
             setCountdown(2)
@@ -263,7 +376,7 @@ export function UnifiedPracticeView({
             if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = recordVideo ? 'video/webm;codecs=vp8' : 'audio/webm'
             if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = recordVideo ? 'video/webm' : 'audio/webm'
 
-            const mediaRecorder = new MediaRecorder(stream, { mimeType })
+            const mediaRecorder = new MediaRecorder(recordingStream, { mimeType })
             mediaRecorder.ondataavailable = event => {
                 if (event.data.size > 0) chunksRef.current.push(event.data)
             }
@@ -271,8 +384,11 @@ export function UnifiedPracticeView({
                 if (chunksRef.current.length > 0) {
                     const blob = new Blob(chunksRef.current, { type: mimeType })
                     setPreviewUrl(URL.createObjectURL(blob))
+                    setPreviewType(recordVideo ? 'video' : 'audio')
+                    setPreviewIsUnsaved(true)
                 }
-                stopAllStreams()
+                stopRecordingStream()
+                setIsRecording(false)
             }
 
             mediaRecorderRef.current = mediaRecorder
@@ -290,7 +406,8 @@ export function UnifiedPracticeView({
         } catch (error) {
             console.error('Failed to start recording:', error)
             setCountdown(null)
-            stopAllStreams()
+            pendingTracks.forEach(track => track.stop())
+            stopRecordingStream()
         }
     }
 
@@ -484,94 +601,158 @@ export function UnifiedPracticeView({
                                 )}
                             </div>
                         ) : (
-                            <div className="h-full flex flex-col space-y-4">
-                                {!activeSegment ? (
-                                    <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
-                                        <Mic className="h-9 w-9 text-muted-foreground/40 mb-3" />
-                                        <p className="text-sm font-medium">Choose a segment first</p>
-                                        <p className="text-xs text-muted-foreground mt-1 max-w-xs">Watch it a few times, imitate it out loud, then record a take when you are ready.</p>
+                            <div className="h-full flex flex-col space-y-3">
+                                <div className="shrink-0">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-semibold truncate">
+                                                {activeSegment ? activeSegment.label : 'Mirror preview'}
+                                            </p>
+                                            <p className="text-xs text-muted-foreground mt-0.5">
+                                                {activeSegment
+                                                    ? `${formatTime(activeSegment.start)} – ${formatTime(activeSegment.end)}`
+                                                    : 'Choose a segment when you are ready to record.'}
+                                            </p>
+                                        </div>
+                                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground border border-border/60 rounded-full px-2 py-1 shrink-0">
+                                            Mirrored
+                                        </span>
                                     </div>
-                                ) : (
-                                    <>
-                                        <div className="shrink-0">
-                                            <p className="text-sm font-semibold line-clamp-1">{activeSegment.label}</p>
-                                            <p className="text-xs text-muted-foreground mt-0.5 tabular-nums">{formatTime(activeSegment.start)} – {formatTime(activeSegment.end)}</p>
+                                </div>
+
+                                <div className="flex justify-center gap-6 shrink-0">
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <Checkbox checked={recordAudio} onCheckedChange={value => setRecordAudio(!!value)} disabled={isRecording} />
+                                        <span className="text-xs font-medium uppercase tracking-wider">Audio</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <Checkbox checked={recordVideo} onCheckedChange={value => setRecordVideo(!!value)} disabled={isRecording} />
+                                        <span className="text-xs font-medium uppercase tracking-wider">Video</span>
+                                    </label>
+                                </div>
+
+                                <div className="flex-1 min-h-[250px] bg-black rounded-lg relative overflow-hidden flex items-center justify-center">
+                                    <video
+                                        ref={liveVideoRef}
+                                        className={`absolute inset-0 w-full h-full object-cover scale-x-[-1] transition-opacity duration-200 ${cameraStatus === 'ready' ? 'opacity-100' : 'opacity-0'}`}
+                                        muted
+                                        playsInline
+                                    />
+
+                                    {cameraStatus === 'starting' && (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center text-white/60">
+                                            <Loader2 className="h-7 w-7 animate-spin mb-2" />
+                                            <span className="text-xs">Starting camera…</span>
                                         </div>
+                                    )}
 
-                                        <div className="flex justify-center gap-6 shrink-0">
-                                            <label className="flex items-center gap-2 cursor-pointer">
-                                                <Checkbox checked={recordAudio} onCheckedChange={value => setRecordAudio(!!value)} disabled={isRecording} />
-                                                <span className="text-xs font-medium uppercase tracking-wider">Audio</span>
-                                            </label>
-                                            <label className="flex items-center gap-2 cursor-pointer">
-                                                <Checkbox checked={recordVideo} onCheckedChange={value => setRecordVideo(!!value)} disabled={isRecording} />
-                                                <span className="text-xs font-medium uppercase tracking-wider">Video</span>
-                                            </label>
+                                    {cameraStatus === 'error' && (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 bg-black">
+                                            <CameraOff className="h-9 w-9 text-white/45 mb-3" />
+                                            <p className="text-sm text-white/80">Camera unavailable</p>
+                                            <p className="text-xs text-white/45 mt-1 max-w-xs">{cameraError}</p>
+                                            <Button size="sm" variant="secondary" className="mt-4" onClick={() => ensurePreviewCamera()}>
+                                                <Camera className="h-4 w-4 mr-2" /> Enable Camera
+                                            </Button>
                                         </div>
+                                    )}
 
-                                        <div className="flex-1 min-h-[220px] bg-black rounded-lg relative overflow-hidden flex items-center justify-center">
-                                            {countdown !== null && (
-                                                <div className="absolute inset-0 bg-black/85 flex items-center justify-center z-20 text-6xl font-bold text-white">{countdown}</div>
-                                            )}
+                                    {cameraStatus === 'ready' && !previewUrl && (
+                                        <div className="absolute top-2 right-2 bg-black/55 backdrop-blur px-2 py-1 rounded text-[10px] text-white/70 uppercase tracking-wider">
+                                            Mirror
+                                        </div>
+                                    )}
 
-                                            {previewUrl ? (
-                                                recordVideo ? (
-                                                    <video src={previewUrl} controls className="w-full h-full object-contain" />
-                                                ) : (
-                                                    <audio src={previewUrl} controls className="w-[90%]" />
-                                                )
-                                            ) : recordVideo ? (
-                                                <>
-                                                    <video ref={liveVideoRef} className="w-full h-full object-cover" muted playsInline />
-                                                    {!isRecording && countdown === null && (
-                                                        <div className="absolute inset-0 flex items-center justify-center text-xs text-white/45">Camera starts when you record</div>
-                                                    )}
-                                                </>
+                                    {previewUrl && (
+                                        <div className="absolute inset-0 z-10 bg-black flex items-center justify-center">
+                                            {previewType === 'video' ? (
+                                                <video
+                                                    src={previewUrl}
+                                                    controls
+                                                    autoPlay
+                                                    className="w-full h-full object-contain scale-x-[-1]"
+                                                />
                                             ) : (
-                                                <div className="flex flex-col items-center justify-center text-muted-foreground/50">
-                                                    <Mic className="h-10 w-10 mb-2" />
-                                                    <span className="text-xs">Audio take</span>
+                                                <div className="w-full h-full flex flex-col items-center justify-center gap-4">
+                                                    <Mic className="h-10 w-10 text-white/40" />
+                                                    <audio src={previewUrl} controls autoPlay className="w-[88%]" />
                                                 </div>
                                             )}
-
-                                            {isRecording && (
-                                                <div className="absolute top-2 left-2 bg-destructive text-white px-2 py-1 rounded text-xs font-mono flex items-center gap-1.5">
-                                                    <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-                                                    {formatTime(recordingTime)}
-                                                </div>
-                                            )}
+                                            <button
+                                                className="absolute top-2 right-2 h-8 w-8 rounded-full bg-black/65 text-white/80 flex items-center justify-center hover:bg-black/80"
+                                                onClick={() => {
+                                                    setPreviewUrl(null)
+                                                    setPreviewType(null)
+                                                    setPreviewIsUnsaved(false)
+                                                }}
+                                                aria-label="Close take preview"
+                                            >
+                                                <X className="h-4 w-4" />
+                                            </button>
                                         </div>
+                                    )}
 
-                                        <div className="flex justify-center gap-3 shrink-0">
-                                            {!isRecording && !previewUrl && (
-                                                <Button onClick={startRecording} disabled={!recordAudio && !recordVideo} className="rounded-full px-6">
-                                                    <Circle className="h-4 w-4 mr-2" /> Record Take
-                                                </Button>
-                                            )}
-                                            {isRecording && (
-                                                <Button variant="destructive" onClick={stopRecording} className="rounded-full px-6">
-                                                    <Square className="h-4 w-4 mr-2" /> Stop
-                                                </Button>
-                                            )}
-                                            {previewUrl && (
-                                                <>
-                                                    <Button variant="outline" onClick={() => setPreviewUrl(null)}>
-                                                        <RotateCcw className="h-4 w-4 mr-2" /> Retry
-                                                    </Button>
-                                                    <Button onClick={() => {
-                                                        onSaveRecording({
-                                                            id: `rec-${Date.now()}`,
-                                                            segmentId: activeSegment.id,
-                                                            blobUrl: previewUrl,
-                                                            type: recordVideo ? 'video' : 'audio',
-                                                            createdAt: Date.now(),
-                                                        })
-                                                        setPreviewUrl(null)
-                                                    }}>Save Take</Button>
-                                                </>
-                                            )}
+                                    {countdown !== null && (
+                                        <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-20 text-6xl font-bold text-white">
+                                            {countdown}
                                         </div>
-                                    </>
+                                    )}
+
+                                    {isRecording && (
+                                        <div className="absolute top-2 left-2 z-30 bg-destructive text-white px-2 py-1 rounded text-xs font-mono flex items-center gap-1.5">
+                                            <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+                                            {formatTime(recordingTime)}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="flex justify-center gap-3 shrink-0">
+                                    {!isRecording && !previewUrl && (
+                                        <Button
+                                            onClick={startRecording}
+                                            disabled={!activeSegment || (!recordAudio && !recordVideo)}
+                                            className="rounded-full px-6"
+                                        >
+                                            <Circle className="h-4 w-4 mr-2" /> Record Take
+                                        </Button>
+                                    )}
+
+                                    {isRecording && (
+                                        <Button variant="destructive" onClick={stopRecording} className="rounded-full px-6">
+                                            <Square className="h-4 w-4 mr-2" /> Stop
+                                        </Button>
+                                    )}
+
+                                    {previewUrl && previewIsUnsaved && (
+                                        <>
+                                            <Button variant="outline" onClick={() => {
+                                                setPreviewUrl(null)
+                                                setPreviewType(null)
+                                                setPreviewIsUnsaved(false)
+                                            }}>
+                                                <RotateCcw className="h-4 w-4 mr-2" /> Retry
+                                            </Button>
+                                            <Button onClick={async () => {
+                                                if (!activeSegment || !previewType) return
+                                                await onSaveRecording({
+                                                    id: `rec-${Date.now()}`,
+                                                    segmentId: activeSegment.id,
+                                                    blobUrl: previewUrl,
+                                                    type: previewType,
+                                                    createdAt: Date.now(),
+                                                })
+                                                setPreviewIsUnsaved(false)
+                                            }}>
+                                                Save Take
+                                            </Button>
+                                        </>
+                                    )}
+                                </div>
+
+                                {!activeSegment && (
+                                    <p className="text-xs text-center text-muted-foreground">
+                                        Your camera stays live here so you can watch your posture, expression, and delivery before recording.
+                                    </p>
                                 )}
 
                                 {segmentRecordings.length > 0 && (
@@ -583,13 +764,9 @@ export function UnifiedPracticeView({
                                                     <span>Take {index + 1} · {recording.type === 'video' ? 'video' : 'audio'}</span>
                                                     <div className="flex gap-1">
                                                         <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => {
-                                                            if (recording.type === 'video' && playbackVideoRef.current) {
-                                                                playbackVideoRef.current.src = recording.blobUrl
-                                                                playbackVideoRef.current.play()
-                                                            } else if (playbackAudioRef.current) {
-                                                                playbackAudioRef.current.src = recording.blobUrl
-                                                                playbackAudioRef.current.play()
-                                                            }
+                                                            setPreviewUrl(recording.blobUrl)
+                                                            setPreviewType(recording.type)
+                                                            setPreviewIsUnsaved(false)
                                                         }}>
                                                             <Play className="h-3 w-3" />
                                                         </Button>
@@ -643,9 +820,6 @@ export function UnifiedPracticeView({
                     ))}
                 </div>
             </div>
-
-            <video ref={playbackVideoRef} className="hidden" />
-            <audio ref={playbackAudioRef} className="hidden" />
         </div>
     )
 }
