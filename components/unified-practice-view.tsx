@@ -2,36 +2,32 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Plus, ChevronLeft, ChevronRight, RotateCcw, Repeat, Mic, Video, Square, Loader2, Clock, Trash2, Download, Circle, Play, FileText, StickyNote, Edit, Check } from 'lucide-react'
+import { Plus, ChevronLeft, ChevronRight, RotateCcw, Repeat, Mic, Square, Loader2, Clock, Trash2, Circle, Play, FileText, StickyNote, Edit, Check } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { BulkAddSegmentsForm } from '@/components/bulk-add-segments-form'
-import { ScrollToActiveLine } from '@/components/ui/scroll-to-active'
 import { Textarea } from '@/components/ui/textarea'
-import type { LibraryVideo, LibrarySegment, TranscriptLine, Recording } from '@/lib/types'
+import type { LibraryVideo, Recording } from '@/lib/types'
 
 function formatTime(seconds: number): string {
-    const mins = Math.floor(seconds / 60)
+    const hours = Math.floor(seconds / 3600)
+    const mins = Math.floor((seconds % 3600) / 60)
     const secs = Math.floor(seconds % 60)
+
+    if (hours > 0) return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
     return `${mins}:${secs.toString().padStart(2, '0')}`
 }
 
 function parseTimeInput(input: string): number | null {
     if (!input) return null
-    // Support "mm:ss" or just "s"
-    if (input.includes(':')) {
-        const parts = input.split(':')
-        if (parts.length === 2) {
-            const m = parseInt(parts[0])
-            const s = parseInt(parts[1])
-            if (!isNaN(m) && !isNaN(s)) return m * 60 + s
-        }
-    } else {
-        const s = parseInt(input)
-        if (!isNaN(s)) return s
-    }
+    const parts = input.split(':').map(Number)
+
+    if (parts.some(Number.isNaN)) return null
+    if (parts.length === 1) return parts[0]
+    if (parts.length === 2) return parts[0] * 60 + parts[1]
+    if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2]
     return null
 }
 
@@ -40,7 +36,6 @@ interface YTPlayer {
     pauseVideo: () => void
     seekTo: (seconds: number, allowSeekAhead: boolean) => void
     getCurrentTime: () => number
-    getPlayerState: () => number
     destroy: () => void
     cueVideoById: (videoId: string) => void
 }
@@ -48,13 +43,12 @@ interface YTPlayer {
 interface UnifiedPracticeViewProps {
     video: LibraryVideo
     recordings: Recording[]
-    onAddSegments: (segments: any[], replaceTranscript?: boolean) => Promise<void>
+    onAddSegments: (segments: any[]) => Promise<void>
     onClearSegments: () => Promise<void>
     onDeleteSegment: (segmentId: string) => Promise<void>
     onSaveRecording: (recording: Recording) => Promise<void>
     onDeleteRecording: (recordingId: string) => Promise<void>
     onUpdateNotes?: (notes: string) => Promise<void>
-    onUpdateTranscript?: (transcript: TranscriptLine[]) => Promise<void>
     isLoading?: boolean
 }
 
@@ -67,31 +61,31 @@ export function UnifiedPracticeView({
     onSaveRecording,
     onDeleteRecording,
     onUpdateNotes,
-    onUpdateTranscript,
-    isLoading = false
+    isLoading = false,
 }: UnifiedPracticeViewProps) {
     const [currentTime, setCurrentTime] = useState(0)
-    const [isPlaying, setIsPlaying] = useState(false)
     const [isLooping, setIsLooping] = useState(true)
     const [activeSegmentIndex, setActiveSegmentIndex] = useState<number | null>(null)
     const [isBulkAdding, setIsBulkAdding] = useState(false)
     const [isManualAdding, setIsManualAdding] = useState(false)
     const [manualSegment, setManualSegment] = useState({ start: '', end: '', label: '' })
     const [isBulkLoading, setIsBulkLoading] = useState(false)
-    const [panelMode, setPanelMode] = useState<'transcript' | 'record' | 'notes'>('transcript')
+    const [panelMode, setPanelMode] = useState<'record' | 'notes'>('record')
     const [isEditingNotes, setIsEditingNotes] = useState(false)
     const [notesText, setNotesText] = useState(video.notes || '')
-    const [isPastingTranscript, setIsPastingTranscript] = useState(false)
-    const [rawTranscript, setRawTranscript] = useState('')
 
-    // Recording state
     const [recordAudio, setRecordAudio] = useState(true)
     const [recordVideo, setRecordVideo] = useState(true)
     const [isRecording, setIsRecording] = useState(false)
     const [countdown, setCountdown] = useState<number | null>(null)
     const [recordingTime, setRecordingTime] = useState(0)
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-    const [isSyncPlaying, setIsSyncPlaying] = useState(false)
+
+    const playerRef = useRef<YTPlayer | null>(null)
+    const playerReadyRef = useRef(false)
+    const currentVideoIdRef = useRef<string | null>(null)
+    const timeUpdateRef = useRef<NodeJS.Timeout | null>(null)
+    const progressBarRef = useRef<HTMLDivElement>(null)
 
     const mediaRecorderRef = useRef<MediaRecorder | null>(null)
     const chunksRef = useRef<Blob[]>([])
@@ -101,133 +95,54 @@ export function UnifiedPracticeView({
     const playbackAudioRef = useRef<HTMLAudioElement>(null)
     const recordingTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-    const playerRef = useRef<YTPlayer | null>(null)
-    const playerReadyRef = useRef(false)
-    const timeUpdateRef = useRef<NodeJS.Timeout | null>(null)
-    const progressBarRef = useRef<HTMLDivElement>(null)
-    const transcriptContainerRef = useRef<HTMLDivElement>(null)
-    const youtubeContainerRef = useRef<HTMLDivElement>(null)
-
     const stopAllStreams = useCallback(() => {
         if (streamRef.current) {
             streamRef.current.getTracks().forEach(track => track.stop())
             streamRef.current = null
         }
-        if (liveVideoRef.current && liveVideoRef.current.srcObject) {
-            const stream = liveVideoRef.current.srcObject as MediaStream
-            stream.getTracks().forEach(track => track.stop())
-            liveVideoRef.current.srcObject = null
-        }
+        if (liveVideoRef.current) liveVideoRef.current.srcObject = null
     }, [])
 
-    // Manage media stream lifecycle
     useEffect(() => {
-        let cancelled = false
-        const setupStream = async () => {
-            const shouldBeActive = panelMode === 'record' && !isRecording && !previewUrl && (recordVideo || recordAudio) && activeSegmentIndex !== null
+        setNotesText(video.notes || '')
+    }, [video.id, video.notes])
 
-            if (shouldBeActive) {
-                if (streamRef.current) return // Already active
-
-                try {
-                    const constraints = {
-                        video: recordVideo ? { facingMode: 'user', width: 640, height: 480 } : false,
-                        audio: recordAudio
-                    }
-                    const stream = await navigator.mediaDevices.getUserMedia(constraints)
-                    if (cancelled) {
-                        stream.getTracks().forEach(track => track.stop())
-                        return
-                    }
-                    streamRef.current = stream
-                    if (liveVideoRef.current && recordVideo) {
-                        liveVideoRef.current.srcObject = stream
-                        liveVideoRef.current.play().catch(() => { })
-                    }
-                } catch (err) {
-                    console.error('Failed to start media stream:', err)
-                }
-            } else {
-                stopAllStreams()
-            }
-        }
-        setupStream()
+    useEffect(() => {
         return () => {
-            cancelled = true
             stopAllStreams()
+            if (recordingTimerRef.current) clearInterval(recordingTimerRef.current)
         }
-    }, [panelMode, isRecording, previewUrl, recordVideo, recordAudio, activeSegmentIndex, stopAllStreams])
-
-    // YouTube integration - use stable container and cueVideoById instead of recreating
-    const currentVideoIdRef = useRef<string | null>(null)
+    }, [stopAllStreams])
 
     useEffect(() => {
-        if (!video || !video.id) {
-            console.log('[YT Debug] No video or video.id, skipping initialization')
-            return
-        }
+        if (!video.id) return
 
         const containerId = 'youtube-player-container'
-        console.log('[YT Debug] Starting player initialization for:', video.id)
-        console.log('[YT Debug] Current videoId in ref:', currentVideoIdRef.current)
-        console.log('[YT Debug] window.YT exists:', !!window.YT)
-        console.log('[YT Debug] playerRef.current exists:', !!playerRef.current)
+        let timeoutId: NodeJS.Timeout | undefined
+        let cancelled = false
 
         const initPlayer = () => {
-            console.log('[YT Debug] initPlayer called')
+            if (cancelled || !window.YT?.Player) return false
             const container = document.getElementById(containerId)
-            console.log('[YT Debug] container element found:', !!container)
+            if (!container) return false
 
-            if (!container) {
-                console.log('[YT Debug] Container not found in DOM, cannot initialize player')
-                return false
-            }
-
-            // Check if container has an iframe (player is attached to DOM)
             const existingIframe = container.querySelector('iframe')
-            console.log('[YT Debug] Container has iframe:', !!existingIframe)
 
-            // If player exists but iframe is missing, the player was detached by React - destroy it
-            if (playerRef.current && !existingIframe) {
-                console.log('[YT Debug] Player exists but iframe missing - player detached, destroying stale reference')
-                try {
-                    playerRef.current.destroy()
-                } catch (e) {
-                    console.log('[YT Debug] Error destroying detached player:', e)
-                }
-                playerRef.current = null
-                playerReadyRef.current = false
-            }
-
-            // If player already exists AND iframe exists, just load the new video
             if (playerRef.current && playerReadyRef.current && existingIframe) {
                 if (currentVideoIdRef.current !== video.id) {
-                    console.log('[YT Debug] Player exists and attached, loading new video via cueVideoById')
-                    try {
-                        playerRef.current.cueVideoById(video.id)
-                        currentVideoIdRef.current = video.id
-                    } catch (e) {
-                        console.log('[YT Debug] Error loading video:', e)
-                    }
-                } else {
-                    console.log('[YT Debug] Same video already loaded, skipping')
+                    playerRef.current.cueVideoById(video.id)
+                    currentVideoIdRef.current = video.id
                 }
                 return true
             }
 
-            // Destroy existing player if it exists but isn't ready
-            if (playerRef.current) {
-                console.log('[YT Debug] Destroying existing unready player')
-                try {
-                    playerRef.current.destroy()
-                } catch (e) {
-                    console.log('[YT Debug] Error destroying player:', e)
-                }
+            if (playerRef.current && !existingIframe) {
+                try { playerRef.current.destroy() } catch { }
                 playerRef.current = null
+                playerReadyRef.current = false
             }
 
-            console.log('[YT Debug] Creating new YT.Player')
-            // @ts-ignore - YouTube API accepts string ID
+            // @ts-ignore YouTube iframe API is loaded globally.
             playerRef.current = new window.YT.Player(containerId, {
                 videoId: video.id,
                 width: '100%',
@@ -235,134 +150,123 @@ export function UnifiedPracticeView({
                 playerVars: { autoplay: 0, controls: 1, modestbranding: 1, rel: 0 },
                 events: {
                     onReady: () => {
-                        console.log('[YT Debug] Player ready!')
                         playerReadyRef.current = true
                         currentVideoIdRef.current = video.id
                     },
-                    onStateChange: (event: any) => { setIsPlaying(event.data === window.YT.PlayerState.PLAYING) },
-                    // @ts-ignore - onError is a valid YouTube API event
-                    onError: (event: any) => { console.error('[YT Debug] Player error:', event.data) },
+                    onError: (event: any) => console.error('[YT] player error:', event.data),
                 },
             })
             return true
         }
 
-        // Retry mechanism - wait for container to be available
-        let retryCount = 0
-        const maxRetries = 20
-        const retryInterval = 100 // ms
-
-        const tryInitPlayer = () => {
-            if (window.YT && window.YT.Player) {
-                console.log('[YT Debug] YT API ready, attempt', retryCount + 1)
-                if (initPlayer()) {
-                    return // Success
-                }
-            }
-
-            retryCount++
-            if (retryCount < maxRetries) {
-                console.log('[YT Debug] Retrying in', retryInterval, 'ms (attempt', retryCount, 'of', maxRetries, ')')
-                timeoutId = setTimeout(tryInitPlayer, retryInterval)
-            } else {
-                console.error('[YT Debug] Failed to initialize player after', maxRetries, 'attempts')
-            }
+        const tryInit = (attempt = 0) => {
+            if (initPlayer()) return
+            if (attempt < 24) timeoutId = setTimeout(() => tryInit(attempt + 1), 100)
         }
 
-        let timeoutId: NodeJS.Timeout
-
-        // Check if YT API is loaded, if not load it
         if (!window.YT) {
-            console.log('[YT Debug] Loading YT API script')
             const existingScript = document.querySelector('script[src="https://www.youtube.com/iframe_api"]')
             if (!existingScript) {
                 const tag = document.createElement('script')
                 tag.src = 'https://www.youtube.com/iframe_api'
-                const firstScriptTag = document.getElementsByTagName('script')[0]
-                firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag)
+                document.head.appendChild(tag)
             }
+            const previousReady = window.onYouTubeIframeAPIReady
             window.onYouTubeIframeAPIReady = () => {
-                console.log('[YT Debug] onYouTubeIframeAPIReady called')
-                tryInitPlayer()
+                if (typeof previousReady === 'function') previousReady()
+                tryInit()
             }
         } else {
-            // Small initial delay then start retrying
-            timeoutId = setTimeout(tryInitPlayer, 50)
+            tryInit()
         }
 
         return () => {
-            clearTimeout(timeoutId)
-            // Don't destroy the player on cleanup - keep it stable
+            cancelled = true
+            if (timeoutId) clearTimeout(timeoutId)
         }
     }, [video.id])
 
-    // Time update loop
     useEffect(() => {
         timeUpdateRef.current = setInterval(() => {
-            if (playerRef.current && playerReadyRef.current && typeof playerRef.current.getCurrentTime === 'function') {
-                try {
-                    const time = playerRef.current.getCurrentTime()
-                    setCurrentTime(time)
-                    if (isLooping && activeSegmentIndex !== null) {
-                        const segment = video.segments[activeSegmentIndex]
-                        if (segment && time >= segment.end) {
-                            playerRef.current.seekTo(segment.start, true)
-                        }
+            if (!playerRef.current || !playerReadyRef.current) return
+
+            try {
+                const time = playerRef.current.getCurrentTime()
+                setCurrentTime(time)
+
+                if (isLooping && activeSegmentIndex !== null) {
+                    const segment = video.segments[activeSegmentIndex]
+                    if (segment && time >= segment.end) {
+                        playerRef.current.seekTo(segment.start, true)
+                        playerRef.current.playVideo()
                     }
-                } catch { }
-            }
+                }
+            } catch { }
         }, 100)
-        return () => { if (timeUpdateRef.current) clearInterval(timeUpdateRef.current) }
+
+        return () => {
+            if (timeUpdateRef.current) clearInterval(timeUpdateRef.current)
+        }
     }, [isLooping, activeSegmentIndex, video.segments])
 
     const playSegment = (index: number) => {
         const segment = video.segments[index]
         if (!segment) return
-        setActiveSegmentIndex(index)
 
-        // Only control player for YouTube
+        setActiveSegmentIndex(index)
+        setPreviewUrl(null)
+        setIsLooping(true)
+
         if (playerRef.current && playerReadyRef.current) {
-            setIsLooping(true)
             playerRef.current.seekTo(segment.start, true)
             playerRef.current.playVideo()
         }
     }
 
     const stopRecording = useCallback(() => {
-        if (mediaRecorderRef.current && isRecording) {
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
             mediaRecorderRef.current.stop()
-            setIsRecording(false)
-            if (recordingTimerRef.current) clearInterval(recordingTimerRef.current)
         }
-    }, [isRecording])
+        setIsRecording(false)
+        if (recordingTimerRef.current) {
+            clearInterval(recordingTimerRef.current)
+            recordingTimerRef.current = null
+        }
+    }, [])
 
     const startRecording = async () => {
         if (activeSegmentIndex === null || (!recordAudio && !recordVideo)) return
-        setCountdown(3)
-        for (let i = 2; i >= 0; i--) {
-            await new Promise(resolve => setTimeout(resolve, 1000))
-            setCountdown(i === 0 ? null : i)
-        }
+
         try {
-            let stream = streamRef.current
-            if (!stream) {
-                const constraints = {
-                    video: recordVideo ? { facingMode: 'user', width: 640, height: 480 } : false,
-                    audio: recordAudio
-                }
-                stream = await navigator.mediaDevices.getUserMedia(constraints)
-                streamRef.current = stream
-            }
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: recordVideo ? { facingMode: 'user', width: 640, height: 480 } : false,
+                audio: recordAudio,
+            })
+
+            streamRef.current = stream
             if (liveVideoRef.current && recordVideo) {
                 liveVideoRef.current.srcObject = stream
                 await liveVideoRef.current.play().catch(() => { })
             }
+
+            setPreviewUrl(null)
+            setCountdown(3)
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            setCountdown(2)
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            setCountdown(1)
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            setCountdown(null)
+
             chunksRef.current = []
             let mimeType = recordVideo ? 'video/webm;codecs=vp9' : 'audio/webm;codecs=opus'
             if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = recordVideo ? 'video/webm;codecs=vp8' : 'audio/webm'
             if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = recordVideo ? 'video/webm' : 'audio/webm'
+
             const mediaRecorder = new MediaRecorder(stream, { mimeType })
-            mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data) }
+            mediaRecorder.ondataavailable = event => {
+                if (event.data.size > 0) chunksRef.current.push(event.data)
+            }
             mediaRecorder.onstop = () => {
                 if (chunksRef.current.length > 0) {
                     const blob = new Blob(chunksRef.current, { type: mimeType })
@@ -370,46 +274,52 @@ export function UnifiedPracticeView({
                 }
                 stopAllStreams()
             }
+
             mediaRecorderRef.current = mediaRecorder
             mediaRecorder.start(100)
             setIsRecording(true)
             setRecordingTime(0)
-            const activeSegment = video.segments[activeSegmentIndex]
-            if (activeSegment && playerRef.current) {
-                playerRef.current.seekTo(activeSegment.start, true)
+
+            const segment = video.segments[activeSegmentIndex]
+            if (segment && playerRef.current) {
+                playerRef.current.seekTo(segment.start, true)
                 playerRef.current.playVideo()
             }
+
             recordingTimerRef.current = setInterval(() => setRecordingTime(prev => prev + 1), 1000)
-        } catch (err) {
-            console.error('Failed to start recording:', err)
+        } catch (error) {
+            console.error('Failed to start recording:', error)
             setCountdown(null)
+            stopAllStreams()
         }
     }
 
     const activeSegment = activeSegmentIndex !== null ? video.segments[activeSegmentIndex] : null
-    const segmentRecordings = recordings.filter(r => activeSegment && r.segmentId === activeSegment.id)
+    const segmentRecordings = recordings.filter(recording => activeSegment && recording.segmentId === activeSegment.id)
 
-    if (isLoading) return <div className="min-h-[400px] flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+    if (isLoading) {
+        return <div className="min-h-[400px] flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+    }
 
     return (
         <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Left: Video */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6 items-stretch">
                 <Card className="p-4 border-border/50 bg-card">
-                    <div className="flex items-center justify-between mb-2">
-                        <div className="flex flex-col gap-0.5 min-w-0 flex-1 mr-2">
+                    <div className="flex items-center justify-between mb-2 gap-3">
+                        <div className="min-w-0 flex-1">
                             <h3 className="font-semibold text-sm truncate">{video.title}</h3>
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold opacity-70">Practice Session</p>
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold opacity-70">Watch · imitate · repeat</p>
                         </div>
-                        <div className="flex items-center gap-2">
+
+                        <div className="flex items-center gap-2 shrink-0">
                             <Button variant="ghost" size="sm" onClick={onClearSegments} className="text-destructive h-7 text-xs px-2" disabled={!video.segments.length}>
-                                <Trash2 className="h-3 w-3 mr-1" /> Clear Segments
+                                <Trash2 className="h-3 w-3 mr-1" /> Clear
                             </Button>
 
                             <Dialog open={isManualAdding} onOpenChange={setIsManualAdding}>
                                 <DialogTrigger asChild>
                                     <Button variant="outline" size="sm" className="h-7 text-xs px-2">
-                                        <Plus className="h-3 w-3 mr-1" /> Add Segment
+                                        <Plus className="h-3 w-3 mr-1" /> Segment
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent>
@@ -417,61 +327,50 @@ export function UnifiedPracticeView({
                                     <div className="space-y-4 py-2">
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
-                                                <label className="text-sm font-medium">Start Time</label>
-                                                <Input
-                                                    placeholder="mm:ss (e.g. 1:30)"
-                                                    value={manualSegment.start}
-                                                    onChange={(e) => setManualSegment(prev => ({ ...prev, start: e.target.value }))}
-                                                />
+                                                <label className="text-sm font-medium">Start</label>
+                                                <Input placeholder="mm:ss" value={manualSegment.start} onChange={event => setManualSegment(prev => ({ ...prev, start: event.target.value }))} />
                                             </div>
                                             <div className="space-y-2">
-                                                <label className="text-sm font-medium">End Time</label>
-                                                <Input
-                                                    placeholder="mm:ss (e.g. 1:45)"
-                                                    value={manualSegment.end}
-                                                    onChange={(e) => setManualSegment(prev => ({ ...prev, end: e.target.value }))}
-                                                />
+                                                <label className="text-sm font-medium">End</label>
+                                                <Input placeholder="mm:ss" value={manualSegment.end} onChange={event => setManualSegment(prev => ({ ...prev, end: event.target.value }))} />
                                             </div>
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-sm font-medium">Label (Optional)</label>
-                                            <Input
-                                                placeholder="Segment Name"
-                                                value={manualSegment.label}
-                                                onChange={(e) => setManualSegment(prev => ({ ...prev, label: e.target.value }))}
-                                            />
+                                            <label className="text-sm font-medium">Label</label>
+                                            <Input placeholder="Optional" value={manualSegment.label} onChange={event => setManualSegment(prev => ({ ...prev, label: event.target.value }))} />
                                         </div>
                                         <Button onClick={async () => {
                                             const start = parseTimeInput(manualSegment.start)
                                             const end = parseTimeInput(manualSegment.end)
-                                            if (start !== null && end !== null && end > start) {
-                                                await onAddSegments([{
-                                                    start,
-                                                    end,
-                                                    label: manualSegment.label || `Segment ${video.segments.length + 1}`,
-                                                    lines: []
-                                                }])
-                                                setManualSegment({ start: '', end: '', label: '' })
-                                                setIsManualAdding(false)
-                                            } else {
-                                                alert("Invalid times. Ensure End Time is after Start Time and format is mm:ss")
+                                            if (start === null || end === null || end <= start) {
+                                                alert('Invalid times. End must be after start.')
+                                                return
                                             }
+                                            await onAddSegments([{
+                                                start,
+                                                end,
+                                                label: manualSegment.label || `Segment ${video.segments.length + 1}`,
+                                                lines: [],
+                                            }])
+                                            setManualSegment({ start: '', end: '', label: '' })
+                                            setIsManualAdding(false)
                                         }} disabled={!manualSegment.start || !manualSegment.end}>
                                             Add Segment
                                         </Button>
                                     </div>
                                 </DialogContent>
                             </Dialog>
+
                             <Dialog open={isBulkAdding} onOpenChange={setIsBulkAdding}>
                                 <DialogTrigger asChild>
                                     <Button variant="outline" size="sm" className="h-7 text-xs px-2">
-                                        <FileText className="h-3 w-3 mr-1" /> Bulk Add
+                                        <FileText className="h-3 w-3 mr-1" /> Bulk
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent className="max-w-2xl">
                                     <DialogHeader><DialogTitle>Bulk Add Segments</DialogTitle></DialogHeader>
                                     <BulkAddSegmentsForm
-                                        onAdd={async (segments) => {
+                                        onAdd={async segments => {
                                             setIsBulkLoading(true)
                                             try {
                                                 await onAddSegments(segments)
@@ -486,208 +385,86 @@ export function UnifiedPracticeView({
                             </Dialog>
                         </div>
                     </div>
-                    <div className="bg-black rounded overflow-hidden aspect-video">
+
+                    <div className="bg-black rounded-lg overflow-hidden aspect-video">
                         <div id="youtube-player-container" className="w-full h-full" />
                     </div>
+
                     {activeSegment && (
                         <div className="mt-3">
-                            <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-                                <span>{formatTime(activeSegment.start)}</span>
-                                <span className="font-medium text-foreground">{activeSegment.label}</span>
-                                <span>{formatTime(activeSegment.end)}</span>
+                            <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5 gap-3">
+                                <span className="tabular-nums">{formatTime(activeSegment.start)}</span>
+                                <span className="font-medium text-foreground truncate">{activeSegment.label}</span>
+                                <span className="tabular-nums">{formatTime(activeSegment.end)}</span>
                             </div>
-                            <div ref={progressBarRef} className="h-3 bg-secondary rounded-full overflow-hidden cursor-pointer hover:h-4 transition-all"
-                                onClick={(e) => {
-                                    if (!activeSegment || !progressBarRef.current || !playerRef.current) return
+                            <div
+                                ref={progressBarRef}
+                                className="h-2.5 bg-secondary rounded-full overflow-hidden cursor-pointer"
+                                onClick={event => {
+                                    if (!progressBarRef.current || !playerRef.current) return
                                     const rect = progressBarRef.current.getBoundingClientRect()
-                                    const percent = (e.clientX - rect.left) / rect.width
+                                    const percent = (event.clientX - rect.left) / rect.width
                                     playerRef.current.seekTo(activeSegment.start + (activeSegment.end - activeSegment.start) * percent, true)
-                                }}>
-                                <div className="h-full bg-primary transition-all duration-100" style={{ width: `${Math.min(100, Math.max(0, ((currentTime - activeSegment.start) / (activeSegment.end - activeSegment.start)) * 100))}%` }} />
+                                }}
+                            >
+                                <div
+                                    className="h-full bg-primary transition-all duration-100"
+                                    style={{ width: `${Math.min(100, Math.max(0, ((currentTime - activeSegment.start) / (activeSegment.end - activeSegment.start)) * 100))}%` }}
+                                />
                             </div>
                         </div>
                     )}
-                    <div className="flex items-center justify-center gap-4 mt-4">
+
+                    <div className="flex items-center justify-center gap-3 mt-4">
                         {activeSegment ? (
                             <>
-                                <Button variant="outline" size="sm" onClick={() => setActiveSegmentIndex(null)}>
-                                    Full Video
+                                <Button variant="outline" size="sm" onClick={() => setActiveSegmentIndex(null)}>Full Video</Button>
+                                <Button variant="outline" size="icon" onClick={() => activeSegmentIndex !== null && activeSegmentIndex > 0 && playSegment(activeSegmentIndex - 1)} disabled={activeSegmentIndex === 0}>
+                                    <ChevronLeft className="h-4 w-4" />
                                 </Button>
-                                <>
-                                    <Button variant="outline" size="icon" onClick={() => {
-                                        if (activeSegmentIndex !== null && activeSegmentIndex > 0) playSegment(activeSegmentIndex - 1)
-                                    }} disabled={activeSegmentIndex === 0}><ChevronLeft className="h-4 w-4" /></Button>
-                                    <Button variant="outline" size="icon" onClick={() => {
-                                        if (activeSegmentIndex !== null) playSegment(activeSegmentIndex)
-                                    }}><RotateCcw className="h-4 w-4" /></Button>
-                                    <Button variant={isLooping ? "default" : "outline"} size="icon" onClick={() => setIsLooping(!isLooping)}><Repeat className="h-4 w-4" /></Button>
-                                    <Button variant="outline" size="icon" onClick={() => {
-                                        if (activeSegmentIndex !== null && activeSegmentIndex < video.segments.length - 1) playSegment(activeSegmentIndex + 1)
-                                    }} disabled={activeSegmentIndex === video.segments.length - 1}><ChevronRight className="h-4 w-4" /></Button>
-                                </>
+                                <Button variant="outline" size="icon" onClick={() => activeSegmentIndex !== null && playSegment(activeSegmentIndex)}>
+                                    <RotateCcw className="h-4 w-4" />
+                                </Button>
+                                <Button variant={isLooping ? 'default' : 'outline'} size="icon" onClick={() => setIsLooping(prev => !prev)}>
+                                    <Repeat className="h-4 w-4" />
+                                </Button>
+                                <Button variant="outline" size="icon" onClick={() => activeSegmentIndex !== null && activeSegmentIndex < video.segments.length - 1 && playSegment(activeSegmentIndex + 1)} disabled={activeSegmentIndex === video.segments.length - 1}>
+                                    <ChevronRight className="h-4 w-4" />
+                                </Button>
                             </>
-                        ) : <p className="text-sm text-muted-foreground">Select a segment below to practice</p>}
+                        ) : (
+                            <p className="text-sm text-muted-foreground">Choose a segment below to start shadowing.</p>
+                        )}
                     </div>
                 </Card>
 
-                {/* Right: Transcript/Record/Notes */}
-                <Card className="overflow-hidden flex flex-col border-border/50 bg-card h-full">
-                    <div className="flex border-b border-border/50">
-                        <button className={`flex-1 py-3 text-sm font-medium flex items-center justify-center gap-2 ${panelMode === 'transcript' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary/50'}`} onClick={() => setPanelMode('transcript')}>
-                            <FileText className="h-4 w-4" /> Transcript
-                        </button>
-                        <button className={`flex-1 py-3 text-sm font-medium flex items-center justify-center gap-2 ${panelMode === 'record' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary/50'}`} onClick={() => setPanelMode('record')}>
+                <Card className="overflow-hidden flex flex-col border-border/50 bg-card min-h-[430px]">
+                    <div className="grid grid-cols-2 border-b border-border/50">
+                        <button
+                            className={`py-3 text-sm font-medium flex items-center justify-center gap-2 ${panelMode === 'record' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary/50'}`}
+                            onClick={() => setPanelMode('record')}
+                        >
                             <Mic className="h-4 w-4" /> Record
                         </button>
-                        <button className={`flex-1 py-3 text-sm font-medium flex items-center justify-center gap-2 ${panelMode === 'notes' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary/50'}`} onClick={() => setPanelMode('notes')}>
+                        <button
+                            className={`py-3 text-sm font-medium flex items-center justify-center gap-2 ${panelMode === 'notes' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary/50'}`}
+                            onClick={() => setPanelMode('notes')}
+                        >
                             <StickyNote className="h-4 w-4" /> Notes
                         </button>
                     </div>
-                    <div className="flex-1 p-4 overflow-auto min-h-0">
-                        {panelMode === 'transcript' ? (
-                            video.transcript.length > 0 ? (
-                                <div className="h-full flex flex-col min-h-0">
-                                    {/* Focus Area: Current & Next */}
-                                    <div className="flex flex-col gap-2 mb-3 shrink-0">
-                                        {(() => {
-                                            const activeIdx = video.transcript.findIndex(l => currentTime >= l.start && currentTime < (l.start + l.duration + 0.5));
-                                            const currentLine = activeIdx !== -1 ? video.transcript[activeIdx] : null;
-                                            const nextLine = activeIdx !== -1 && activeIdx < video.transcript.length - 1 ? video.transcript[activeIdx + 1] : null;
 
-                                            return (
-                                                <>
-                                                    {currentLine && (
-                                                        <div className="p-2 bg-primary/10 border border-primary/20 rounded-lg shadow-sm">
-                                                            <p className="text-[10px] font-bold text-primary mb-1 uppercase tracking-tighter opacity-70">Now Playing</p>
-                                                            <p className="text-base font-semibold leading-tight text-foreground">{currentLine.text}</p>
-                                                        </div>
-                                                    )}
-                                                    {nextLine && (
-                                                        <div className="p-2 bg-secondary/20 border border-border/50 rounded-lg opacity-60 hover:opacity-100 transition-opacity cursor-pointer" onClick={() => playerRef.current?.seekTo(nextLine.start, true)}>
-                                                            <p className="text-[10px] font-bold text-muted-foreground mb-1 uppercase tracking-tighter opacity-70">Up Next</p>
-                                                            <p className="text-sm font-medium leading-tight">{nextLine.text}</p>
-                                                        </div>
-                                                    )}
-                                                </>
-                                            );
-                                        })()}
-                                    </div>
-
-                                    {/* Timeline: Scrollable & Clickable */}
-                                    <div className="flex-1 flex flex-col min-h-0 border-t border-border/30 pt-3">
-                                        <p className="text-[10px] font-bold text-muted-foreground mb-2 uppercase tracking-widest opacity-40 px-2">Timeline</p>
-                                        <div ref={transcriptContainerRef} className="flex-1 overflow-y-auto space-y-1.5 px-2 scroll-smooth">
-                                            {video.transcript.map((line, i) => {
-                                                const isActive = currentTime >= line.start && currentTime < (line.start + line.duration + 0.5)
-                                                return (
-                                                    <div key={i} className={`p-1.5 rounded-md cursor-pointer transition-all ${isActive ? 'bg-primary/5 text-primary' : 'hover:bg-secondary/30 text-muted-foreground opacity-60'}`} onClick={() => playerRef.current?.seekTo(line.start, true)}>
-                                                        <div className="flex items-start gap-2">
-                                                            <span className="text-[9px] font-mono opacity-40 mt-0.5 bg-secondary px-1 rounded shrink-0">{formatTime(line.start)}</span>
-                                                            <p className={`text-xs leading-snug transition-colors ${isActive ? 'font-medium' : ''}`}>{line.text}</p>
-                                                        </div>
-                                                    </div>
-                                                )
-                                            })}
-                                            <ScrollToActiveLine containerRef={transcriptContainerRef} currentIndex={video.transcript.findIndex(l => currentTime >= l.start && currentTime < (l.start + l.duration + 0.5))} />
-                                        </div>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="h-full flex flex-col items-center justify-center space-y-4">
-                                    <div className="text-center opacity-50">
-                                        <FileText className="h-12 w-12 mx-auto mb-2" />
-                                        <p>No transcript available</p>
-                                    </div>
-                                    {!isPastingTranscript ? (
-                                        <Button variant="outline" size="sm" onClick={() => setIsPastingTranscript(true)}>
-                                            <Plus className="h-4 w-4 mr-2" /> Add Manually
-                                        </Button>
-                                    ) : (
-                                        <div className="w-full space-y-2">
-                                            <Textarea
-                                                placeholder="Paste your transcript here (each line will be a segment)..."
-                                                className="min-h-[200px] text-sm"
-                                                value={rawTranscript}
-                                                onChange={(e) => setRawTranscript(e.target.value)}
-                                            />
-                                            <div className="flex gap-2 justify-end">
-                                                <Button variant="ghost" size="sm" onClick={() => setIsPastingTranscript(false)}>Cancel</Button>
-                                                <Button size="sm" onClick={async () => {
-                                                    const lines: TranscriptLine[] = []
-                                                    const rawLines = rawTranscript.split('\n').filter(l => l.trim())
-
-                                                    // Enhanced parsing for (mm:ss) or [mm:ss]
-                                                    rawLines.forEach((rawLine) => {
-                                                        const timestampRegex = /(?:\(|\[)(\d{1,2}):(\d{2})(?:\)|\])/g
-                                                        let match
-                                                        let lastIndex = 0
-                                                        let lineStartTime = lines.length > 0 ? lines[lines.length - 1].start + 5 : 0
-
-                                                        // If line starts with a timestamp, use it
-                                                        const startMatch = /^(?:\(|\[)(\d{1,2}):(\d{2})(?:\)|\])\s*(.*)/.exec(rawLine)
-                                                        if (startMatch) {
-                                                            const mins = parseInt(startMatch[1])
-                                                            const secs = parseInt(startMatch[2])
-                                                            const time = mins * 60 + secs
-                                                            const text = startMatch[3].trim()
-                                                            if (text) {
-                                                                lines.push({ text, start: time, duration: 5 })
-                                                                return
-                                                            }
-                                                        }
-
-                                                        // Otherwise look for timestamps within the line
-                                                        while ((match = timestampRegex.exec(rawLine)) !== null) {
-                                                            const mins = parseInt(match[1])
-                                                            const secs = parseInt(match[2])
-                                                            const time = mins * 60 + secs
-
-                                                            // Extract text between previous timestamp and current one
-                                                            const textBefore = rawLine.substring(lastIndex, match.index).replace(/^[(\[]\d{1,2}:\d{2}[)\]]\s*/, '').trim()
-                                                            if (textBefore && lines.length > 0) {
-                                                                // Update the previous dummy line if it was empty, or just add
-                                                                lines[lines.length - 1].duration = Math.max(1, time - lines[lines.length - 1].start)
-                                                            }
-
-                                                            lastIndex = timestampRegex.lastIndex
-                                                            lineStartTime = time
-                                                        }
-
-                                                        const remainingText = rawLine.substring(lastIndex).trim()
-                                                        if (remainingText) {
-                                                            lines.push({
-                                                                text: remainingText,
-                                                                start: lineStartTime,
-                                                                duration: 5
-                                                            })
-                                                        }
-                                                    })
-
-                                                    // Cleanup durations by looking ahead
-                                                    for (let i = 0; i < lines.length - 1; i++) {
-                                                        lines[i].duration = Math.max(1, lines[i + 1].start - lines[i].start)
-                                                    }
-
-                                                    if (onUpdateTranscript && lines.length > 0) {
-                                                        await onUpdateTranscript(lines)
-                                                        setIsPastingTranscript(false)
-                                                        setRawTranscript('')
-                                                    }
-                                                }}>Save Transcript</Button>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            )
-                        ) : panelMode === 'notes' ? (
+                    <div className="flex-1 p-4 min-h-0">
+                        {panelMode === 'notes' ? (
                             <div className="h-full flex flex-col space-y-4">
                                 <div className="flex items-center justify-between">
-                                    <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Video Notes</h4>
+                                    <div>
+                                        <h4 className="text-sm font-semibold">Practice notes</h4>
+                                        <p className="text-xs text-muted-foreground mt-0.5">Write what you notice about pace, pauses, emphasis, or delivery.</p>
+                                    </div>
                                     <Button variant="ghost" size="sm" onClick={async () => {
-                                        if (isEditingNotes) {
-                                            if (onUpdateNotes) await onUpdateNotes(notesText)
-                                        }
-                                        setIsEditingNotes(!isEditingNotes)
+                                        if (isEditingNotes && onUpdateNotes) await onUpdateNotes(notesText)
+                                        setIsEditingNotes(prev => !prev)
                                     }}>
                                         {isEditingNotes ? <Check className="h-4 w-4 mr-2" /> : <Edit className="h-4 w-4 mr-2" />}
                                         {isEditingNotes ? 'Save' : 'Edit'}
@@ -695,58 +472,130 @@ export function UnifiedPracticeView({
                                 </div>
                                 {isEditingNotes ? (
                                     <Textarea
-                                        className="flex-1 min-h-[300px] bg-secondary/20 border-none focus-visible:ring-1 focus-visible:ring-primary/30 resize-none font-sans"
-                                        placeholder="Write your observations, vocabulary, or tips here..."
+                                        className="flex-1 min-h-[300px] bg-secondary/20 border-none focus-visible:ring-1 focus-visible:ring-primary/30 resize-none"
+                                        placeholder="What should you imitate on the next take?"
                                         value={notesText}
-                                        onChange={(e) => setNotesText(e.target.value)}
+                                        onChange={event => setNotesText(event.target.value)}
                                     />
                                 ) : (
                                     <div className="flex-1 whitespace-pre-wrap text-sm text-muted-foreground bg-secondary/10 p-4 rounded-lg overflow-auto">
-                                        {notesText || 'No notes yet. Click edit to add some!'}
+                                        {notesText || 'No notes yet.'}
                                     </div>
                                 )}
                             </div>
                         ) : (
                             <div className="h-full flex flex-col space-y-4">
-                                {!activeSegment ? <div className="flex-1 flex items-center justify-center text-muted-foreground italic text-sm">Select a segment to record</div> : (
-                                    <div className="flex-1 flex flex-col space-y-3 min-h-0">
-                                        <div className="flex justify-center gap-6">
-                                            <label className="flex items-center gap-2 cursor-pointer"><Checkbox checked={recordAudio} onCheckedChange={(v) => setRecordAudio(!!v)} disabled={isRecording} /><span className="text-xs font-medium uppercase tracking-wider">Audio</span></label>
-                                            <label className="flex items-center gap-2 cursor-pointer"><Checkbox checked={recordVideo} onCheckedChange={(v) => setRecordVideo(!!v)} disabled={isRecording} /><span className="text-xs font-medium uppercase tracking-wider">Video</span></label>
+                                {!activeSegment ? (
+                                    <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
+                                        <Mic className="h-9 w-9 text-muted-foreground/40 mb-3" />
+                                        <p className="text-sm font-medium">Choose a segment first</p>
+                                        <p className="text-xs text-muted-foreground mt-1 max-w-xs">Watch it a few times, imitate it out loud, then record a take when you are ready.</p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="shrink-0">
+                                            <p className="text-sm font-semibold line-clamp-1">{activeSegment.label}</p>
+                                            <p className="text-xs text-muted-foreground mt-0.5 tabular-nums">{formatTime(activeSegment.start)} – {formatTime(activeSegment.end)}</p>
                                         </div>
-                                        <div className="flex-1 bg-black rounded relative overflow-hidden flex items-center justify-center">
-                                            {countdown !== null && <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-10 text-6xl font-bold text-white">{countdown}</div>}
-                                            {previewUrl ? (recordVideo ? <video src={previewUrl} controls className="w-full h-full object-contain" /> : <div className="h-full flex items-center justify-center"><audio src={previewUrl} controls /></div>) : recordVideo ? <video ref={liveVideoRef} className="w-full h-full object-cover" muted playsInline /> : <div className="h-full flex items-center justify-center text-muted-foreground opacity-50"><Mic className="h-12 w-12" /></div>}
-                                            {isRecording && <div className="absolute top-2 left-2 bg-destructive text-white px-2 py-0.5 rounded text-xs font-mono flex items-center gap-1.5"><div className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />{formatTime(recordingTime)}</div>}
+
+                                        <div className="flex justify-center gap-6 shrink-0">
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <Checkbox checked={recordAudio} onCheckedChange={value => setRecordAudio(!!value)} disabled={isRecording} />
+                                                <span className="text-xs font-medium uppercase tracking-wider">Audio</span>
+                                            </label>
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <Checkbox checked={recordVideo} onCheckedChange={value => setRecordVideo(!!value)} disabled={isRecording} />
+                                                <span className="text-xs font-medium uppercase tracking-wider">Video</span>
+                                            </label>
                                         </div>
-                                        <div className="flex justify-center gap-3">
-                                            {!isRecording && !previewUrl && <Button onClick={startRecording} disabled={!recordAudio && !recordVideo} className="rounded-full px-6"><Circle className="h-4 w-4 mr-2" /> Start Recording</Button>}
-                                            {isRecording && <Button variant="destructive" onClick={stopRecording} className="rounded-full px-6"><Square className="h-4 w-4 mr-2" /> Stop</Button>}
+
+                                        <div className="flex-1 min-h-[220px] bg-black rounded-lg relative overflow-hidden flex items-center justify-center">
+                                            {countdown !== null && (
+                                                <div className="absolute inset-0 bg-black/85 flex items-center justify-center z-20 text-6xl font-bold text-white">{countdown}</div>
+                                            )}
+
+                                            {previewUrl ? (
+                                                recordVideo ? (
+                                                    <video src={previewUrl} controls className="w-full h-full object-contain" />
+                                                ) : (
+                                                    <audio src={previewUrl} controls className="w-[90%]" />
+                                                )
+                                            ) : recordVideo ? (
+                                                <>
+                                                    <video ref={liveVideoRef} className="w-full h-full object-cover" muted playsInline />
+                                                    {!isRecording && countdown === null && (
+                                                        <div className="absolute inset-0 flex items-center justify-center text-xs text-white/45">Camera starts when you record</div>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <div className="flex flex-col items-center justify-center text-muted-foreground/50">
+                                                    <Mic className="h-10 w-10 mb-2" />
+                                                    <span className="text-xs">Audio take</span>
+                                                </div>
+                                            )}
+
+                                            {isRecording && (
+                                                <div className="absolute top-2 left-2 bg-destructive text-white px-2 py-1 rounded text-xs font-mono flex items-center gap-1.5">
+                                                    <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+                                                    {formatTime(recordingTime)}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="flex justify-center gap-3 shrink-0">
+                                            {!isRecording && !previewUrl && (
+                                                <Button onClick={startRecording} disabled={!recordAudio && !recordVideo} className="rounded-full px-6">
+                                                    <Circle className="h-4 w-4 mr-2" /> Record Take
+                                                </Button>
+                                            )}
+                                            {isRecording && (
+                                                <Button variant="destructive" onClick={stopRecording} className="rounded-full px-6">
+                                                    <Square className="h-4 w-4 mr-2" /> Stop
+                                                </Button>
+                                            )}
                                             {previewUrl && (
                                                 <>
-                                                    <Button variant="outline" onClick={() => setPreviewUrl(null)}><RotateCcw className="h-4 w-4 mr-2" /> Retry</Button>
+                                                    <Button variant="outline" onClick={() => setPreviewUrl(null)}>
+                                                        <RotateCcw className="h-4 w-4 mr-2" /> Retry
+                                                    </Button>
                                                     <Button onClick={() => {
-                                                        onSaveRecording({ id: `rec-${Date.now()}`, segmentId: activeSegment.id, blobUrl: previewUrl, type: recordVideo ? 'video' : 'audio', createdAt: Date.now() })
+                                                        onSaveRecording({
+                                                            id: `rec-${Date.now()}`,
+                                                            segmentId: activeSegment.id,
+                                                            blobUrl: previewUrl,
+                                                            type: recordVideo ? 'video' : 'audio',
+                                                            createdAt: Date.now(),
+                                                        })
                                                         setPreviewUrl(null)
-                                                    }}>Save</Button>
+                                                    }}>Save Take</Button>
                                                 </>
                                             )}
                                         </div>
-                                    </div>
+                                    </>
                                 )}
+
                                 {segmentRecordings.length > 0 && (
                                     <div className="pt-3 border-t border-border/50 shrink-0">
-                                        <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">Takes</h4>
-                                        <div className="space-y-1.5 max-h-[100px] overflow-y-auto">
-                                            {segmentRecordings.map((rec, i) => (
-                                                <div key={rec.id} className="flex items-center justify-between p-1.5 bg-secondary/30 rounded-lg text-xs">
-                                                    <span>Take {i + 1} ({rec.type === 'video' ? 'V' : 'A'})</span>
+                                        <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">Saved takes</h4>
+                                        <div className="space-y-1.5 max-h-[110px] overflow-y-auto">
+                                            {segmentRecordings.map((recording, index) => (
+                                                <div key={recording.id} className="flex items-center justify-between p-2 bg-secondary/30 rounded-lg text-xs">
+                                                    <span>Take {index + 1} · {recording.type === 'video' ? 'video' : 'audio'}</span>
                                                     <div className="flex gap-1">
-                                                        <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => {
-                                                            if (playbackVideoRef.current && rec.type === 'video') { playbackVideoRef.current.src = rec.blobUrl; playbackVideoRef.current.play() }
-                                                            else if (playbackAudioRef.current) { playbackAudioRef.current.src = rec.blobUrl; playbackAudioRef.current.play() }
-                                                        }}><Play className="h-3 w-3" /></Button>
-                                                        <Button size="icon" variant="ghost" className="h-6 w-6 text-destructive" onClick={() => onDeleteRecording(rec.id)}><Trash2 className="h-3 w-3" /></Button>
+                                                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => {
+                                                            if (recording.type === 'video' && playbackVideoRef.current) {
+                                                                playbackVideoRef.current.src = recording.blobUrl
+                                                                playbackVideoRef.current.play()
+                                                            } else if (playbackAudioRef.current) {
+                                                                playbackAudioRef.current.src = recording.blobUrl
+                                                                playbackAudioRef.current.play()
+                                                            }
+                                                        }}>
+                                                            <Play className="h-3 w-3" />
+                                                        </Button>
+                                                        <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => onDeleteRecording(recording.id)}>
+                                                            <Trash2 className="h-3 w-3" />
+                                                        </Button>
                                                     </div>
                                                 </div>
                                             ))}
@@ -757,30 +606,46 @@ export function UnifiedPracticeView({
                         )}
                     </div>
                 </Card>
-            </div >
+            </div>
 
-            {/* Segments Grid */}
-            < div className="space-y-4" >
+            <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                    <h3 className="font-semibold">Segments ({video.segments.length})</h3>
+                    <h3 className="font-semibold">Segments <span className="text-muted-foreground font-normal">({video.segments.length})</span></h3>
+                    <p className="text-xs text-muted-foreground hidden sm:block">Click a card to loop that exact moment.</p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                    {video.segments.map((s, i) => (
-                        <Card key={s.id} className={`p-4 cursor-pointer transition-all hover:border-primary/50 ${activeSegmentIndex === i ? 'border-primary ring-1 ring-primary/20 bg-primary/5' : 'border-border/50'}`} onClick={() => playSegment(i)}>
-                            <div className="flex justify-between items-start mb-2">
-                                <span className="font-medium line-clamp-1">{s.label}</span>
-                                <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-destructive" onClick={(e) => { e.stopPropagation(); onDeleteSegment(s.id) }}><Trash2 className="h-3.5 w-3.5" /></Button>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                    {video.segments.map((segment, index) => (
+                        <Card
+                            key={segment.id}
+                            className={`p-3.5 cursor-pointer transition-all hover:border-primary/50 ${activeSegmentIndex === index ? 'border-primary ring-1 ring-primary/20 bg-primary/5' : 'border-border/50'}`}
+                            onClick={() => playSegment(index)}
+                        >
+                            <div className="flex justify-between items-start gap-3 mb-2">
+                                <span className="font-medium text-sm line-clamp-2">{segment.label}</span>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-6 w-6 shrink-0 text-muted-foreground hover:text-destructive"
+                                    onClick={event => {
+                                        event.stopPropagation()
+                                        onDeleteSegment(segment.id)
+                                    }}
+                                >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
                             </div>
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                <Clock className="h-3 w-3" /> {formatTime(s.start)} - {formatTime(s.end)}
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground tabular-nums">
+                                <Clock className="h-3 w-3" /> {formatTime(segment.start)} – {formatTime(segment.end)}
+                                <span>·</span>
+                                <span>{Math.round(segment.end - segment.start)}s</span>
                             </div>
                         </Card>
                     ))}
                 </div>
-            </div >
+            </div>
 
             <video ref={playbackVideoRef} className="hidden" />
             <audio ref={playbackAudioRef} className="hidden" />
-        </div >
+        </div>
     )
 }
