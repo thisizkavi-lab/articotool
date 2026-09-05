@@ -20,4 +20,13 @@
 - Snipd confirms the full episode and exposes three precise public starts (`01:04` Happiness as Passing Thought, `07:48` Meditation To Interrupt Harmful Thoughts, `13:34` Truth Quietly Reduces Anxiety), but not enough of the underlying timestamped transcript publicly to audit the full 64-minute source and produce 15–30 exact 10–45 second boundaries without guessing.
 - Pocket Casts exposes a transcript UI but not transcript text to the crawler; Podwise and Metacast expose section-level structure/summaries rather than a reliable line-by-line timestamped transcript in this environment.
 - Do not synthesize boundaries from 3-minute chapter markers or from paraphrased AI snips. Leave this source queued until a precise full transcript can be verified.
-- Next autonomous curation run should proceed to `Smart Friends · Saving Yourself · 2025` rather than retrying either blocked Smart Friends source unless a new precise transcript source becomes available.
+
+### Smart Friends · Saving Yourself · 2025
+
+- Status: blocked / keep queued
+- Verified full source: `My Conversation with Naval on Saving Yourself` (Eric Jorgenson / Smart Friends), published 2025-09-23; Pocket Casts and iVoox expose the full standalone audio at approximately 35:48.
+- Verified official chapter structure: 3-minute markers run from `Virtues as Long-Term Selfishness & Cheap Dopamine` through `Heroes, Resonance & The Legacy of Steve Jobs`, with the final listed chapter beginning at `36:00`.
+- The later official `My Conversation with Naval Megasode` independently places the Saving Yourself section at `02:15:17–02:50:17`. Snipd exposes several precise subchapter starts inside that section, including `02:18:55` (Mission, tribe-building and universal aspirations) and `02:25:01` (Truth, the multiverse metaphor and best self versions), but does not expose enough of the underlying full timestamped transcript text publicly to audit the whole source and create 15–30 exact 10–45 second shadowing clips.
+- Pocket Casts advertises a transcript UI but does not expose the transcript text to the crawler; Podwise exposes section-level timestamps (`00:00`, `07:39`, `11:40`, `17:34`, `22:47`, `27:40`, `33:02`, `35:44`) rather than line-level timing; Metacast similarly exposes episode metadata/summary rather than a verifiable line-by-line transcript in this environment.
+- Do not convert chapter boundaries, AI summaries, or isolated Snipd starts into fabricated clip endpoints. Leave this source queued until a precise full transcript can be verified.
+- Next autonomous curation run should proceed to `Smart Friends · Building Judgement · 2025` rather than retrying the blocked Smart Friends sources unless a new precise transcript source becomes available.
