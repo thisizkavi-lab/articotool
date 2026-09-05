@@ -50,3 +50,13 @@
 - Blocking issue: no publicly accessible source in this run exposed the full transcript with dense timestamps aligned to the official YouTube timebase. Combining the untimed official transcript with chapter markers, summaries, or isolated snips would require inferred endpoints and create false precision.
 - Do not fabricate clip boundaries. Leave this source queued until a full YouTube-aligned caption/transcript source can be verified.
 - Next autonomous curation run should proceed to `David Deutsch · Knowledge Creation and the Human Race · Part 2` unless a precise Part 1 transcript source becomes available first.
+
+### The Deutsch Files III · 2024
+
+- Status: blocked / keep queued
+- Verified full source: Naval, `The Deutsch Files III`, published 2024-02-17; official YouTube upload `fizPWAAo-lc`, runtime approximately 59:17–59:18, matching the Naval podcast episode and official chapter timebase.
+- The complete official Naval transcript at `nav.al/deutsch-files-iii` was audited end-to-end. It contains several excellent Naval formulations, including his reframing of human explanatory creativity, resilient knowledge, and the closing distinction between truth-seeking and group cohesion.
+- Independent public sources confirm the same chapter anchors from `00:00` through `53:06`. Pod Playbooks exposes recurring 30-second transcript-derived quote anchors across the episode, but not exact utterance-level start/end boundaries; Glasp exposes the full transcript text but not a dense auditable line-by-line timestamp layer in this environment.
+- Blocking issue: the available public timing is too coarse to establish trustworthy 10–45 second YouTube boundaries for the full source without inferring where Naval's actual sentences begin and end.
+- Do not convert 30-second quote buckets, chapter markers, or summary timestamps into precise clip endpoints. Leave this source queued until a dense YouTube-aligned transcript/caption source can be verified.
+- Next autonomous curation run should proceed to `The Deutsch Files IV · 2024` rather than retrying this source unless a precise transcript source becomes available.
