@@ -406,6 +406,34 @@ const navalSellTheTruth: CuratedCollection = {
   ],
 }
 
+const navalDeutschKnowledge2: CuratedCollection = {
+  id: 'naval-deutsch-knowledge-2',
+  speakerId: 'naval-ravikant',
+  speaker: 'Naval Ravikant',
+  sourceTitle: 'David Deutsch · Knowledge Creation and the Human Race · Part 2 · 2023',
+  videoId: 'aQfeYBa1MTk',
+  videoTitle: 'David Deutsch: Knowledge Creation and The Human Race, Part 2',
+  channelName: 'Naval',
+  thumbnail: 'https://i.ytimg.com/vi/aQfeYBa1MTk/hqdefault.jpg',
+  duration: 2040,
+  description: 'Naval with David Deutsch and Brett Hall on Popper, creative conjecture, experiments, physical computation, self-refuting theories, technological progress, misinformation, and knowledge across the multiverse. Curated from Naval’s official full transcript and a dense transcript layer aligned to the official YouTube timebase.',
+  focus: ['Formulation', 'Articulation', 'Epistemology', 'Distinction', 'Synthesis', 'Reframing'],
+  status: 'ready',
+  segments: [
+    segment('DDK2-001', 151, 183, 'Formulation · creative guesses change how you see the world'),
+    segment('DDK2-002', 426, 459, 'Distinction · experiment vs demonstration vs measurement'),
+    segment('DDK2-003', 554, 573, 'Synthesis · computation and mathematics remain bound to physical context'),
+    segment('DDK2-004', 625, 649, 'Reframing · the precautionary principle can refute itself'),
+    segment('DDK2-005', 1159, 1187, 'Analogy · obsolete technologies can still be necessary steps toward truth'),
+    segment('DDK2-006', 1784, 1825, 'Disagreement · misinformation demands rival theories, reversibility, and open debate'),
+    segment('DDK2-007', 1832, 1856, 'Definition · knowledge causes itself to be replicated in the environment'),
+    segment('DDK2-008', 1856, 1873, 'Explanation · useful ideas and genes get copied because they work'),
+    segment('DDK2-009', 1873, 1902, 'Synthesis · useful knowledge converges across the multiverse'),
+    segment('DDK2-010', 1902, 1923, 'Analogy · a crystal of knowledge makes truth visible as convergence'),
+    segment('DDK2-011', 2020, 2040, 'Strong ending · knowledge creates nonlinearities yet remains creative and conjectural'),
+  ],
+}
+
 const queuedSource = (
   id: string,
   sourceTitle: string,
@@ -452,7 +480,7 @@ export const CURATED_SPEAKERS: CuratedSpeaker[] = [
       // Scientific / epistemology conversations — important for studying how Naval
       // asks, reframes, and explains around genuinely technical thinkers.
       queuedSource('naval-deutsch-knowledge-1', 'David Deutsch · Knowledge Creation and the Human Race · Part 1', 'Naval in sustained conversation with physicist David Deutsch on knowledge, AGI, explanations, and quantum computing.', ['Scientific dialogue', 'Questions', 'Clarification']),
-      queuedSource('naval-deutsch-knowledge-2', 'David Deutsch · Knowledge Creation and the Human Race · Part 2', 'A denser follow-up on Popper, experiments, theories, science, and the Enlightenment.', ['Scientific dialogue', 'Epistemology', 'Follow-up questions']),
+      navalDeutschKnowledge2,
       queuedSource('naval-deutsch-files-1', 'The Deutsch Files I · 2024', 'Free-form conversation with David Deutsch and Brett Hall; useful for listening, probing, and intellectual humility.', ['Scientific dialogue', 'Listening', 'Question framing']),
       queuedSource('naval-deutsch-files-2', 'The Deutsch Files II · 2024', 'The four strands of The Fabric of Reality and difficult explanatory territory.', ['Scientific explanation', 'Clarification', 'First principles']),
       queuedSource('naval-deutsch-files-3', 'The Deutsch Files III · 2024', 'Technical conversation around AGI, Popper, misunderstanding, and explanation.', ['Scientific dialogue', 'Disagreement', 'Precision']),
