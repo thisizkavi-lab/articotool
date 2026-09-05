@@ -12,7 +12,6 @@ import { useAppStore } from '@/lib/store'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { UnifiedPracticeView } from '@/components/unified-practice-view'
 import { getCuratedCollection } from '@/lib/curated-library'
-import { buildCuratedTranscript, hydrateCuratedSegments } from '@/lib/curated-transcript'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -98,14 +97,11 @@ function HomeContent() {
   const {
     videoId, error, isLoading, initialize,
     segments, recordings, removeSegment, setSegments,
-    addRecording, removeRecording, videoTitle, transcript,
-    notes, setNotes, loadVideo, setTranscript
+    addRecording, removeRecording, videoTitle,
+    notes, setNotes, loadVideo,
   } = useAppStore()
 
   const curatedCollection = useMemo(() => getCuratedCollection(curatedId), [curatedId])
-  const isCuratedSession = Boolean(
-    curatedCollection && videoId && curatedCollection.videoId === videoId,
-  )
 
   useEffect(() => {
     let cancelled = false
@@ -119,82 +115,26 @@ function HomeContent() {
     }
   }, [initialize])
 
-  // A URL-selected video should override whichever session was previously open.
   useEffect(() => {
     if (initialized && urlVideoId && urlVideoId !== videoId && !isLoading) {
       loadVideo(urlVideoId)
     }
   }, [initialized, urlVideoId, videoId, isLoading, loadVideo])
 
-  // Source-controlled boundaries always win when entering through a curated URL.
+  // Curated clip boundaries are source-controlled and should always replace session clips.
   useEffect(() => {
     if (!initialized || !curatedCollection || isLoading || videoId !== curatedCollection.videoId) return
-    setSegments(curatedCollection.segments.map(segment => ({ ...segment })))
+    setSegments(curatedCollection.segments.map(segment => ({ ...segment, lines: [] })))
   }, [initialized, curatedCollection, videoId, isLoading, setSegments])
 
-  // Curated sources are deterministic. Always refresh the transcript for the selected
-  // source instead of trusting whatever transcript happens to be in local browser state.
-  // The endpoint first uses a source-specific transcript page fixed to this video, then
-  // falls back to YouTube only if that source is unavailable.
-  useEffect(() => {
-    if (
-      !initialized ||
-      !curatedCollection ||
-      isLoading ||
-      videoId !== curatedCollection.videoId
-    ) return
-
-    let cancelled = false
-
-    // Avoid briefly rendering a stale transcript from a different video/session.
-    setTranscript([])
-
-    fetch(`/api/curated-transcript?videoId=${curatedCollection.videoId}`, { cache: 'no-store' })
-      .then(res => res.json())
-      .then(data => {
-        if (cancelled) return
-        if (Array.isArray(data.transcript) && data.transcript.length > 0) {
-          setTranscript(data.transcript)
-        } else {
-          console.error('Curated transcript unavailable:', data.error || data.source || 'unknown source')
-        }
-      })
-      .catch(err => console.error('Curated transcript fetch failed:', err))
-
-    return () => {
-      cancelled = true
-    }
-  }, [
-    initialized,
-    curatedCollection,
-    videoId,
-    isLoading,
-    setTranscript,
-  ])
-
-  // Curated practice deliberately narrows the transcript to our selected material.
-  // Each segment receives the transcript lines overlapping its exact start/end bounds.
-  const practiceSegments = useMemo(() => {
-    if (!isCuratedSession || transcript.length === 0) return segments
-    return hydrateCuratedSegments(segments, transcript)
-  }, [isCuratedSession, segments, transcript])
-
-  const practiceTranscript = useMemo(() => {
-    if (!isCuratedSession || transcript.length === 0) return transcript
-    return buildCuratedTranscript(transcript, segments)
-  }, [isCuratedSession, transcript, segments])
-
-  const handleAddSegments = async (newSegments: any[], replaceTranscript?: boolean) => {
+  const handleAddSegments = async (newSegments: any[]) => {
     const formattedSegments = newSegments.map(s => ({
       id: crypto.randomUUID(),
       ...s,
-      createdAt: Date.now()
+      lines: [],
+      createdAt: Date.now(),
     }))
     setSegments([...segments, ...formattedSegments])
-    if (replaceTranscript) {
-      const allLines = newSegments.flatMap(s => s.lines).sort((a, b) => a.start - b.start)
-      setTranscript(allLines)
-    }
   }
 
   const handleClearSegments = async () => {
@@ -205,7 +145,8 @@ function HomeContent() {
   const handleSaveRecording = async (rec: any) => addRecording(rec)
   const handleDeleteRecording = async (id: string) => removeRecording(id)
   const handleUpdateNotes = async (nextNotes: string) => setNotes(nextNotes)
-  const handleUpdateTranscript = async (newTranscript: any[]) => setTranscript(newTranscript)
+
+  const blockingError = error?.startsWith('No transcript available') ? null : error
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -214,10 +155,10 @@ function HomeContent() {
       <main className="flex-1 container mx-auto px-4 py-6">
         <div className="max-w-2xl mx-auto mb-10">
           <VideoLoader />
-          {error && (
+          {blockingError && (
             <Alert variant="destructive" className="mt-3">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>{blockingError}</AlertDescription>
             </Alert>
           )}
         </div>
@@ -227,15 +168,15 @@ function HomeContent() {
             video={{
               id: videoId,
               title: videoTitle || "Individual Video",
-              segments: practiceSegments.map(s => ({ ...s, createdAt: s.createdAt || Date.now() })) as any[],
-              transcript: practiceTranscript,
+              segments: segments.map(s => ({ ...s, lines: [], createdAt: s.createdAt || Date.now() })) as any[],
+              transcript: [],
               thumbnail: "",
               channelName: "",
               duration: 0,
               addedAt: 0,
               lastPracticedAt: null,
               recordings: [],
-              notes: notes
+              notes,
             }}
             recordings={recordings}
             onAddSegments={handleAddSegments}
@@ -244,7 +185,6 @@ function HomeContent() {
             onSaveRecording={handleSaveRecording}
             onDeleteRecording={handleDeleteRecording}
             onUpdateNotes={handleUpdateNotes}
-            onUpdateTranscript={handleUpdateTranscript}
             isLoading={isLoading}
           />
         )}
@@ -253,14 +193,12 @@ function HomeContent() {
           <div className="text-center py-20">
             <h2 className="text-2xl font-semibold mb-3">Your Personal Speaking Gym</h2>
             <p className="text-muted-foreground max-w-md mx-auto mb-6">
-              Paste a YouTube URL above to load a video. Then segment the transcript,
-              shadow the speaker, record yourself, and compare.
+              Paste a YouTube URL, choose a segment, shadow the speaker, record yourself, and compare.
             </p>
             <div className="flex flex-wrap justify-center gap-3 text-sm text-muted-foreground">
-              <span className="px-3 py-1 bg-secondary/50 rounded">No AI</span>
-              <span className="px-3 py-1 bg-secondary/50 rounded">No Cloud</span>
-              <span className="px-3 py-1 bg-secondary/50 rounded">Local Only</span>
-              <span className="px-3 py-1 bg-secondary/50 rounded">Keyboard Driven</span>
+              <span className="px-3 py-1 bg-secondary/50 rounded">Focused</span>
+              <span className="px-3 py-1 bg-secondary/50 rounded">Local Recording</span>
+              <span className="px-3 py-1 bg-secondary/50 rounded">Loop Practice</span>
             </div>
           </div>
         )}
