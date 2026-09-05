@@ -378,6 +378,34 @@ const navalAfterOnEndGames1: CuratedCollection = {
   ],
 }
 
+const navalSellTheTruth: CuratedCollection = {
+  id: 'naval-sell-the-truth-2026',
+  speakerId: 'naval-ravikant',
+  speaker: 'Naval Ravikant',
+  sourceTitle: 'Sell the Truth · Naval + Nivi · 2026',
+  videoId: 'l1DQgwomzxU',
+  videoTitle: 'Sell the Truth',
+  channelName: 'Naval',
+  thumbnail: 'https://i.ytimg.com/vi/l1DQgwomzxU/hqdefault.jpg',
+  duration: 1660,
+  description: 'Naval and Nivi on persuasion, credibility, rational empathy, charisma, leadership, motivation, dealmaking, optionality, and nonlinear returns. Curated conservatively from the official full transcript plus YouTube-linked timestamp anchors, prioritizing formulation and exact trainable boundaries.',
+  focus: ['Formulation', 'Articulation', 'Persuasion', 'Reframing', 'Dealmaking', 'Qualification'],
+  status: 'ready',
+  segments: [
+    segment('STT-001', 226, 254, 'Disagreement · understand the reason first; disagreement is where humility arrives'),
+    segment('STT-002', 254, 271, 'Reframing · “yes, and” as rational empathy, not a persuasion trick'),
+    segment('STT-003', 279, 316, 'Definition · objectivity means removing ego and reasoning from the other perspective'),
+    segment('STT-004', 316, 337, 'Qualification · selfish honesty because being wrong is the default risk'),
+    segment('STT-005', 909, 930, 'Formulation · if you aren’t genuinely excited, what are you doing selling it?'),
+    segment('STT-006', 1120, 1137, 'Decision rule · if it feels like selling, you’re probably selling the wrong thing'),
+    segment('STT-007', 1278, 1301, 'Decision rule · plan early enough that every deal remains walk-away optional'),
+    segment('STT-008', 1301, 1331, 'Analogy · even marriage can unwind more easily than some bad business deals'),
+    segment('STT-009', 1331, 1372, 'Definition · a contract trades future optionality for coordinated value creation'),
+    segment('STT-010', 1372, 1419, 'Qualification · optionality is powerful; compromise can quietly trap great businesses'),
+    segment('STT-011', 1648, 1660, 'Strong ending · live several different lives inside this one'),
+  ],
+}
+
 const queuedSource = (
   id: string,
   sourceTitle: string,
@@ -419,6 +447,7 @@ export const CURATED_SPEAKERS: CuratedSpeaker[] = [
       queuedSource('naval-smart-friends-building-judgement', 'Smart Friends · Building Judgement · 2025', 'Recent Naval on judgment, decisions, knowledge, and long-term thinking.', ['Current style', 'Judgment', 'Decision-making']),
       navalTimFerriss97,
       navalAfterOnEndGames1,
+      navalSellTheTruth,
 
       // Scientific / epistemology conversations — important for studying how Naval
       // asks, reframes, and explains around genuinely technical thinkers.
