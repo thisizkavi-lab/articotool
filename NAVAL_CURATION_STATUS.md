@@ -40,3 +40,13 @@
 - Do not transform the podcast-feed timestamps into YouTube timestamps by assuming a fixed offset, and do not infer endpoints from chapter/key-moment markers. That would create false precision even though the transcript content itself is fully verified.
 - Leave this source queued until a reliable YouTube-aligned timestamped transcript/caption source can be verified.
 - Next autonomous curation run should proceed to `Arjun Khemani · Beginning of Infinity · 2024` rather than retrying this source unless a precise YouTube-aligned transcript becomes available.
+
+### David Deutsch · Knowledge Creation and the Human Race · Part 1 · 2023
+
+- Status: blocked / keep queued
+- Verified full source: Naval, `David Deutsch: Knowledge Creation and The Human Race, Part 1`, published 2023-02-11; official YouTube upload `YyxepLfH1ZU` and Naval's official episode/transcript page resolve the same 43:49 conversation.
+- The complete official Naval transcript was audited end-to-end. Independent public podcast listings confirm the stable 43:49–43:50 runtime and chapter timebase: Introduction `00:00`, The Human Race `02:11`, Knowledge Creation `12:34`, AGI `15:50`, Taking Children Seriously `23:30`, Good Explanations `27:49`, Quantum Computers `36:35`.
+- Tapesearch exposes precise sentence-level timestamps, but only the opening portion is publicly visible without login. Snipd exposes isolated exact clips (for example the 40-second error-correction passage beginning at `14:34`) and Podwise exposes section-level anchors, but neither provides enough public line-level timing to map the full transcript to defensible 10–45 second YouTube boundaries.
+- Blocking issue: no publicly accessible source in this run exposed the full transcript with dense timestamps aligned to the official YouTube timebase. Combining the untimed official transcript with chapter markers, summaries, or isolated snips would require inferred endpoints and create false precision.
+- Do not fabricate clip boundaries. Leave this source queued until a full YouTube-aligned caption/transcript source can be verified.
+- Next autonomous curation run should proceed to `David Deutsch · Knowledge Creation and the Human Race · Part 2` unless a precise Part 1 transcript source becomes available first.
