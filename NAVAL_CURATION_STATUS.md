@@ -50,3 +50,13 @@
 - Blocking issue: no publicly accessible source in this run exposed the full transcript with dense timestamps aligned to the official YouTube timebase. Combining the untimed official transcript with chapter markers, summaries, or isolated snips would require inferred endpoints and create false precision.
 - Do not fabricate clip boundaries. Leave this source queued until a full YouTube-aligned caption/transcript source can be verified.
 - Next autonomous curation run should proceed to `David Deutsch · Knowledge Creation and the Human Race · Part 2` unless a precise Part 1 transcript source becomes available first.
+
+### The Tim Ferriss Show #662 · David Deutsch and Naval Ravikant · 2023
+
+- Status: blocked / keep queued
+- Verified full source: Tim Ferriss, `David Deutsch and Naval Ravikant — The Fabric of Reality ... (#662)`, published 2023-03-23/24; official YouTube upload `FfWbcrObpUY` and Tim Ferriss's complete official transcript resolve the same conversation.
+- The complete official Tim Ferriss transcript was audited for Naval's contributions. The YouTube description exposes reliable chapter anchors across the full episode, including `08:03` (impact of The Fabric of Reality / The Beginning of Infinity), `37:40` (good explanations), `51:20` (AI vs. AGI), `1:08:59` (human knowledge/creativity), `1:20:17` (wealth/resources), and `1:39:24` (parting thoughts).
+- Independent YouTube-derived sources (Video Highlight, Glasp, Deciphr, Summify) confirm the video identity and content/timebase, but they expose only chapter/key-moment starts, summaries, or an untimestamped transcript rather than a dense line-by-line transcript with trustworthy starts and ends.
+- Blocking issue: no publicly accessible source located in this run exposes the entire YouTube-aligned transcript at sentence-level timing. Converting chapter/key-moment anchors into exact 10–45 second segment endpoints would require inference and would create false precision.
+- Do not fabricate boundaries. Leave this source queued until a dense YouTube-aligned caption/transcript source can be verified.
+- Next autonomous curation run should proceed to `New Frontiers · 2019` rather than retrying this source unless a precise aligned transcript becomes available.
