@@ -63,7 +63,7 @@ export default async function CuratedSpeakerPage({ params }: { params: Promise<{
             <h3 className="text-lg font-semibold tracking-tight">Sources</h3>
             <p className="text-xs text-muted-foreground mt-0.5">Dense by design: this collection is expected to grow into dozens of conversations.</p>
           </div>
-          <p className="text-xs text-muted-foreground hidden sm:block">Open a curated source to load its clips + synchronized transcript.</p>
+          <p className="text-xs text-muted-foreground hidden sm:block">Open a curated source to load its clips and start shadowing.</p>
         </div>
 
         <div className="grid gap-x-4 gap-y-7 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -126,7 +126,7 @@ export default async function CuratedSpeakerPage({ params }: { params: Promise<{
                         </span>
                       </>
                     ) : (
-                      <span>Transcript audit + clip selection queued</span>
+                      <span>Source audit + clip selection queued</span>
                     )}
                   </div>
                 </div>
