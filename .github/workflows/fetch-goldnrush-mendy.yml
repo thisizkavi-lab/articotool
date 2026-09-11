@@ -11,116 +11,92 @@ jobs:
   fetch-japanese-transcript:
     runs-on: ubuntu-latest
     steps:
+      - name: Inspect podcast RSS for transcript and audio
+        shell: bash
+        run: |
+          set -euo pipefail
+          RSS='https://anchor.fm/s/b76397fc/podcast/rss'
+          curl --retry 3 --retry-delay 2 -fLsS "$RSS" -o feed.xml
+          python - <<'PY'
+          import xml.etree.ElementTree as ET, json, re, urllib.request, pathlib
+          root=ET.parse('feed.xml').getroot()
+          target=None
+          for item in root.findall('.//item'):
+              title=(item.findtext('title') or '').strip()
+              if '関口メンディー' in title or '日本の芸能界で生き残るために' in title:
+                  target=item; break
+          if target is None: raise SystemExit('Mendy episode not found in RSS')
+          title=target.findtext('title') or ''
+          enclosure=target.find('enclosure')
+          audio=enclosure.attrib.get('url') if enclosure is not None else None
+          ns_trans=[]
+          for child in target:
+              tag=child.tag
+              if tag.endswith('transcript'):
+                  ns_trans.append({'tag':tag,'attrs':child.attrib,'text':(child.text or '').strip()})
+          raw=ET.tostring(target, encoding='unicode')
+          pathlib.Path('episode-item.xml').write_text(raw,encoding='utf-8')
+          info={'title':title,'audio':audio,'transcripts':ns_trans}
+          pathlib.Path('rss-info.json').write_text(json.dumps(info,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps(info,ensure_ascii=False))
+          for i,t in enumerate(ns_trans):
+              u=t['attrs'].get('url') or t['attrs'].get('href')
+              if u:
+                  try:
+                      data=urllib.request.urlopen(u,timeout=20).read()
+                      pathlib.Path(f'rss-transcript-{i}.txt').write_bytes(data)
+                      print('Downloaded transcript',i,'bytes',len(data),'url',u)
+                  except Exception as e:
+                      print('Transcript download failed',i,e)
+          if audio:
+              pathlib.Path('audio-url.txt').write_text(audio,encoding='utf-8')
+          PY
+
       - name: Fetch fine-grained Japanese captions
         shell: bash
         run: |
           set -euo pipefail
           VIDEO_ID="aQ3rPDWuKrI"
           python -m pip install --quiet --upgrade youtube-transcript-api yt-dlp
-
-          # First choice: YouTube transcript API. It preserves the original caption cue timings.
           python - <<'PY' || true
           import json
           from youtube_transcript_api import YouTubeTranscriptApi
-
-          video_id = 'aQ3rPDWuKrI'
-          api = YouTubeTranscriptApi()
-          transcript_list = api.list(video_id)
-          candidates = [t for t in transcript_list if t.language_code == 'ja' or t.language_code.startswith('ja')]
-          if not candidates:
-              raise SystemExit('No Japanese caption track found')
-          # Prefer manually created Japanese over generated Japanese.
-          candidates.sort(key=lambda t: bool(t.is_generated))
-          chosen = candidates[0]
-          fetched = chosen.fetch()
-          segments = [
-              {'start': round(float(s.start), 3), 'duration': round(float(s.duration), 3), 'text': s.text}
-              for s in fetched
-              if s.text and s.text.strip()
-          ]
-          out = {
-              'videoId': video_id,
-              'language': chosen.language_code,
-              'languageName': chosen.language,
-              'isGenerated': chosen.is_generated,
-              'source': 'youtube-transcript-api',
-              'segments': segments,
-          }
-          open('fine-transcript.json','w',encoding='utf-8').write(json.dumps(out,ensure_ascii=False,indent=2))
-          print(f"youtube-transcript-api SUCCESS language={chosen.language_code} generated={chosen.is_generated} cues={len(segments)}")
+          video_id='aQ3rPDWuKrI'; api=YouTubeTranscriptApi(); ts=api.list(video_id)
+          cs=[t for t in ts if t.language_code=='ja' or t.language_code.startswith('ja')]
+          if not cs: raise SystemExit('No Japanese track')
+          cs.sort(key=lambda t: bool(t.is_generated)); c=cs[0]; f=c.fetch()
+          segs=[{'start':round(float(s.start),3),'duration':round(float(s.duration),3),'text':s.text} for s in f if s.text and s.text.strip()]
+          open('fine-transcript.json','w',encoding='utf-8').write(json.dumps({'videoId':video_id,'language':c.language_code,'isGenerated':c.is_generated,'source':'youtube-transcript-api','segments':segs},ensure_ascii=False,indent=2))
+          print('youtube-transcript-api SUCCESS',len(segs))
           PY
-
-          # Second choice: yt-dlp raw JSON3 subtitles. Keep this separate so we can inspect exact events.
           if [ ! -s fine-transcript.json ]; then
             mkdir -p subs
             yt-dlp --skip-download --write-subs --write-auto-subs --sub-langs 'ja.*,ja' --sub-format json3 -o 'subs/%(id)s.%(ext)s' "https://www.youtube.com/watch?v=${VIDEO_ID}" || true
             python - <<'PY' || true
-          import glob, json, html, re
-          files=glob.glob('subs/*.json3')
-          if not files:
-              raise SystemExit('yt-dlp produced no Japanese JSON3 subtitle file')
-          p=json.load(open(files[0],encoding='utf-8'))
-          segs=[]
+          import glob,json,html,re
+          fs=glob.glob('subs/*.json3')
+          if not fs: raise SystemExit('no yt-dlp json3')
+          p=json.load(open(fs[0],encoding='utf-8')); segs=[]
           for e in p.get('events',[]):
-              start=float(e.get('tStartMs',0))/1000
-              dur=float(e.get('dDurationMs',0))/1000
-              text=''.join(s.get('utf8','') for s in e.get('segs',[]))
-              text=html.unescape(re.sub(r'\s+',' ',text)).strip()
-              if text and text not in {'\n'}:
-                  segs.append({'start':round(start,3),'duration':round(dur,3),'text':text})
+              text=html.unescape(re.sub(r'\s+',' ',''.join(s.get('utf8','') for s in e.get('segs',[])))).strip()
+              if text: segs.append({'start':round(float(e.get('tStartMs',0))/1000,3),'duration':round(float(e.get('dDurationMs',0))/1000,3),'text':text})
           open('fine-transcript.json','w',encoding='utf-8').write(json.dumps({'videoId':'aQ3rPDWuKrI','language':'ja','source':'yt-dlp-json3','segments':segs},ensure_ascii=False,indent=2))
-          print(f"yt-dlp SUCCESS cues={len(segs)} file={files[0]}")
+          print('yt-dlp SUCCESS',len(segs))
           PY
           fi
-
-          # Third choice: the app endpoint once production has the Japanese route.
-          if [ ! -s fine-transcript.json ]; then
-            APP_URL="https://articotool.vercel.app/api/transcript-ja?videoId=${VIDEO_ID}"
-            if curl --retry 3 --retry-delay 2 -fLsS "$APP_URL" -o app.json; then
-              python - <<'PY' || true
-          import json
-          p=json.load(open('app.json',encoding='utf-8'))
-          segs=p.get('transcript') or p.get('segments') or []
-          if not segs: raise SystemExit('App endpoint returned no cues')
-          open('fine-transcript.json','w',encoding='utf-8').write(json.dumps({'videoId':'aQ3rPDWuKrI','language':'ja','source':'artico-transcript-ja','segments':segs},ensure_ascii=False,indent=2))
-          print(f"artiCO endpoint SUCCESS cues={len(segs)}")
-          PY
-            fi
-          fi
-
-          # Last-resort paragraph transcript for semantic review only, never for precise endpoints.
           if [ ! -s fine-transcript.json ]; then
             curl --retry 3 --retry-delay 2 -fLsS "https://youtube-transcript.ai/transcript/${VIDEO_ID}.txt?lang=ja" -o coarse-transcript.txt
-            echo "Only coarse paragraph transcript available; precise curation must not use it for endpoints."
-          fi
-
-          if [ -s fine-transcript.json ]; then
-            python - <<'PY'
-          import json, re
-          p=json.load(open('fine-transcript.json',encoding='utf-8'))
-          segs=p.get('segments',[])
-          # Remove exact consecutive duplicated caption snapshots while preserving timing.
-          cleaned=[]
-          prev=None
-          for x in segs:
-              text=re.sub(r'\s+',' ',str(x.get('text',''))).strip()
-              if not text: continue
-              if text == prev: continue
-              cleaned.append({'start':float(x.get('start',0)), 'duration':float(x.get('duration',0)), 'text':text})
-              prev=text
-          p['segments']=cleaned
-          open('fine-transcript.json','w',encoding='utf-8').write(json.dumps(p,ensure_ascii=False,indent=2))
-          print(f"Fine transcript source={p.get('source')} raw/cleaned={len(segs)}/{len(cleaned)}")
-          if len(cleaned) < 100:
-              raise SystemExit('Too few fine caption cues; refusing false precision')
-          PY
           fi
 
       - name: Upload transcript for curation review
         uses: actions/upload-artifact@v4
         with:
-          name: goldnrush-mendy-ja-fine-transcript
+          name: goldnrush-mendy-ja-rss-and-transcript
           path: |
+            rss-info.json
+            episode-item.xml
+            audio-url.txt
+            rss-transcript-*.txt
             fine-transcript.json
             coarse-transcript.txt
             subs/*.json3
