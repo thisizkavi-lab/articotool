@@ -8,97 +8,71 @@ permissions:
   contents: read
 
 jobs:
-  fetch-japanese-transcript:
+  transcribe-mendy:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
-      - name: Inspect podcast RSS for transcript and audio
+      - name: Download official podcast audio
         shell: bash
         run: |
           set -euo pipefail
-          RSS='https://anchor.fm/s/b76397fc/podcast/rss'
-          curl --retry 3 --retry-delay 2 -fLsS "$RSS" -o feed.xml
+          curl --retry 4 --retry-delay 2 -fLsS 'https://traffic.megaphone.fm/ICIHN3067059746.mp3' -o mendy.mp3
+          ls -lh mendy.mp3
+
+      - name: Transcribe Japanese with faster-whisper
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet --upgrade faster-whisper
           python - <<'PY'
-          import xml.etree.ElementTree as ET, json, re, urllib.request, pathlib
-          root=ET.parse('feed.xml').getroot()
-          target=None
-          for item in root.findall('.//item'):
-              title=(item.findtext('title') or '').strip()
-              if '関口メンディー' in title or '日本の芸能界で生き残るために' in title:
-                  target=item; break
-          if target is None: raise SystemExit('Mendy episode not found in RSS')
-          title=target.findtext('title') or ''
-          enclosure=target.find('enclosure')
-          audio=enclosure.attrib.get('url') if enclosure is not None else None
-          ns_trans=[]
-          for child in target:
-              tag=child.tag
-              if tag.endswith('transcript'):
-                  ns_trans.append({'tag':tag,'attrs':child.attrib,'text':(child.text or '').strip()})
-          raw=ET.tostring(target, encoding='unicode')
-          pathlib.Path('episode-item.xml').write_text(raw,encoding='utf-8')
-          info={'title':title,'audio':audio,'transcripts':ns_trans}
-          pathlib.Path('rss-info.json').write_text(json.dumps(info,ensure_ascii=False,indent=2),encoding='utf-8')
-          print(json.dumps(info,ensure_ascii=False))
-          for i,t in enumerate(ns_trans):
-              u=t['attrs'].get('url') or t['attrs'].get('href')
-              if u:
-                  try:
-                      data=urllib.request.urlopen(u,timeout=20).read()
-                      pathlib.Path(f'rss-transcript-{i}.txt').write_bytes(data)
-                      print('Downloaded transcript',i,'bytes',len(data),'url',u)
-                  except Exception as e:
-                      print('Transcript download failed',i,e)
-          if audio:
-              pathlib.Path('audio-url.txt').write_text(audio,encoding='utf-8')
-          PY
-
-      - name: Fetch fine-grained Japanese captions
-        shell: bash
-        run: |
-          set -euo pipefail
-          VIDEO_ID="aQ3rPDWuKrI"
-          python -m pip install --quiet --upgrade youtube-transcript-api yt-dlp
-          python - <<'PY' || true
           import json
-          from youtube_transcript_api import YouTubeTranscriptApi
-          video_id='aQ3rPDWuKrI'; api=YouTubeTranscriptApi(); ts=api.list(video_id)
-          cs=[t for t in ts if t.language_code=='ja' or t.language_code.startswith('ja')]
-          if not cs: raise SystemExit('No Japanese track')
-          cs.sort(key=lambda t: bool(t.is_generated)); c=cs[0]; f=c.fetch()
-          segs=[{'start':round(float(s.start),3),'duration':round(float(s.duration),3),'text':s.text} for s in f if s.text and s.text.strip()]
-          open('fine-transcript.json','w',encoding='utf-8').write(json.dumps({'videoId':video_id,'language':c.language_code,'isGenerated':c.is_generated,'source':'youtube-transcript-api','segments':segs},ensure_ascii=False,indent=2))
-          print('youtube-transcript-api SUCCESS',len(segs))
-          PY
-          if [ ! -s fine-transcript.json ]; then
-            mkdir -p subs
-            yt-dlp --skip-download --write-subs --write-auto-subs --sub-langs 'ja.*,ja' --sub-format json3 -o 'subs/%(id)s.%(ext)s' "https://www.youtube.com/watch?v=${VIDEO_ID}" || true
-            python - <<'PY' || true
-          import glob,json,html,re
-          fs=glob.glob('subs/*.json3')
-          if not fs: raise SystemExit('no yt-dlp json3')
-          p=json.load(open(fs[0],encoding='utf-8')); segs=[]
-          for e in p.get('events',[]):
-              text=html.unescape(re.sub(r'\s+',' ',''.join(s.get('utf8','') for s in e.get('segs',[])))).strip()
-              if text: segs.append({'start':round(float(e.get('tStartMs',0))/1000,3),'duration':round(float(e.get('dDurationMs',0))/1000,3),'text':text})
-          open('fine-transcript.json','w',encoding='utf-8').write(json.dumps({'videoId':'aQ3rPDWuKrI','language':'ja','source':'yt-dlp-json3','segments':segs},ensure_ascii=False,indent=2))
-          print('yt-dlp SUCCESS',len(segs))
-          PY
-          fi
-          if [ ! -s fine-transcript.json ]; then
-            curl --retry 3 --retry-delay 2 -fLsS "https://youtube-transcript.ai/transcript/${VIDEO_ID}.txt?lang=ja" -o coarse-transcript.txt
-          fi
+          from faster_whisper import WhisperModel
 
-      - name: Upload transcript for curation review
+          # Small gives much better Japanese than tiny/base while still being practical on a CPU runner.
+          model = WhisperModel('small', device='cpu', compute_type='int8')
+          segments, info = model.transcribe(
+              'mendy.mp3',
+              language='ja',
+              beam_size=5,
+              vad_filter=True,
+              word_timestamps=True,
+              condition_on_previous_text=True,
+          )
+          out=[]
+          words=[]
+          for s in segments:
+              row={'start':round(s.start,3),'end':round(s.end,3),'text':s.text.strip()}
+              if row['text']:
+                  out.append(row)
+              for w in (s.words or []):
+                  if w.start is None or w.end is None: continue
+                  words.append({'start':round(w.start,3),'end':round(w.end,3),'word':w.word})
+          payload={
+              'videoId':'aQ3rPDWuKrI',
+              'audioSource':'GOLDNRUSH official RSS enclosure',
+              'audioUrl':'https://traffic.megaphone.fm/ICIHN3067059746.mp3',
+              'language':getattr(info,'language','ja'),
+              'languageProbability':getattr(info,'language_probability',None),
+              'model':'faster-whisper-small',
+              'segments':out,
+              'words':words,
+          }
+          with open('mendy-whisper.json','w',encoding='utf-8') as f:
+              json.dump(payload,f,ensure_ascii=False,indent=2)
+          with open('mendy-whisper.txt','w',encoding='utf-8') as f:
+              for x in out:
+                  f.write(f"[{x['start']:.3f} --> {x['end']:.3f}] {x['text']}\n")
+          print('language',payload['language'],'probability',payload['languageProbability'])
+          print('segments',len(out),'words',len(words),'last_end',out[-1]['end'] if out else None)
+          if len(out) < 150 or not out or out[-1]['end'] < 3000:
+              raise SystemExit('Transcript coverage is unexpectedly incomplete')
+          PY
+
+      - name: Upload Whisper transcript
         uses: actions/upload-artifact@v4
         with:
-          name: goldnrush-mendy-ja-rss-and-transcript
+          name: goldnrush-mendy-whisper-ja
           path: |
-            rss-info.json
-            episode-item.xml
-            audio-url.txt
-            rss-transcript-*.txt
-            fine-transcript.json
-            coarse-transcript.txt
-            subs/*.json3
-          if-no-files-found: warn
+            mendy-whisper.json
+            mendy-whisper.txt
           retention-days: 1
