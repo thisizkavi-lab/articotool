@@ -12,6 +12,7 @@ import { useAppStore } from '@/lib/store'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { UnifiedPracticeView } from '@/components/unified-practice-view'
 import { getCuratedCollection } from '@/lib/curated-library'
+import { getGoldnrushCollection } from '@/lib/goldnrush-library'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -101,7 +102,10 @@ function HomeContent() {
     notes, setNotes, loadVideo,
   } = useAppStore()
 
-  const curatedCollection = useMemo(() => getCuratedCollection(curatedId), [curatedId])
+  const curatedCollection = useMemo(
+    () => getCuratedCollection(curatedId) || getGoldnrushCollection(curatedId),
+    [curatedId],
+  )
 
   useEffect(() => {
     let cancelled = false
