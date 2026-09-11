@@ -8,71 +8,61 @@ permissions:
   contents: read
 
 jobs:
-  transcribe-mendy:
+  transcribe-mendy-candidates:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 30
     steps:
       - name: Download official podcast audio
         shell: bash
         run: |
           set -euo pipefail
           curl --retry 4 --retry-delay 2 -fLsS 'https://traffic.megaphone.fm/ICIHN3067059746.mp3' -o mendy.mp3
-          ls -lh mendy.mp3
 
-      - name: Transcribe Japanese with faster-whisper
+      - name: Cut high-value candidate ranges
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p clips
+          ffmpeg -hide_banner -loglevel error -ss 1200 -t 520 -i mendy.mp3 -ac 1 -ar 16000 clips/range-1200.wav
+          ffmpeg -hide_banner -loglevel error -ss 2050 -t 520 -i mendy.mp3 -ac 1 -ar 16000 clips/range-2050.wav
+          ffmpeg -hide_banner -loglevel error -ss 2600 -t 380 -i mendy.mp3 -ac 1 -ar 16000 clips/range-2600.wav
+          ffmpeg -hide_banner -loglevel error -ss 3000 -t 500 -i mendy.mp3 -ac 1 -ar 16000 clips/range-3000.wav
+
+      - name: Transcribe candidate ranges with word timestamps
         shell: bash
         run: |
           set -euo pipefail
           python -m pip install --quiet --upgrade faster-whisper
           python - <<'PY'
-          import json
+          import json, glob, os, re
           from faster_whisper import WhisperModel
 
-          # Small gives much better Japanese than tiny/base while still being practical on a CPU runner.
-          model = WhisperModel('small', device='cpu', compute_type='int8')
-          segments, info = model.transcribe(
-              'mendy.mp3',
-              language='ja',
-              beam_size=5,
-              vad_filter=True,
-              word_timestamps=True,
-              condition_on_previous_text=True,
-          )
-          out=[]
-          words=[]
-          for s in segments:
-              row={'start':round(s.start,3),'end':round(s.end,3),'text':s.text.strip()}
-              if row['text']:
-                  out.append(row)
-              for w in (s.words or []):
-                  if w.start is None or w.end is None: continue
-                  words.append({'start':round(w.start,3),'end':round(w.end,3),'word':w.word})
-          payload={
-              'videoId':'aQ3rPDWuKrI',
-              'audioSource':'GOLDNRUSH official RSS enclosure',
-              'audioUrl':'https://traffic.megaphone.fm/ICIHN3067059746.mp3',
-              'language':getattr(info,'language','ja'),
-              'languageProbability':getattr(info,'language_probability',None),
-              'model':'faster-whisper-small',
-              'segments':out,
-              'words':words,
-          }
-          with open('mendy-whisper.json','w',encoding='utf-8') as f:
-              json.dump(payload,f,ensure_ascii=False,indent=2)
-          with open('mendy-whisper.txt','w',encoding='utf-8') as f:
-              for x in out:
-                  f.write(f"[{x['start']:.3f} --> {x['end']:.3f}] {x['text']}\n")
-          print('language',payload['language'],'probability',payload['languageProbability'])
-          print('segments',len(out),'words',len(words),'last_end',out[-1]['end'] if out else None)
-          if len(out) < 150 or not out or out[-1]['end'] < 3000:
-              raise SystemExit('Transcript coverage is unexpectedly incomplete')
+          model=WhisperModel('base',device='cpu',compute_type='int8')
+          offsets={'range-1200.wav':1200,'range-2050.wav':2050,'range-2600.wav':2600,'range-3000.wav':3000}
+          all_segments=[]; all_words=[]
+          for path in sorted(glob.glob('clips/*.wav')):
+              name=os.path.basename(path); off=offsets[name]
+              segments,info=model.transcribe(path,language='ja',beam_size=5,vad_filter=True,word_timestamps=True,condition_on_previous_text=True)
+              for s in segments:
+                  text=re.sub(r'\s+',' ',s.text).strip()
+                  if text:
+                      all_segments.append({'start':round(off+s.start,3),'end':round(off+s.end,3),'text':text})
+                  for w in (s.words or []):
+                      if w.start is None or w.end is None: continue
+                      all_words.append({'start':round(off+w.start,3),'end':round(off+w.end,3),'word':w.word})
+          payload={'audioSource':'official GOLDNRUSH RSS audio','model':'faster-whisper-base','segments':all_segments,'words':all_words}
+          open('mendy-candidate-transcript.json','w',encoding='utf-8').write(json.dumps(payload,ensure_ascii=False,indent=2))
+          with open('mendy-candidate-transcript.txt','w',encoding='utf-8') as f:
+              for x in all_segments: f.write(f"[{x['start']:.3f} --> {x['end']:.3f}] {x['text']}\n")
+          print('segments',len(all_segments),'words',len(all_words))
+          if len(all_segments)<100: raise SystemExit('Candidate transcription unexpectedly sparse')
           PY
 
-      - name: Upload Whisper transcript
+      - name: Upload candidate transcript
         uses: actions/upload-artifact@v4
         with:
-          name: goldnrush-mendy-whisper-ja
+          name: goldnrush-mendy-candidate-whisper-ja
           path: |
-            mendy-whisper.json
-            mendy-whisper.txt
+            mendy-candidate-transcript.json
+            mendy-candidate-transcript.txt
           retention-days: 1
