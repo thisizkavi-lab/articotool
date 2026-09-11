@@ -1,0 +1,118 @@
+name: Fetch GOLDNRUSH Mendy transcript
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  fetch-japanese-transcript:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Japanese transcript
+        shell: bash
+        run: |
+          set -euo pipefail
+          VIDEO_ID="aQ3rPDWuKrI"
+          APP_URL="https://articotool.vercel.app/api/transcript-ja?videoId=${VIDEO_ID}"
+
+          echo "Trying artiCO Japanese transcript endpoint..."
+          if curl --retry 3 --retry-delay 2 -fLsS "$APP_URL" -o transcript.json; then
+            python - <<'PY'
+          import json, sys
+          p = json.load(open('transcript.json', encoding='utf-8'))
+          segs = p.get('transcript') or p.get('segments') or []
+          lang = p.get('language') or p.get('languageCode') or p.get('track', {}).get('languageCode')
+          print(f"artiCO response: success={p.get('success', True)} language={lang!r} segments={len(segs)}")
+          if not segs:
+              sys.exit(2)
+          PY
+          else
+            echo "artiCO endpoint failed; trying public caption fallback."
+            rm -f transcript.json
+          fi
+
+          if [ ! -s transcript.json ]; then
+            curl --retry 3 --retry-delay 2 -fLsS "https://youtube-transcript.ai/transcript/${VIDEO_ID}.txt?lang=ja" -o transcript.txt
+          fi
+
+          python - <<'PY'
+          import json, re, pathlib
+
+          def clean(s):
+              return re.sub(r'\s+', ' ', s).strip()
+
+          segments = []
+          jp = pathlib.Path('transcript.json')
+          if jp.exists() and jp.stat().st_size:
+              p = json.loads(jp.read_text(encoding='utf-8'))
+              raw = p.get('transcript') or p.get('segments') or []
+              for x in raw:
+                  text = clean(str(x.get('text', '')))
+                  if not text:
+                      continue
+                  start = x.get('start', x.get('offset', 0))
+                  dur = x.get('duration', 0)
+                  # Some APIs use milliseconds; artiCO uses seconds. Normalize conservatively.
+                  start = float(start or 0)
+                  dur = float(dur or 0)
+                  if start > 100000:
+                      start /= 1000
+                  if dur > 1000:
+                      dur /= 1000
+                  segments.append({'start': round(start, 3), 'duration': round(dur, 3), 'text': text})
+          else:
+              txt = pathlib.Path('transcript.txt').read_text(encoding='utf-8', errors='replace')
+              # Public fallback is paragraph-level [m:ss] timestamps. Keep it for review only.
+              marks = list(re.finditer(r'\[(\d+):(\d{2})\]\s*', txt))
+              for i, m in enumerate(marks):
+                  start = int(m.group(1))*60 + int(m.group(2))
+                  endpos = marks[i+1].start() if i+1 < len(marks) else len(txt)
+                  text = clean(txt[m.end():endpos])
+                  if text:
+                      next_start = int(marks[i+1].group(1))*60 + int(marks[i+1].group(2)) if i+1 < len(marks) else start + 20
+                      segments.append({'start': start, 'duration': max(1, next_start-start), 'text': text})
+
+          pathlib.Path('normalized-transcript.json').write_text(
+              json.dumps({'videoId':'aQ3rPDWuKrI','language':'ja','segments':segments}, ensure_ascii=False, indent=2),
+              encoding='utf-8'
+          )
+
+          # Build contiguous review windows without changing the underlying timestamps.
+          windows=[]
+          i=0
+          while i < len(segments):
+              s=segments[i]['start']
+              texts=[]
+              j=i
+              end=s
+              while j < len(segments):
+                  x=segments[j]
+                  xend=x['start'] + max(x.get('duration',0), 0)
+                  if j>i and xend-s > 38:
+                      break
+                  texts.append(x['text'])
+                  end=max(end,xend)
+                  j+=1
+                  if end-s >= 12:
+                      break
+              if texts:
+                  windows.append({'start':round(s,3),'end':round(end,3),'text':clean(' '.join(texts))})
+              i=max(j,i+1)
+          pathlib.Path('review-windows.json').write_text(
+              json.dumps(windows, ensure_ascii=False, indent=2), encoding='utf-8')
+          print(f"Normalized {len(segments)} cues into {len(windows)} review windows")
+          if len(segments) < 20:
+              raise SystemExit('Too few Japanese transcript segments; refusing to treat this as usable.')
+          PY
+
+      - name: Upload transcript for curation review
+        uses: actions/upload-artifact@v4
+        with:
+          name: goldnrush-mendy-ja-transcript
+          path: |
+            normalized-transcript.json
+            review-windows.json
+          retention-days: 1
