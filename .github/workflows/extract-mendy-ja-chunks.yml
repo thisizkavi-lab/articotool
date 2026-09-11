@@ -1,0 +1,133 @@
+name: Extract Mendy Japanese transcript chunks
+
+on:
+  push:
+    branches:
+      - curation/mendy-116-asr-chunks
+
+jobs:
+  extract:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - chunk: 0
+            start: 0
+            length: 820
+          - chunk: 1
+            start: 800
+            length: 820
+          - chunk: 2
+            start: 1600
+            length: 820
+          - chunk: 3
+            start: 2400
+            length: 820
+          - chunk: 4
+            start: 3200
+            length: 520
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          pip install --disable-pip-version-check feedparser requests faster-whisper
+      - name: Download official audio and transcribe chunk
+        env:
+          CHUNK: ${{ matrix.chunk }}
+          START: ${{ matrix.start }}
+          LENGTH: ${{ matrix.length }}
+        run: |
+          mkdir -p transcript-artifact
+          python - <<'PY'
+          import json, os, subprocess
+          import feedparser, requests
+          from faster_whisper import WhisperModel
+
+          feed = feedparser.parse('https://anchor.fm/s/b76397fc/podcast/rss')
+          entry = next((e for e in feed.entries if '関口メンディー' in e.get('title', '')), None)
+          if not entry:
+              raise RuntimeError('Mendy episode not found')
+          audio_url = entry.enclosures[0].href
+          audio = 'transcript-artifact/full.mp3'
+          with requests.get(audio_url, stream=True, timeout=60) as r:
+              r.raise_for_status()
+              with open(audio, 'wb') as f:
+                  for c in r.iter_content(1024 * 1024):
+                      if c:
+                          f.write(c)
+
+          chunk = int(os.environ['CHUNK'])
+          offset = float(os.environ['START'])
+          length = float(os.environ['LENGTH'])
+          clip = f'transcript-artifact/chunk_{chunk}.wav'
+          subprocess.run([
+              'ffmpeg','-hide_banner','-loglevel','error','-y',
+              '-ss',str(offset),'-t',str(length),'-i',audio,
+              '-ac','1','-ar','16000',clip
+          ], check=True)
+
+          model = WhisperModel('small', device='cpu', compute_type='int8')
+          it, info = model.transcribe(
+              clip,
+              language='ja',
+              beam_size=3,
+              vad_filter=True,
+              word_timestamps=True,
+              condition_on_previous_text=True,
+          )
+          segs=[]
+          for i,s in enumerate(it):
+              words=[]
+              for w in (s.words or []):
+                  words.append({
+                      'text': w.word,
+                      'start': None if w.start is None else float(w.start + offset),
+                      'end': None if w.end is None else float(w.end + offset),
+                      'probability': None if w.probability is None else float(w.probability),
+                  })
+              segs.append({
+                  'index': i,
+                  'text': s.text.strip(),
+                  'start': float(s.start + offset),
+                  'end': float(s.end + offset),
+                  'duration': float(s.end - s.start),
+                  'avg_logprob': float(s.avg_logprob),
+                  'no_speech_prob': float(s.no_speech_prob),
+                  'words': words,
+              })
+          payload={
+              'chunk':chunk,
+              'offset':offset,
+              'requested_length':length,
+              'episode_title':entry.get('title'),
+              'published':entry.get('published'),
+              'itunes_duration':entry.get('itunes_duration') or entry.get('duration'),
+              'video_id':'aQ3rPDWuKrI',
+              'asr_model':'small',
+              'language':info.language,
+              'language_probability':float(info.language_probability),
+              'segments':segs,
+          }
+          with open(f'transcript-artifact/mendy_chunk_{chunk}.json','w',encoding='utf-8') as f:
+              json.dump(payload,f,ensure_ascii=False,indent=2)
+          with open(f'transcript-artifact/mendy_chunk_{chunk}.txt','w',encoding='utf-8') as f:
+              for s in segs:
+                  f.write(f"[{s['start']:.2f}-{s['end']:.2f}] {s['text']}\n")
+          print(json.dumps({'chunk':chunk,'segments':len(segs),'itunes_duration':payload['itunes_duration'],'language_probability':payload['language_probability']},ensure_ascii=False))
+          PY
+      - name: Upload chunk
+        uses: actions/upload-artifact@v4
+        with:
+          name: mendy-ja-chunk-${{ matrix.chunk }}
+          path: |
+            transcript-artifact/mendy_chunk_${{ matrix.chunk }}.json
+            transcript-artifact/mendy_chunk_${{ matrix.chunk }}.txt
+          if-no-files-found: error
+          retention-days: 3
