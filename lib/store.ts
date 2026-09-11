@@ -227,54 +227,47 @@ export const useAppStore = create<AppState>((set) => ({
   loadVideo: async (id: string) => {
     const { setLoading, setError, setVideoId, setTranscript, setVideoTitle, setSegments } = useAppStore.getState()
 
-    // Clear relevant state
+    // A valid YouTube ID is enough to render the player. Metadata and transcript
+    // are enhancements only and must never turn a playable video into an error state.
     setError(null)
     setTranscript([])
     setSegments([])
-    setLoading(true)
+    setVideoTitle('')
     setVideoId(id)
+    setLoading(false)
 
     try {
-      // 1. Fetch Metadata (Fast)
-      // Use the YouTube API route which is faster and more reliable for metadata
       const metadataRes = await fetch(`/api/youtube?videoId=${id}`)
-
-      if (!metadataRes.ok) {
-        throw new Error('Video not found')
+      if (metadataRes.ok) {
+        const metadata = await metadataRes.json()
+        if (useAppStore.getState().videoId === id && metadata.video?.title) {
+          setVideoTitle(metadata.video.title)
+        }
+      } else {
+        console.warn('YouTube metadata lookup failed; continuing with the embedded player.')
       }
-
-      const metadata = await metadataRes.json()
-      if (metadata.video && metadata.video.title) {
-        setVideoTitle(metadata.video.title)
-      }
-
-      // 2. Allow Player to Render Immediately
-      setLoading(false)
-
-      // 3. Fetch Transcript (Background)
-      // We don't await this or let it block the UI
-      fetch(`/api/transcript?videoId=${id}`)
-        .then(async (res) => {
-          const data = await res.json()
-          if (data.transcript && data.transcript.length > 0) {
-            setTranscript(data.transcript)
-            // Save to history once we have the full data
-            useAppStore.getState().saveToHistory()
-          } else {
-            // Only set error/notice if we really have no transcript, but don't disrupt the user
-            setError('No transcript available for this video. You can still practice without text.')
-          }
-        })
-        .catch(err => {
-          console.error('Background transcript fetch failed:', err)
-          setError('No transcript available for this video. You can still practice without text.')
-        })
-
     } catch (err) {
-      setError('Failed to load video. Please check the URL and try again.')
-      console.error(err)
-      setLoading(false)
+      console.warn('YouTube metadata lookup failed; continuing with the embedded player.', err)
     }
+
+    // Transcript retrieval is also optional. Keep it silent because the practice UI
+    // no longer depends on transcript availability.
+    fetch(`/api/transcript?videoId=${id}`)
+      .then(async (res) => {
+        if (!res.ok) return
+        const data = await res.json()
+        if (
+          useAppStore.getState().videoId === id &&
+          data.transcript &&
+          data.transcript.length > 0
+        ) {
+          setTranscript(data.transcript)
+          useAppStore.getState().saveToHistory()
+        }
+      })
+      .catch(err => {
+        console.warn('Background transcript fetch failed; continuing without transcript.', err)
+      })
   },
 
   reset: () => set(initialState),
