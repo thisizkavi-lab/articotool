@@ -1,4 +1,4 @@
-import { AlertCircle, ArrowLeft, CircleDashed, ExternalLink, Languages, Sparkles } from 'lucide-react'
+import { ArrowLeft, CircleDashed, ExternalLink, Languages, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 const sources = [
@@ -6,19 +6,19 @@ const sources = [
     id: 'goldnrush-mendy-116',
     title: '関口メンディー · GOLDNRUSH Ep.116',
     guest: '関口メンディー',
-    status: 'blocked' as const,
+    status: 'curating' as const,
     videoId: 'aQ3rPDWuKrI',
-    duration: '',
-    note: 'Blocked until a reliable full timestamped Japanese transcript can be verified. Do not guess speaker turns or clip boundaries.',
+    duration: '1:00:34',
+    note: 'Japanese caption extraction is now handled explicitly. This source is in active curation; only verified speaker turns and exact clip boundaries will be promoted into practice.',
   },
   {
     id: 'goldnrush-ito-awa-137',
     title: '伊藤亜和 · GOLDNRUSH Ep.137',
     guest: '伊藤亜和',
-    status: 'blocked' as const,
+    status: 'curating' as const,
     videoId: 'FBA7X77QSPI',
     duration: '1:16:53',
-    note: 'Blocked because chapter markers are not precise enough to verify sentence boundaries, speaker turns, overlap, and exact shadowing endpoints.',
+    note: 'Japanese caption extraction is now handled explicitly. This source is in active curation; speaker identity, overlap, and exact shadowing endpoints still have to pass review.',
   },
   {
     id: 'goldnrush-zeebra-149',
@@ -27,7 +27,7 @@ const sources = [
     status: 'queued' as const,
     videoId: null,
     duration: '',
-    note: 'Queued for one-source-at-a-time transcript and caption verification before clip selection.',
+    note: 'Queued for one-source-at-a-time Japanese transcript verification and clip selection.',
   },
   {
     id: 'goldnrush-sarasa-154',
@@ -36,7 +36,7 @@ const sources = [
     status: 'queued' as const,
     videoId: null,
     duration: '',
-    note: 'Queued for one-source-at-a-time transcript and caption verification before clip selection.',
+    note: 'Queued for one-source-at-a-time Japanese transcript verification and clip selection.',
   },
   {
     id: 'goldnrush-shigekix',
@@ -54,12 +54,12 @@ const sources = [
     status: 'queued' as const,
     videoId: null,
     duration: '',
-    note: 'Queued for one-source-at-a-time transcript and caption verification before clip selection.',
+    note: 'Queued for one-source-at-a-time Japanese transcript verification and clip selection.',
   },
 ]
 
 export default function GoldnrushJapanesePage() {
-  const blocked = sources.filter(source => source.status === 'blocked').length
+  const curating = sources.filter(source => source.status === 'curating').length
   const queued = sources.filter(source => source.status === 'queued').length
 
   return (
@@ -73,7 +73,7 @@ export default function GoldnrushJapanesePage() {
           </Button>
           <div>
             <h1 className="text-xl font-semibold tracking-tight">Japanese · GOLDNRUSH</h1>
-            <p className="text-xs text-muted-foreground">0 ready sources · {blocked} blocked · {queued} queued</p>
+            <p className="text-xs text-muted-foreground">0 ready sources · {curating} curating · {queued} queued</p>
           </div>
         </div>
       </header>
@@ -86,17 +86,17 @@ export default function GoldnrushJapanesePage() {
           </div>
           <h2 className="text-2xl font-semibold tracking-tight mb-2">Build native conversational Japanese carefully.</h2>
           <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-            These six sources are intentionally tracked before they are promoted into practice. A video loading is not enough: every shadowing clip needs a defensible exact start and end time, verified speaker identity, clean enough audio, and Japanese genuinely worth imitating.
+            These six sources are processed one at a time. Japanese captions are requested explicitly, then the transcript is used to verify speaker turns and select only natural, reusable clips worth shadowing.
           </p>
           <div className="flex items-start gap-2 rounded-lg border border-border/60 bg-secondary/20 px-3 py-2.5 text-xs text-muted-foreground">
             <Sparkles className="h-4 w-4 mt-0.5 shrink-0" />
-            <p>Blocked sources stay visible instead of being hidden or filled with guessed segments. When transcript timing becomes reliable, they can move to Curated without changing the practice UI.</p>
+            <p>“Curating” means the source is actively being worked on. It becomes ready only after exact timestamps, speaker identity, and clip quality are verified.</p>
           </div>
         </section>
 
         <div className="grid gap-x-4 gap-y-7 sm:grid-cols-2 lg:grid-cols-3">
           {sources.map(source => {
-            const isBlocked = source.status === 'blocked'
+            const isCurating = source.status === 'curating'
             const thumbnail = source.videoId ? `https://i.ytimg.com/vi/${source.videoId}/hqdefault.jpg` : null
 
             return (
@@ -110,9 +110,9 @@ export default function GoldnrushJapanesePage() {
                     </div>
                   )}
 
-                  <div className={`absolute top-2 left-2 rounded px-1.5 py-0.5 text-[10px] text-white flex items-center gap-1 ${isBlocked ? 'bg-amber-700/90' : 'bg-black/75'}`}>
-                    {isBlocked ? <AlertCircle className="h-3 w-3" /> : <CircleDashed className="h-3 w-3" />}
-                    {isBlocked ? 'Blocked' : 'Queued'}
+                  <div className={`absolute top-2 left-2 rounded px-1.5 py-0.5 text-[10px] text-white flex items-center gap-1 ${isCurating ? 'bg-blue-700/90' : 'bg-black/75'}`}>
+                    <CircleDashed className={`h-3 w-3 ${isCurating ? 'animate-spin' : ''}`} />
+                    {isCurating ? 'Curating' : 'Queued'}
                   </div>
 
                   {source.duration && (
@@ -134,7 +134,7 @@ export default function GoldnrushJapanesePage() {
                       rel="noreferrer"
                       className="inline-flex items-center gap-1.5 text-xs font-medium mt-3 hover:text-primary transition-colors"
                     >
-                      Open verified source
+                      Open source
                       <ExternalLink className="h-3 w-3" />
                     </a>
                   )}
