@@ -8,76 +8,130 @@ on:
 jobs:
   extract:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install transcript client
-        run: pip install --disable-pip-version-check youtube-transcript-api
-      - name: Fetch Japanese transcript
+      - name: Install ASR dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          pip install --disable-pip-version-check feedparser requests faster-whisper
+      - name: Fetch official podcast audio and transcribe Japanese
         run: |
           mkdir -p transcript-artifact
           python - <<'PY'
           import json
-          from youtube_transcript_api import YouTubeTranscriptApi
+          import os
+          import feedparser
+          import requests
+          from faster_whisper import WhisperModel
 
-          video_id = 'aQ3rPDWuKrI'
-          api = YouTubeTranscriptApi()
-          available = []
-          chosen = None
-          chosen_kind = None
+          FEED = 'https://anchor.fm/s/b76397fc/podcast/rss'
+          TARGET = '関口メンディー'
+          VIDEO_ID = 'aQ3rPDWuKrI'
 
-          transcript_list = api.list(video_id)
-          for t in transcript_list:
-              available.append({
-                  'language': t.language,
-                  'language_code': t.language_code,
-                  'is_generated': t.is_generated,
-                  'is_translatable': t.is_translatable,
-              })
+          feed = feedparser.parse(FEED)
+          entry = next((e for e in feed.entries if TARGET in e.get('title', '')), None)
+          if not entry:
+              raise RuntimeError('Mendy episode not found in official RSS feed')
 
-          try:
-              chosen = transcript_list.find_manually_created_transcript(['ja'])
-              chosen_kind = 'manual'
-          except Exception:
-              try:
-                  chosen = transcript_list.find_generated_transcript(['ja'])
-                  chosen_kind = 'generated'
-              except Exception:
-                  chosen = transcript_list.find_transcript(['ja'])
-                  chosen_kind = 'fallback-ja'
+          enclosures = entry.get('enclosures', [])
+          if not enclosures:
+              raise RuntimeError('RSS entry has no audio enclosure')
+          audio_url = enclosures[0].get('href')
+          if not audio_url:
+              raise RuntimeError('RSS enclosure has no href')
 
-          fetched = chosen.fetch()
+          meta = {
+              'video_id': VIDEO_ID,
+              'episode_title': entry.get('title'),
+              'published': entry.get('published'),
+              'itunes_duration': entry.get('itunes_duration') or entry.get('duration'),
+              'audio_url': audio_url,
+              'rss_feed': FEED,
+          }
+          print('EPISODE_META=' + json.dumps(meta, ensure_ascii=False))
+
+          audio_path = 'transcript-artifact/mendy_116_audio.mp3'
+          with requests.get(audio_url, stream=True, timeout=60) as r:
+              r.raise_for_status()
+              with open(audio_path, 'wb') as f:
+                  for chunk in r.iter_content(chunk_size=1024 * 1024):
+                      if chunk:
+                          f.write(chunk)
+          print(f'DOWNLOADED_BYTES={os.path.getsize(audio_path)}')
+
+          model = WhisperModel('medium', device='cpu', compute_type='int8')
+          segments_iter, info = model.transcribe(
+              audio_path,
+              language='ja',
+              beam_size=5,
+              vad_filter=True,
+              word_timestamps=True,
+              condition_on_previous_text=True,
+          )
+
           segments = []
-          for i, item in enumerate(fetched):
+          for i, seg in enumerate(segments_iter):
+              words = []
+              if seg.words:
+                  for w in seg.words:
+                      words.append({
+                          'text': w.word,
+                          'start': float(w.start) if w.start is not None else None,
+                          'end': float(w.end) if w.end is not None else None,
+                          'probability': float(w.probability) if w.probability is not None else None,
+                      })
               segments.append({
                   'index': i,
-                  'text': item.text,
-                  'start': float(item.start),
-                  'duration': float(item.duration),
-                  'end': float(item.start + item.duration),
+                  'text': seg.text.strip(),
+                  'start': float(seg.start),
+                  'end': float(seg.end),
+                  'duration': float(seg.end - seg.start),
+                  'avg_logprob': float(seg.avg_logprob),
+                  'no_speech_prob': float(seg.no_speech_prob),
+                  'words': words,
               })
 
           payload = {
-              'video_id': video_id,
-              'chosen_track': {
-                  'language': chosen.language,
-                  'language_code': chosen.language_code,
-                  'is_generated': chosen.is_generated,
-                  'kind': chosen_kind,
+              **meta,
+              'asr': {
+                  'engine': 'faster-whisper',
+                  'model': 'medium',
+                  'language': info.language,
+                  'language_probability': float(info.language_probability),
+                  'duration': float(info.duration),
+                  'duration_after_vad': float(info.duration_after_vad),
               },
-              'available_tracks': available,
               'segment_count': len(segments),
               'segments': segments,
           }
-          with open('transcript-artifact/mendy_116_ja.json', 'w', encoding='utf-8') as f:
+
+          out_json = 'transcript-artifact/mendy_116_ja_asr.json'
+          with open(out_json, 'w', encoding='utf-8') as f:
               json.dump(payload, f, ensure_ascii=False, indent=2)
-          print(json.dumps({k: payload[k] for k in ('video_id','chosen_track','segment_count')}, ensure_ascii=False))
+
+          with open('transcript-artifact/mendy_116_ja_asr.txt', 'w', encoding='utf-8') as f:
+              for s in segments:
+                  f.write(f"[{s['start']:.2f}-{s['end']:.2f}] {s['text']}\n")
+
+          print('ASR_SUMMARY=' + json.dumps({
+              'segments': len(segments),
+              'language': info.language,
+              'probability': float(info.language_probability),
+              'duration': float(info.duration),
+              'duration_after_vad': float(info.duration_after_vad),
+          }, ensure_ascii=False))
           PY
       - name: Upload transcript artifact
         uses: actions/upload-artifact@v4
         with:
-          name: mendy-116-ja-transcript
-          path: transcript-artifact/mendy_116_ja.json
+          name: mendy-116-ja-asr
+          path: |
+            transcript-artifact/mendy_116_ja_asr.json
+            transcript-artifact/mendy_116_ja_asr.txt
           if-no-files-found: error
+          retention-days: 3
