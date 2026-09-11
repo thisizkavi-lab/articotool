@@ -8,33 +8,75 @@ import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
 
-function extractVideoId(input: string): string | null {
-  // YouTube Patterns
-  const youtubePatterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
-    /^([a-zA-Z0-9_-]{11})$/, // Direct video ID
-  ]
+const VIDEO_ID_PATTERN = /^[a-zA-Z0-9_-]{11}$/
 
-  for (const pattern of youtubePatterns) {
-    const match = input.match(pattern)
-    if (match) return match[1]
+function validVideoId(value: string | null | undefined): string | null {
+  if (!value) return null
+  return VIDEO_ID_PATTERN.test(value) ? value : null
+}
+
+export function extractVideoId(input: string): string | null {
+  const value = input.trim()
+
+  // Allow a raw 11-character YouTube video ID.
+  const directId = validVideoId(value)
+  if (directId) return directId
+
+  // URL() requires a protocol, but pasted links sometimes omit it.
+  const candidate = /^https?:\/\//i.test(value) ? value : `https://${value}`
+
+  try {
+    const parsed = new URL(candidate)
+    const hostname = parsed.hostname
+      .toLowerCase()
+      .replace(/^www\./, '')
+      .replace(/^m\./, '')
+    const parts = parsed.pathname.split('/').filter(Boolean)
+
+    if (hostname === 'youtu.be') {
+      return validVideoId(parts[0])
+    }
+
+    if (
+      hostname === 'youtube.com' ||
+      hostname === 'music.youtube.com' ||
+      hostname === 'youtube-nocookie.com'
+    ) {
+      if (parsed.pathname === '/watch') {
+        return validVideoId(parsed.searchParams.get('v'))
+      }
+
+      if (
+        parts.length >= 2 &&
+        ['shorts', 'embed', 'live', 'v'].includes(parts[0])
+      ) {
+        return validVideoId(parts[1])
+      }
+    }
+  } catch {
+    // Fall through to the user-facing validation message below.
   }
+
   return null
 }
 
 export function VideoLoader() {
   const [url, setUrl] = useState('')
-  const { loadVideo, isLoading, setError, reset } = useAppStore()
+  const { loadVideo, isLoading, setError, setLoading } = useAppStore()
 
   const handleLoad = async () => {
-    const videoId = extractVideoId(url.trim())
+    const videoId = extractVideoId(url)
 
     if (!videoId) {
-      setError('Invalid URL. Please use a YouTube link.')
+      setError('Invalid YouTube link. Paste a normal YouTube video, Shorts, Live, or youtu.be URL.')
       return
     }
 
-    await loadVideo(videoId)
+    // loadVideo starts metadata/transcript requests. Do not make optional metadata
+    // block the actual YouTube player from appearing for a valid pasted link.
+    const loadPromise = loadVideo(videoId)
+    setLoading(false)
+    await loadPromise
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
