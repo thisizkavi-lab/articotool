@@ -1,0 +1,134 @@
+name: Extract Mendy Japanese transcript small
+
+on:
+  push:
+    branches:
+      - curation/mendy-116-asr-small
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install ASR dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          pip install --disable-pip-version-check feedparser requests faster-whisper
+      - name: Fetch official podcast audio and transcribe Japanese
+        run: |
+          mkdir -p transcript-artifact
+          python - <<'PY'
+          import json
+          import os
+          import feedparser
+          import requests
+          from faster_whisper import WhisperModel
+
+          FEED = 'https://anchor.fm/s/b76397fc/podcast/rss'
+          TARGET = '関口メンディー'
+          VIDEO_ID = 'aQ3rPDWuKrI'
+
+          feed = feedparser.parse(FEED)
+          entry = next((e for e in feed.entries if TARGET in e.get('title', '')), None)
+          if not entry:
+              raise RuntimeError('Mendy episode not found in official RSS feed')
+
+          enclosures = entry.get('enclosures', [])
+          if not enclosures:
+              raise RuntimeError('RSS entry has no audio enclosure')
+          audio_url = enclosures[0].get('href')
+          if not audio_url:
+              raise RuntimeError('RSS enclosure has no href')
+
+          meta = {
+              'video_id': VIDEO_ID,
+              'episode_title': entry.get('title'),
+              'published': entry.get('published'),
+              'itunes_duration': entry.get('itunes_duration') or entry.get('duration'),
+              'audio_url': audio_url,
+              'rss_feed': FEED,
+          }
+          print('EPISODE_META=' + json.dumps(meta, ensure_ascii=False))
+
+          audio_path = 'transcript-artifact/mendy_116_audio.mp3'
+          with requests.get(audio_url, stream=True, timeout=60) as r:
+              r.raise_for_status()
+              with open(audio_path, 'wb') as f:
+                  for chunk in r.iter_content(chunk_size=1024 * 1024):
+                      if chunk:
+                          f.write(chunk)
+          print(f'DOWNLOADED_BYTES={os.path.getsize(audio_path)}')
+
+          model = WhisperModel('small', device='cpu', compute_type='int8')
+          segments_iter, info = model.transcribe(
+              audio_path,
+              language='ja',
+              beam_size=5,
+              vad_filter=True,
+              word_timestamps=True,
+              condition_on_previous_text=True,
+          )
+
+          segments = []
+          for i, seg in enumerate(segments_iter):
+              words = []
+              if seg.words:
+                  for w in seg.words:
+                      words.append({
+                          'text': w.word,
+                          'start': float(w.start) if w.start is not None else None,
+                          'end': float(w.end) if w.end is not None else None,
+                          'probability': float(w.probability) if w.probability is not None else None,
+                      })
+              segments.append({
+                  'index': i,
+                  'text': seg.text.strip(),
+                  'start': float(seg.start),
+                  'end': float(seg.end),
+                  'duration': float(seg.end - seg.start),
+                  'avg_logprob': float(seg.avg_logprob),
+                  'no_speech_prob': float(seg.no_speech_prob),
+                  'words': words,
+              })
+
+          payload = {
+              **meta,
+              'asr': {
+                  'engine': 'faster-whisper',
+                  'model': 'small',
+                  'language': info.language,
+                  'language_probability': float(info.language_probability),
+                  'duration': float(info.duration),
+                  'duration_after_vad': float(info.duration_after_vad),
+              },
+              'segment_count': len(segments),
+              'segments': segments,
+          }
+
+          with open('transcript-artifact/mendy_116_ja_small.json', 'w', encoding='utf-8') as f:
+              json.dump(payload, f, ensure_ascii=False, indent=2)
+          with open('transcript-artifact/mendy_116_ja_small.txt', 'w', encoding='utf-8') as f:
+              for s in segments:
+                  f.write(f"[{s['start']:.2f}-{s['end']:.2f}] {s['text']}\n")
+          print('ASR_SUMMARY=' + json.dumps({
+              'segments': len(segments),
+              'language': info.language,
+              'probability': float(info.language_probability),
+              'duration': float(info.duration),
+              'duration_after_vad': float(info.duration_after_vad),
+          }, ensure_ascii=False))
+          PY
+      - name: Upload transcript artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mendy-116-ja-asr-small
+          path: |
+            transcript-artifact/mendy_116_ja_small.json
+            transcript-artifact/mendy_116_ja_small.txt
+          if-no-files-found: error
+          retention-days: 3
