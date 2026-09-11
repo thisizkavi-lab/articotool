@@ -1,0 +1,83 @@
+name: Extract Mendy Japanese transcript
+
+on:
+  push:
+    branches:
+      - curation/mendy-116-workflow
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install transcript client
+        run: pip install --disable-pip-version-check youtube-transcript-api
+      - name: Fetch Japanese transcript
+        run: |
+          mkdir -p transcript-artifact
+          python - <<'PY'
+          import json
+          from youtube_transcript_api import YouTubeTranscriptApi
+
+          video_id = 'aQ3rPDWuKrI'
+          api = YouTubeTranscriptApi()
+          available = []
+          chosen = None
+          chosen_kind = None
+
+          transcript_list = api.list(video_id)
+          for t in transcript_list:
+              available.append({
+                  'language': t.language,
+                  'language_code': t.language_code,
+                  'is_generated': t.is_generated,
+                  'is_translatable': t.is_translatable,
+              })
+
+          try:
+              chosen = transcript_list.find_manually_created_transcript(['ja'])
+              chosen_kind = 'manual'
+          except Exception:
+              try:
+                  chosen = transcript_list.find_generated_transcript(['ja'])
+                  chosen_kind = 'generated'
+              except Exception:
+                  chosen = transcript_list.find_transcript(['ja'])
+                  chosen_kind = 'fallback-ja'
+
+          fetched = chosen.fetch()
+          segments = []
+          for i, item in enumerate(fetched):
+              segments.append({
+                  'index': i,
+                  'text': item.text,
+                  'start': float(item.start),
+                  'duration': float(item.duration),
+                  'end': float(item.start + item.duration),
+              })
+
+          payload = {
+              'video_id': video_id,
+              'chosen_track': {
+                  'language': chosen.language,
+                  'language_code': chosen.language_code,
+                  'is_generated': chosen.is_generated,
+                  'kind': chosen_kind,
+              },
+              'available_tracks': available,
+              'segment_count': len(segments),
+              'segments': segments,
+          }
+          with open('transcript-artifact/mendy_116_ja.json', 'w', encoding='utf-8') as f:
+              json.dump(payload, f, ensure_ascii=False, indent=2)
+          print(json.dumps({k: payload[k] for k in ('video_id','chosen_track','segment_count')}, ensure_ascii=False))
+          PY
+      - name: Upload transcript artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mendy-116-ja-transcript
+          path: transcript-artifact/mendy_116_ja.json
+          if-no-files-found: error
