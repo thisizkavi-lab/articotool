@@ -1,4 +1,4 @@
-import { ArrowLeft, CircleDashed, ExternalLink, Languages, Sparkles } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, CircleDashed, ExternalLink, Languages, Play, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 const sources = [
@@ -6,10 +6,11 @@ const sources = [
     id: 'goldnrush-mendy-116',
     title: '関口メンディー · GOLDNRUSH Ep.116',
     guest: '関口メンディー',
-    status: 'curating' as const,
+    status: 'ready' as const,
     videoId: 'aQ3rPDWuKrI',
     duration: '1:00:34',
-    note: 'Japanese caption extraction is now handled explicitly. This source is in active curation; only verified speaker turns and exact clip boundaries will be promoted into practice.',
+    clipCount: 16,
+    note: '16 high-quality Mendy turns are ready for shadowing. Selected for natural phrasing, reframing, explanation, self-reflection, and clean single-speaker delivery.',
   },
   {
     id: 'goldnrush-ito-awa-137',
@@ -18,7 +19,8 @@ const sources = [
     status: 'curating' as const,
     videoId: 'FBA7X77QSPI',
     duration: '1:16:53',
-    note: 'Japanese caption extraction is now handled explicitly. This source is in active curation; speaker identity, overlap, and exact shadowing endpoints still have to pass review.',
+    clipCount: 0,
+    note: 'In active curation. Speaker identity, overlap, and exact shadowing endpoints still have to pass review.',
   },
   {
     id: 'goldnrush-zeebra-149',
@@ -27,6 +29,7 @@ const sources = [
     status: 'queued' as const,
     videoId: null,
     duration: '',
+    clipCount: 0,
     note: 'Queued for one-source-at-a-time Japanese transcript verification and clip selection.',
   },
   {
@@ -36,6 +39,7 @@ const sources = [
     status: 'queued' as const,
     videoId: null,
     duration: '',
+    clipCount: 0,
     note: 'Queued for one-source-at-a-time Japanese transcript verification and clip selection.',
   },
   {
@@ -45,6 +49,7 @@ const sources = [
     status: 'queued' as const,
     videoId: null,
     duration: '',
+    clipCount: 0,
     note: 'Queued. Kansai speech should be preserved and tagged rather than normalized away when this source is curated.',
   },
   {
@@ -54,13 +59,16 @@ const sources = [
     status: 'queued' as const,
     videoId: null,
     duration: '',
+    clipCount: 0,
     note: 'Queued for one-source-at-a-time Japanese transcript verification and clip selection.',
   },
 ]
 
 export default function GoldnrushJapanesePage() {
+  const ready = sources.filter(source => source.status === 'ready').length
   const curating = sources.filter(source => source.status === 'curating').length
   const queued = sources.filter(source => source.status === 'queued').length
+  const clips = sources.reduce((sum, source) => sum + source.clipCount, 0)
 
   return (
     <div className="min-h-screen bg-background">
@@ -73,7 +81,7 @@ export default function GoldnrushJapanesePage() {
           </Button>
           <div>
             <h1 className="text-xl font-semibold tracking-tight">Japanese · GOLDNRUSH</h1>
-            <p className="text-xs text-muted-foreground">0 ready sources · {curating} curating · {queued} queued</p>
+            <p className="text-xs text-muted-foreground">{ready} ready · {clips} clips · {curating} curating · {queued} queued</p>
           </div>
         </div>
       </header>
@@ -86,16 +94,17 @@ export default function GoldnrushJapanesePage() {
           </div>
           <h2 className="text-2xl font-semibold tracking-tight mb-2">Build native conversational Japanese carefully.</h2>
           <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-            These six sources are processed one at a time. Japanese captions are requested explicitly, then the transcript is used to verify speaker turns and select only natural, reusable clips worth shadowing.
+            Each source is processed separately. Only clean, reusable speaker turns with defensible timestamps are promoted into practice.
           </p>
           <div className="flex items-start gap-2 rounded-lg border border-border/60 bg-secondary/20 px-3 py-2.5 text-xs text-muted-foreground">
             <Sparkles className="h-4 w-4 mt-0.5 shrink-0" />
-            <p>“Curating” means the source is actively being worked on. It becomes ready only after exact timestamps, speaker identity, and clip quality are verified.</p>
+            <p>Start with Mendy. The first 16 clips are deliberately selective rather than trying to cover the whole episode.</p>
           </div>
         </section>
 
         <div className="grid gap-x-4 gap-y-7 sm:grid-cols-2 lg:grid-cols-3">
           {sources.map(source => {
+            const isReady = source.status === 'ready'
             const isCurating = source.status === 'curating'
             const thumbnail = source.videoId ? `https://i.ytimg.com/vi/${source.videoId}/hqdefault.jpg` : null
 
@@ -110,9 +119,9 @@ export default function GoldnrushJapanesePage() {
                     </div>
                   )}
 
-                  <div className={`absolute top-2 left-2 rounded px-1.5 py-0.5 text-[10px] text-white flex items-center gap-1 ${isCurating ? 'bg-blue-700/90' : 'bg-black/75'}`}>
-                    <CircleDashed className={`h-3 w-3 ${isCurating ? 'animate-spin' : ''}`} />
-                    {isCurating ? 'Curating' : 'Queued'}
+                  <div className={`absolute top-2 left-2 rounded px-1.5 py-0.5 text-[10px] text-white flex items-center gap-1 ${isReady ? 'bg-emerald-700/90' : isCurating ? 'bg-blue-700/90' : 'bg-black/75'}`}>
+                    {isReady ? <CheckCircle2 className="h-3 w-3" /> : <CircleDashed className={`h-3 w-3 ${isCurating ? 'animate-spin' : ''}`} />}
+                    {isReady ? 'Ready' : isCurating ? 'Curating' : 'Queued'}
                   </div>
 
                   {source.duration && (
@@ -124,20 +133,33 @@ export default function GoldnrushJapanesePage() {
 
                 <div className="pt-2.5 px-0.5">
                   <h3 className="text-sm font-semibold leading-snug">{source.title}</h3>
-                  <p className="text-[11px] text-muted-foreground mt-1">GOLDNRUSH Podcast · {source.guest}</p>
+                  <p className="text-[11px] text-muted-foreground mt-1">
+                    GOLDNRUSH Podcast · {source.guest}{source.clipCount ? ` · ${source.clipCount} clips` : ''}
+                  </p>
                   <p className="text-xs text-muted-foreground leading-relaxed mt-2">{source.note}</p>
 
-                  {source.videoId && (
-                    <a
-                      href={`https://www.youtube.com/watch?v=${source.videoId}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs font-medium mt-3 hover:text-primary transition-colors"
-                    >
-                      Open source
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  )}
+                  <div className="flex flex-wrap gap-3 mt-3">
+                    {isReady && source.videoId && (
+                      <a
+                        href={`/?v=${source.videoId}&curated=${source.id}`}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold hover:text-primary transition-colors"
+                      >
+                        <Play className="h-3 w-3" />
+                        Start shadowing
+                      </a>
+                    )}
+                    {source.videoId && (
+                      <a
+                        href={`https://www.youtube.com/watch?v=${source.videoId}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        Open source
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
+                  </div>
                 </div>
               </article>
             )
