@@ -29,7 +29,7 @@ export default function CuratedPage() {
           <h2 className="text-3xl font-semibold tracking-tight mb-3">Study a speaking system, not a random clip.</h2>
           <p className="text-muted-foreground">
             Each collection grows source by source, with only carefully selected segments promoted into practice.
-            Queued or blocked sources stay visible without pretending they are curated.
+            Sources being processed stay visible as curating; queued sources wait their turn.
           </p>
         </div>
 
@@ -114,13 +114,13 @@ export default function CuratedPage() {
                     <div>
                       <p className="text-xs font-medium text-muted-foreground mb-1">Japanese · GOLDNRUSH</p>
                       <h4 className="text-2xl font-semibold tracking-tight">GOLDNRUSH Podcast</h4>
-                      <p className="text-sm text-muted-foreground mt-1">0 ready sources · 2 blocked · 4 queued</p>
+                      <p className="text-sm text-muted-foreground mt-1">0 ready sources · 2 curating · 4 queued</p>
                     </div>
                     <ArrowRight className="h-5 w-5 text-muted-foreground mt-1 transition-transform group-hover:translate-x-1" />
                   </div>
 
                   <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                    A Japanese conversation corpus built from carefully chosen GOLDNRUSH guests. Sources remain visible while transcript and speaker timing are being verified; only defensible clips become shadowing material.
+                    A Japanese conversation corpus built from carefully chosen GOLDNRUSH guests. Japanese captions are processed explicitly, and only verified clips are promoted into shadowing practice.
                   </p>
 
                   <div className="flex flex-wrap gap-2 mb-5">
