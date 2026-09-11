@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, BookOpen, Sparkles } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, Languages, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { CURATED_SPEAKERS } from '@/lib/curated-library'
@@ -15,7 +15,7 @@ export default function CuratedPage() {
           </Button>
           <div>
             <h1 className="text-xl font-semibold tracking-tight">Curated</h1>
-            <p className="text-xs text-muted-foreground">People worth studying deeply.</p>
+            <p className="text-xs text-muted-foreground">Speaking models worth studying deeply.</p>
           </div>
         </div>
       </header>
@@ -26,59 +26,120 @@ export default function CuratedPage() {
             <Sparkles className="h-4 w-4" />
             Permanent training corpus
           </div>
-          <h2 className="text-3xl font-semibold tracking-tight mb-3">Study a person, not a random clip.</h2>
+          <h2 className="text-3xl font-semibold tracking-tight mb-3">Study a speaking system, not a random clip.</h2>
           <p className="text-muted-foreground">
-            Each person has a growing set of carefully selected source videos and practice segments.
-            Later this same structure can hold professors, lecturers, interviewers, and other models you want to learn from.
+            Each collection grows source by source, with only carefully selected segments promoted into practice.
+            Queued or blocked sources stay visible without pretending they are curated.
           </p>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {CURATED_SPEAKERS.map(speaker => {
-            const readySources = speaker.sources.filter(source => source.status === 'ready')
-            const readyClips = readySources.reduce((sum, source) => sum + source.segments.length, 0)
+        <section className="mb-12">
+          <div className="flex items-center gap-2 mb-4">
+            <Languages className="h-4 w-4 text-muted-foreground" />
+            <div>
+              <h3 className="text-lg font-semibold tracking-tight">English</h3>
+              <p className="text-xs text-muted-foreground">Articulation, formulation, clarity, and high-level conversational English.</p>
+            </div>
+          </div>
 
-            return (
-              <a key={speaker.id} href={`/curated/${speaker.id}`} className="block group">
-                <Card className="h-full overflow-hidden transition-colors group-hover:border-primary/50">
-                  <div className="aspect-[16/9] bg-secondary overflow-hidden">
-                    <img
-                      src={speaker.portrait}
-                      alt={speaker.name}
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                    />
-                  </div>
-                  <CardContent className="p-5">
-                    <div className="flex items-start justify-between gap-4 mb-3">
-                      <div>
-                        <h3 className="text-2xl font-semibold tracking-tight">{speaker.name}</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {readySources.length} ready source{readySources.length !== 1 ? 's' : ''} · {readyClips} curated clips
-                        </p>
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {CURATED_SPEAKERS.map(speaker => {
+              const readySources = speaker.sources.filter(source => source.status === 'ready')
+              const readyClips = readySources.reduce((sum, source) => sum + source.segments.length, 0)
+
+              return (
+                <a key={speaker.id} href={`/curated/${speaker.id}`} className="block group">
+                  <Card className="h-full overflow-hidden transition-colors group-hover:border-primary/50">
+                    <div className="aspect-[16/9] bg-secondary overflow-hidden">
+                      <img
+                        src={speaker.portrait}
+                        alt={speaker.name}
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                      />
+                    </div>
+                    <CardContent className="p-5">
+                      <div className="flex items-start justify-between gap-4 mb-3">
+                        <div>
+                          <h4 className="text-2xl font-semibold tracking-tight">{speaker.name}</h4>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {readySources.length} ready source{readySources.length !== 1 ? 's' : ''} · {readyClips} curated clips
+                          </p>
+                        </div>
+                        <ArrowRight className="h-5 w-5 text-muted-foreground mt-1 transition-transform group-hover:translate-x-1" />
                       </div>
-                      <ArrowRight className="h-5 w-5 text-muted-foreground mt-1 transition-transform group-hover:translate-x-1" />
-                    </div>
 
-                    <p className="text-sm text-muted-foreground leading-relaxed mb-4">{speaker.description}</p>
+                      <p className="text-sm text-muted-foreground leading-relaxed mb-4">{speaker.description}</p>
 
-                    <div className="flex flex-wrap gap-2 mb-5">
-                      {speaker.focus.slice(0, 4).map(item => (
-                        <span key={item} className="text-xs px-2.5 py-1 rounded-md bg-secondary text-secondary-foreground">
-                          {item}
-                        </span>
-                      ))}
-                    </div>
+                      <div className="flex flex-wrap gap-2 mb-5">
+                        {speaker.focus.slice(0, 4).map(item => (
+                          <span key={item} className="text-xs px-2.5 py-1 rounded-md bg-secondary text-secondary-foreground">
+                            {item}
+                          </span>
+                        ))}
+                      </div>
 
-                    <div className="flex items-center gap-2 text-sm font-medium">
-                      <BookOpen className="h-4 w-4" />
-                      Open study collection
+                      <div className="flex items-center gap-2 text-sm font-medium">
+                        <BookOpen className="h-4 w-4" />
+                        Open study collection
+                      </div>
+                    </CardContent>
+                  </Card>
+                </a>
+              )
+            })}
+          </div>
+        </section>
+
+        <section>
+          <div className="flex items-center gap-2 mb-4">
+            <Languages className="h-4 w-4 text-muted-foreground" />
+            <div>
+              <h3 className="text-lg font-semibold tracking-tight">Japanese</h3>
+              <p className="text-xs text-muted-foreground">Natural contemporary conversation, rhythm, reactions, turn-taking, and reusable phrasing.</p>
+            </div>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <a href="/curated/goldnrush-japanese" className="block group">
+              <Card className="h-full overflow-hidden transition-colors group-hover:border-primary/50">
+                <div className="aspect-[16/9] bg-secondary overflow-hidden">
+                  <img
+                    src="https://i.ytimg.com/vi/aQ3rPDWuKrI/hqdefault.jpg"
+                    alt="GOLDNRUSH Japanese conversation corpus"
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                  />
+                </div>
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground mb-1">Japanese · GOLDNRUSH</p>
+                      <h4 className="text-2xl font-semibold tracking-tight">GOLDNRUSH Podcast</h4>
+                      <p className="text-sm text-muted-foreground mt-1">0 ready sources · 2 blocked · 4 queued</p>
                     </div>
-                  </CardContent>
-                </Card>
-              </a>
-            )
-          })}
-        </div>
+                    <ArrowRight className="h-5 w-5 text-muted-foreground mt-1 transition-transform group-hover:translate-x-1" />
+                  </div>
+
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                    A Japanese conversation corpus built from carefully chosen GOLDNRUSH guests. Sources remain visible while transcript and speaker timing are being verified; only defensible clips become shadowing material.
+                  </p>
+
+                  <div className="flex flex-wrap gap-2 mb-5">
+                    {['Conversation', 'Natural Japanese', 'Turn-taking', 'Shadowing'].map(item => (
+                      <span key={item} className="text-xs px-2.5 py-1 rounded-md bg-secondary text-secondary-foreground">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <BookOpen className="h-4 w-4" />
+                    Open Japanese collection
+                  </div>
+                </CardContent>
+              </Card>
+            </a>
+          </div>
+        </section>
       </main>
     </div>
   )
