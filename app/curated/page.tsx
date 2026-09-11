@@ -114,13 +114,13 @@ export default function CuratedPage() {
                     <div>
                       <p className="text-xs font-medium text-muted-foreground mb-1">Japanese · GOLDNRUSH</p>
                       <h4 className="text-2xl font-semibold tracking-tight">GOLDNRUSH Podcast</h4>
-                      <p className="text-sm text-muted-foreground mt-1">0 ready sources · 2 curating · 4 queued</p>
+                      <p className="text-sm text-muted-foreground mt-1">1 ready source · 20 curated clips · 1 curating · 4 queued</p>
                     </div>
                     <ArrowRight className="h-5 w-5 text-muted-foreground mt-1 transition-transform group-hover:translate-x-1" />
                   </div>
 
                   <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                    A Japanese conversation corpus built from carefully chosen GOLDNRUSH guests. Japanese captions are processed explicitly, and only verified clips are promoted into shadowing practice.
+                    A Japanese conversation corpus built from carefully chosen GOLDNRUSH guests. Japanese transcripts are processed explicitly, and only verified clips are promoted into shadowing practice.
                   </p>
 
                   <div className="flex flex-wrap gap-2 mb-5">
