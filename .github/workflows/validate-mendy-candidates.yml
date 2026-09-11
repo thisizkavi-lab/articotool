@@ -1,0 +1,136 @@
+name: Validate Mendy shadowing candidates
+
+on:
+  push:
+    branches:
+      - curation/mendy-116-validate
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          pip install --disable-pip-version-check feedparser requests faster-whisper
+      - name: Validate candidate windows with medium Japanese ASR
+        run: |
+          mkdir -p validation-artifact/clips
+          python - <<'PY'
+          import json, os, subprocess
+          import feedparser, requests
+          from faster_whisper import WhisperModel
+
+          candidates = [
+            ('M01',347.30,368.48),
+            ('M02',414.00,445.36),
+            ('M06',762.24,796.22),
+            ('M11',1431.27,1457.67),
+            ('M12',1457.67,1493.59),
+            ('M15',1631.96,1655.42),
+            ('M16',1752.78,1780.68),
+            ('M17',2170.07,2192.51),
+            ('M19',2280.67,2300.75),
+            ('M21',2322.27,2352.39),
+            ('M22',2441.32,2467.24),
+            ('M23',2803.06,2818.92),
+            ('M25',2857.34,2879.58),
+            ('M26',2903.72,2926.36),
+            ('M28',3079.32,3103.10),
+            ('M30',3145.70,3171.20),
+            ('M31',3217.48,3242.98),
+            ('M32',3269.18,3297.30),
+            ('M34',3395.98,3412.32),
+            ('M35',3427.72,3446.84),
+          ]
+
+          feed = feedparser.parse('https://anchor.fm/s/b76397fc/podcast/rss')
+          entry = next((e for e in feed.entries if '関口メンディー' in e.get('title', '')), None)
+          if not entry:
+              raise RuntimeError('Mendy episode not found')
+          audio_url = entry.enclosures[0].href
+          audio = 'validation-artifact/full.mp3'
+          with requests.get(audio_url, stream=True, timeout=60) as r:
+              r.raise_for_status()
+              with open(audio, 'wb') as f:
+                  for c in r.iter_content(1024 * 1024):
+                      if c: f.write(c)
+
+          model = WhisperModel('medium', device='cpu', compute_type='int8')
+          out = []
+          for cid,start,end in candidates:
+              # include a small context pad only for ASR validation; preserve requested boundaries separately
+              pad_start = max(0, start - 1.0)
+              length = (end - start) + 2.0
+              clip = f'validation-artifact/clips/{cid}.wav'
+              subprocess.run([
+                  'ffmpeg','-hide_banner','-loglevel','error','-y',
+                  '-ss',str(pad_start),'-t',str(length),'-i',audio,
+                  '-ac','1','-ar','16000',clip
+              ],check=True)
+              it,info = model.transcribe(
+                  clip, language='ja', beam_size=5, vad_filter=True,
+                  word_timestamps=True, condition_on_previous_text=False,
+              )
+              segs=[]
+              for s in it:
+                  words=[]
+                  for w in (s.words or []):
+                      words.append({
+                          'text':w.word,
+                          'start':None if w.start is None else float(w.start+pad_start),
+                          'end':None if w.end is None else float(w.end+pad_start),
+                          'probability':None if w.probability is None else float(w.probability),
+                      })
+                  segs.append({
+                      'text':s.text.strip(),
+                      'start':float(s.start+pad_start),
+                      'end':float(s.end+pad_start),
+                      'avg_logprob':float(s.avg_logprob),
+                      'no_speech_prob':float(s.no_speech_prob),
+                      'words':words,
+                  })
+              in_window=[]
+              probs=[]
+              for s in segs:
+                  if s['end'] > start and s['start'] < end:
+                      in_window.append(s['text'])
+                      for w in s['words']:
+                          if w['start'] is not None and start <= w['start'] <= end and w['probability'] is not None:
+                              probs.append(w['probability'])
+              out.append({
+                  'id':cid,'start':start,'end':end,'duration':end-start,
+                  'text':' '.join(in_window).strip(),
+                  'avg_word_probability': sum(probs)/len(probs) if probs else None,
+                  'segments':segs,
+              })
+              print(cid, start, end, out[-1]['avg_word_probability'], out[-1]['text'])
+
+          payload={
+              'episode_title':entry.get('title'),
+              'itunes_duration':entry.get('itunes_duration') or entry.get('duration'),
+              'video_id':'aQ3rPDWuKrI',
+              'model':'medium',
+              'candidates':out,
+          }
+          with open('validation-artifact/mendy_candidates_medium.json','w',encoding='utf-8') as f:
+              json.dump(payload,f,ensure_ascii=False,indent=2)
+          with open('validation-artifact/mendy_candidates_medium.txt','w',encoding='utf-8') as f:
+              for x in out:
+                  f.write(f"{x['id']} [{x['start']:.2f}-{x['end']:.2f}] p={x['avg_word_probability']:.3f} {x['text']}\n")
+          PY
+      - name: Upload validation
+        uses: actions/upload-artifact@v4
+        with:
+          name: mendy-116-candidate-validation
+          path: |
+            validation-artifact/mendy_candidates_medium.json
+            validation-artifact/mendy_candidates_medium.txt
+          if-no-files-found: error
+          retention-days: 3
