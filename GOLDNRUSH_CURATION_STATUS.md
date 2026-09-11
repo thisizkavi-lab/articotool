@@ -1,29 +1,30 @@
 # GOLDNRUSH Japanese curation status
 
-## Blocked / deferred
+## Completed
 
 ### 関口メンディー · GOLDNRUSH Ep.116
 
-- Status: blocked / keep queued
+- Status: ready / curated
 - Verified source: GOLDNRUSH Podcast Ep.116 with 関口メンディー, YouTube `aQ3rPDWuKrI`.
-- Curation goal: extract only high-quality Japanese shadowing segments with exact timestamps, clean single-speaker audio, coherent thought boundaries, natural contemporary phrasing, and explicit speaker attribution (Isaac vs. Mendy).
-- Blocking issue: no reliable full timestamped Japanese transcript/caption track was available in the audit environment. Public sources exposed only selected quotations, summaries, or coarse structure, which is insufficient to establish exact 10–45 second segment boundaries or verify overlap and speaker turns safely.
-- Do not infer clip boundaries from summaries, chapter markers, or partial quotations. Do not guess speaker attribution.
-- Leave this source queued until a full timestamped Japanese transcript aligned to the YouTube video can be verified.
+- YouTube runtime: approximately `1:00:34`; official GOLDNRUSH podcast-feed audio reports `3633` seconds. The full conversation and opening material match the source, with only one second of runtime-level rounding difference.
+- Transcript basis: the complete official podcast audio was transcribed in Japanese with timestamped ASR, split into overlapping chunks so the entire hour could be audited rather than relying on quotes or chapter summaries. Candidate windows were then reviewed separately instead of accepting the raw transcript wholesale.
+- Speaker rule: only sustained turns that are unambiguously Mendy from the surrounding question/answer context and first-person continuity were selected. Short host interjections and mixed turns were rejected.
+- Selection: 20 clips, roughly 10–36 seconds each, chosen for natural contemporary Japanese, qualification, storytelling, reframing, explanation, reflection, and conversational rhythm. No transcript is exposed in the practice UI.
+- Source-controlled collection ID: `goldnrush-mendy-116`.
+
+## In curation
 
 ### 伊藤亜和 · GOLDNRUSH Ep.137
 
-- Status: blocked / keep queued
+- Status: curating / next
 - Verified source: GOLDNRUSH Podcast Ep.137 with 伊藤亜和, YouTube `FBA7X77QSPI`.
-- Verified runtime: approximately 1:16:53.
-- Curation goal: extract only high-quality Japanese shadowing segments with exact timestamps, clean single-speaker audio, coherent thought boundaries, natural contemporary phrasing, and explicit speaker attribution (Isaac vs. Ito Awa).
-- Blocking issue: available sources exposed chapter timestamps but not a reliable full line-by-line timestamped Japanese transcript. That is not enough to verify sentence boundaries, Isaac vs. Ito speaker turns, overlap, pauses, or exact shadowing endpoints without creating false precision.
-- The current transcript route must not be trusted blindly for Japanese curation because caption-track selection may not guarantee the desired Japanese track.
-- Do not synthesize segments from chapter markers or summaries. Leave this source queued until a YouTube-aligned timestamped Japanese transcript/caption track can be verified.
+- Verified runtime: approximately `1:16:53`.
+- Curation goal: audit the full Japanese conversation and extract only high-quality shadowing segments with exact timestamps, clean single-speaker audio, coherent thought boundaries, natural contemporary phrasing, and explicit speaker attribution (Isaac vs. Ito Awa).
+- Do not synthesize segments from chapter markers or summaries. Use the same full-source Japanese transcript workflow established for Ep.116.
 
 ## Planned queue
 
-These GOLDNRUSH sources remain planned but should be processed one at a time only after transcript/caption availability is verified:
+Process these GOLDNRUSH sources one at a time after Ito Awa:
 
 - Zeebra · Ep.149
 - さらさ · Ep.154
@@ -32,4 +33,4 @@ These GOLDNRUSH sources remain planned but should be processed one at a time onl
 
 ## Curation rule
 
-A source is not complete merely because the video loads. Mark it curated only when every selected clip has a defensible exact start/end time, verified speaker identity, and is genuinely worth shadowing for natural Japanese conversation. If the transcript basis is weak, keep the source blocked instead of fabricating precision.
+A source is not complete merely because the video loads or a transcript exists. Mark it curated only when every selected clip has a defensible start/end time, an unambiguous speaker turn, and is genuinely worth shadowing for natural Japanese conversation. Quality is more important than clip count; mixed turns, weak fragments, and filler should be rejected.
