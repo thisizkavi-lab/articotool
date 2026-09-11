@@ -12,6 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      - name: Install audio tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+
       - name: Download official podcast audio
         shell: bash
         run: |
@@ -36,7 +41,6 @@ jobs:
           python - <<'PY'
           import json, glob, os, re
           from faster_whisper import WhisperModel
-
           model=WhisperModel('base',device='cpu',compute_type='int8')
           offsets={'range-1200.wav':1200,'range-2050.wav':2050,'range-2600.wav':2600,'range-3000.wav':3000}
           all_segments=[]; all_words=[]
@@ -45,8 +49,7 @@ jobs:
               segments,info=model.transcribe(path,language='ja',beam_size=5,vad_filter=True,word_timestamps=True,condition_on_previous_text=True)
               for s in segments:
                   text=re.sub(r'\s+',' ',s.text).strip()
-                  if text:
-                      all_segments.append({'start':round(off+s.start,3),'end':round(off+s.end,3),'text':text})
+                  if text: all_segments.append({'start':round(off+s.start,3),'end':round(off+s.end,3),'text':text})
                   for w in (s.words or []):
                       if w.start is None or w.end is None: continue
                       all_words.append({'start':round(off+w.start,3),'end':round(off+w.end,3),'word':w.word})
