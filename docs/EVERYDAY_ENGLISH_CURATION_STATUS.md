@@ -5,8 +5,8 @@ Target accent: contemporary NYC / Northeast General American. Primary anchor cor
 ## Conversation Skills
 
 ### 01 Greetings
-- `greet-01` Hey. — unmatched
-- `greet-02` Hi. — unmatched
+- `greet-01` Hey. — matched exactly in The Basement Yard #567, YouTube `pDbCTTEuDi0`, 0.0–8.0s; opening exchange contains `Hey, hi.`
+- `greet-02` Hi. — matched exactly in The Basement Yard #567, YouTube `pDbCTTEuDi0`, 0.0–8.0s; opening exchange contains `Hey, hi.`
 - `greet-03` How's it going? — matched via natural lexical variant `How you doing, Frank?` in The Basement Yard #446, YouTube `r1zoSOiY_FA`, 0.0–8.2s
 - `greet-04` How've you been? — unmatched
 - `greet-05` Good to see you. — exact match in The Basement Yard #446, YouTube `r1zoSOiY_FA`, 13.7–17.4s
@@ -14,14 +14,51 @@ Target accent: contemporary NYC / Northeast General American. Primary anchor cor
 - `greet-07` Nice to meet you. — candidate found in The Basement Yard #256 around 00:04:36; YouTube video ID still needs independent verification before promotion
 - `greet-08` Good morning. — unmatched
 
-Evidence for #446 timestamps: Tapesearch transcript page `https://www.tapesearch.com/episode/446-frank-walked-into-a-crime-scene/STQ4Xqv5eBw3qr3WhwQEfq`.
+Evidence:
+- #446 timestamps: Tapesearch `https://www.tapesearch.com/episode/446-frank-walked-into-a-crime-scene/STQ4Xqv5eBw3qr3WhwQEfq`
+- #567 opening transcript/speaker context: Audioscrape `https://www.audioscrape.com/podcast/the-basement-yard/episode/567-making-out-in-public-59420`; official YouTube source independently verified as `https://www.youtube.com/watch?v=pDbCTTEuDi0`
 
-### 02–13
+### 02 Making introductions
+Not yet promoted. Search has begun, but no candidate has both a clean reusable turn and independently verified YouTube timing yet.
+
+### 03 Conversation fillers
+- `fill-01` So, ... — unmatched
+- `fill-02` Well, ... — unmatched
+- `fill-03` I mean, ... — matched exactly inside a natural discourse-marker sequence in The Basement Yard #559, YouTube `m77sDceykAw`, 82–98s
+- `fill-04` You know, ... — unmatched
+- `fill-05` Actually, ... — unmatched
+- `fill-06` I guess. — unmatched
+- `fill-07` To be honest, ... — matched via natural lexical variant `to be honest with you` in The Basement Yard #559, YouTube `m77sDceykAw`, 82–98s
+- `fill-08` Right. — unmatched
+- `fill-09` Uh-huh. — unmatched
+- `fill-10` Really? — unmatched
+
+Evidence for #559: Audioscrape speaker-attributed transcript `https://www.audioscrape.com/podcast/the-basement-yard/episode/559-release-the-mosquitos-21020`; official YouTube source independently verified as `https://www.youtube.com/watch?v=m77sDceykAw`.
+
+### 04 Saying you don't understand
+- `understand-01` Sorry? — unmatched
+- `understand-02` What was that? — unmatched
+- `understand-03` I didn't catch that. — unmatched
+- `understand-04` I'm not sure what you mean. — unmatched
+- `understand-05` What do you mean? — exact match in The Basement Yard #494, YouTube `5EpiYeXluPc`, 14.1–19.3s
+- `understand-06` Could you say that again? — unmatched
+- `understand-07` Can you slow down a little? — unmatched
+- `understand-08` Could you walk me through that again? — unmatched
+
+Evidence for #494: Tapesearch timestamped transcript `https://www.tapesearch.com/episode/494-visiting-docter-dan/HEwvgRi5jRv5H6Lfph2Roy`; official YouTube source `https://www.youtube.com/watch?v=5EpiYeXluPc`.
+
+### 05–13
 Not yet processed in the source-controlled clip corpus. Existing phrase targets remain in `lib/everyday-english.ts`.
+
+## Current totals
+- Verified phrase matches: 7
+- Unique playable source clips: 5
+- Anchor sources in production data: The Basement Yard #446, #494, #559, #567
 
 ## Rules
 - No clip is promoted without a verified YouTube source ID and defensible timestamped transcript evidence.
 - Prefer 5–20 second reusable conversational turns with clean audio and minimal overlap.
 - Exact match > natural lexical variant > semantic equivalent.
 - Do not invent timestamps, transcript wording, or speaker attribution.
+- When transcript tools collapse multiple voices into one block, record the speaker conservatively as an exchange rather than guessing a single speaker.
 - Distinctly British book phrasing may be mapped to a natural American target only when the speech function is preserved.
