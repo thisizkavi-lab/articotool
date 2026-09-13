@@ -1,0 +1,48 @@
+name: Resolve GOLDNRUSH YouTube IDs
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Scrape Yutura GOLDNRUSH archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import re, html, urllib.request, pathlib, json
+          ua={'User-Agent':'Mozilla/5.0'}
+          targets=['Zeebra','Shigekix']
+          found=[]
+          for page in range(1,25):
+              url='https://yutura.net/channel/103553/latest/' + (f'?p={page}' if page>1 else '')
+              try:
+                  req=urllib.request.Request(url,headers=ua)
+                  text=urllib.request.urlopen(req,timeout=20).read().decode('utf-8','replace')
+              except Exception as e:
+                  print('page failed',page,e); continue
+              # Yutura detail URLs contain the YouTube ID directly: /channel/103553/video/<id>/
+              for m in re.finditer(r'<a[^>]+href=["\']([^"\']*/channel/103553/video/([A-Za-z0-9_-]{11})/[^"\']*)["\'][^>]*>(.*?)</a>',text,re.I|re.S):
+                  href,vid,body=m.groups()
+                  title=html.unescape(re.sub('<[^>]+>',' ',body))
+                  title=re.sub(r'\s+',' ',title).strip()
+                  if any(t.lower() in title.lower() for t in targets):
+                      row={'page':page,'videoId':vid,'title':title,'href':href}
+                      if row not in found: found.append(row); print(json.dumps(row,ensure_ascii=False))
+          pathlib.Path('resolved-video-ids.json').write_text(json.dumps(found,ensure_ascii=False,indent=2),encoding='utf-8')
+          if not found:
+              raise SystemExit('No target Yutura video links found')
+          PY
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: goldnrush-video-ids
+          path: resolved-video-ids.json
+          retention-days: 1
