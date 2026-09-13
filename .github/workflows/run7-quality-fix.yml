@@ -1,0 +1,40 @@
+name: Run7 quality fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/run7-quality-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: curate/everyday-english-run7
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Correct match classifications
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('lib/everyday-english-clips.ts')
+          s = p.read_text()
+          s = s.replace("transcript: 'Absolutely love it.',\n    matchType: 'exact',", "transcript: 'Absolutely love it.',\n    matchType: 'lexical-variant',", 1)
+          s = s.replace('transcript: "I\'m so sorry.",\n    matchType: \'exact\',', 'transcript: "I\'m so sorry.",\n    matchType: \'lexical-variant\',', 1)
+          p.write_text(s)
+          p = Path('docs/EVERYDAY_ENGLISH_CURATION_STATUS.md')
+          s = p.read_text()
+          s = s.replace('`agree-02` Absolutely. — exact natural `Absolutely love it.`', '`agree-02` Absolutely. — natural lexical variant `Absolutely love it.`', 1)
+          s = s.replace("`sorry-03` I'm really sorry. — exact phrase `I'm so sorry.`", "`sorry-03` I'm really sorry. — natural lexical variant `I'm so sorry.`", 1)
+          p.write_text(s)
+          PY
+          git config user.name 'Kavi'
+          git config user.email 'thisizkavi@gmail.com'
+          git add lib/everyday-english-clips.ts docs/EVERYDAY_ENGLISH_CURATION_STATUS.md
+          git commit -m 'Correct Everyday English match classifications'
+          git push origin HEAD:curate/everyday-english-run7
