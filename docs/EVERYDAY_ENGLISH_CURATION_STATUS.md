@@ -74,13 +74,32 @@ Evidence for #477: Audioscrape `https://www.audioscrape.com/podcast/the-basement
 
 Evidence for #559: Audioscrape `https://www.audioscrape.com/podcast/the-basement-yard/episode/559-release-the-mosquitos-21020`; official YouTube `https://www.youtube.com/watch?v=m77sDceykAw`.
 
-### 09–13
-Not yet promoted in the source-controlled clip corpus. Existing phrase targets remain in `lib/everyday-english.ts`.
+### 09 Saying sorry
+- `sorry-02` My bad. — exact match `Oh, my bad.` from Frank Alvarez in The Basement Yard #565, YouTube `WGN6kLtVYBk`, 79:25–79:35.
+- Remaining chapter targets — unmatched / not yet verified.
+
+Evidence for #565: Podwave timestamped transcript `https://pod.wave.co/podcast/the-basement-yard/565-are-we-ready-for-pie`; official YouTube `https://www.youtube.com/watch?v=WGN6kLtVYBk`.
+
+### 10 Saying goodbye
+- `bye-02` See you. — matched via natural lexical variant `See you guys next time.` from Joe Santagato in The Basement Yard #565, YouTube `WGN6kLtVYBk`, 79:48–79:57.
+- Remaining chapter targets — unmatched / not yet verified.
+
+### 11 Dates, time, and weather
+No verified production clips yet.
+
+### 12 Making arrangements
+No verified production clips yet.
+
+### 13 Talking about the weather
+- `weather-02` It's freezing. — natural lexical variant `It's freezing out.` in the opening of The Basement Yard #480, YouTube `NFqQCoEdGA0`, 0:00–0:10.
+- Remaining chapter targets — unmatched / not yet verified.
+
+Evidence for #480: Audioscrape timestamped transcript `https://www.audioscrape.com/podcast/the-basement-yard/episode/480---ai-is-officially-coming-for-us`; official YouTube `https://www.youtube.com/watch?v=NFqQCoEdGA0`.
 
 ## Current totals
-- Verified phrase matches: 15
-- Unique playable source clips: 12
-- Anchor sources in production data: The Basement Yard #339, #351, #446, #477, #483, #494, #498, #559, #567
+- Verified phrase matches: 18
+- Unique playable source clips: 15
+- Anchor sources in production data: The Basement Yard #339, #351, #446, #477, #480, #483, #494, #498, #559, #565, #567
 
 ## Rules
 - No clip is promoted without a verified YouTube source ID and defensible timestamped transcript evidence.
