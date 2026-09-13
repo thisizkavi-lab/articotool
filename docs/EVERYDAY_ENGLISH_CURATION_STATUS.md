@@ -11,12 +11,13 @@ Target accent: contemporary NYC / Northeast General American. Primary anchor cor
 - `greet-04` How've you been? — unmatched
 - `greet-05` Good to see you. — exact match in The Basement Yard #446, YouTube `r1zoSOiY_FA`, 13.7–17.4s
 - `greet-06` Long time no see. — unmatched
-- `greet-07` Nice to meet you. — candidate found in The Basement Yard #256 around 00:04:36; YouTube video ID still needs independent verification before promotion
+- `greet-07` Nice to meet you. — exact reciprocal first-meeting greeting in The Basement Yard #256, YouTube `Ae_Y8g4Syeo`, 4:34–4:41.5
 - `greet-08` Good morning. — unmatched
 
 Evidence:
 - #446 timestamps: Tapesearch `https://www.tapesearch.com/episode/446-frank-walked-into-a-crime-scene/STQ4Xqv5eBw3qr3WhwQEfq`
 - #567 opening transcript/speaker context: Audioscrape `https://www.audioscrape.com/podcast/the-basement-yard/episode/567-making-out-in-public-59420`; official YouTube source independently verified as `https://www.youtube.com/watch?v=pDbCTTEuDi0`
+- #256 timestamped transcript: Podscripts `https://podscripts.co/podcasts/the-basement-yard/256-the-worst-job-interview-of-all-time`; official YouTube source independently verified as `https://www.youtube.com/watch?v=Ae_Y8g4Syeo`
 
 ### 02 Making introductions
 Not yet promoted. Search has begun, but no candidate has both a clean reusable turn and independently verified YouTube timing yet.
@@ -106,9 +107,9 @@ No verified production clips yet.
 Evidence for #480: Audioscrape timestamped transcript `https://www.audioscrape.com/podcast/the-basement-yard/episode/480---ai-is-officially-coming-for-us`; official YouTube `https://www.youtube.com/watch?v=NFqQCoEdGA0`.
 
 ## Current totals
-- Verified phrase matches: 25
-- Unique playable source clips: 21
-- Anchor sources in production data: The Basement Yard #339, #351, #444, #446, #477, #480, #483, #494, #498, #507, #558, #559, #565, #567
+- Verified phrase matches: 26
+- Unique playable source clips: 22
+- Anchor sources in production data: The Basement Yard #256, #339, #351, #444, #446, #477, #480, #483, #494, #498, #507, #558, #559, #565, #567
 
 ## Rules
 - No clip is promoted without a verified YouTube source ID and defensible timestamped transcript evidence.

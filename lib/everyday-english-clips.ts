@@ -20,6 +20,24 @@ const segment = (id: string, start: number, end: number, label: string): Segment
   createdAt: 0,
 })
 
+const basementYard256: CuratedCollection = {
+  id: 'english-basement-yard-256-introductions',
+  speakerId: 'joe-santagato-frank-alvarez',
+  speaker: 'Joe Santagato / Frank Alvarez',
+  sourceTitle: 'The Basement Yard #256 · The Worst Job Interview Of All Time',
+  videoId: 'Ae_Y8g4Syeo',
+  videoTitle: 'The Worst Job Interview Of All Time | The Basement Yard #256',
+  channelName: 'The Basement Yard',
+  thumbnail: 'https://i.ytimg.com/vi/Ae_Y8g4Syeo/hqdefault.jpg',
+  duration: 3900,
+  description: "Queens/NYC conversational English with a clean, reciprocal first-meeting greeting: 'Nice to meet you.'",
+  focus: ['Everyday English', 'NYC', 'Introductions', 'Natural conversation'],
+  status: 'ready',
+  segments: [
+    segment('TBY256-GREET-07', 274.0, 281.5, "First meeting · 'Nice to meet you. Nice to meet you.'"),
+  ],
+}
+
 const basementYard339: CuratedCollection = {
   id: 'english-basement-yard-339-preferences',
   speakerId: 'joe-santagato-frank-alvarez',
@@ -276,6 +294,7 @@ const basementYard567: CuratedCollection = {
 }
 
 export const EVERYDAY_ENGLISH_COLLECTIONS: CuratedCollection[] = [
+  basementYard256,
   basementYard339,
   basementYard351,
   basementYard444,
@@ -293,6 +312,15 @@ export const EVERYDAY_ENGLISH_COLLECTIONS: CuratedCollection[] = [
 ]
 
 export const EVERYDAY_ENGLISH_CLIP_MATCHES: EverydayEnglishClipMatch[] = [
+  {
+    phraseId: 'greet-07',
+    collectionId: basementYard256.id,
+    segmentId: 'TBY256-GREET-07',
+    speaker: 'Joe Santagato / Frank Alvarez exchange',
+    transcript: 'Nice to meet you. Nice to meet you.',
+    matchType: 'exact',
+    evidenceUrl: 'https://podscripts.co/podcasts/the-basement-yard/256-the-worst-job-interview-of-all-time',
+  },
   {
     phraseId: 'time-01',
     collectionId: basementYard444.id,
