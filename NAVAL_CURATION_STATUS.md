@@ -50,3 +50,12 @@
 - Blocking issue: no publicly accessible source in this run exposed the full transcript with dense timestamps aligned to the official YouTube timebase. Combining the untimed official transcript with chapter markers, summaries, or isolated snips would require inferred endpoints and create false precision.
 - Do not fabricate clip boundaries. Leave this source queued until a full YouTube-aligned caption/transcript source can be verified.
 - Next autonomous curation run should proceed to `David Deutsch · Knowledge Creation and the Human Race · Part 2` unless a precise Part 1 transcript source becomes available first.
+
+### The Deutsch Files IV · 2024
+
+- Status: blocked / keep queued
+- Verified full source: Naval, `The Deutsch Files IV`, official YouTube `WUEUozkGXes`, published 2024-10-11; Naval's official episode page and Apple Podcasts resolve the same approximately 1:25:05 conversation.
+- The complete official Naval transcript is publicly available and the episode's chapter structure is independently confirmed. Public transcript-derived sources expose only coarse quote or insight anchors, typically in 30-second increments, rather than dense line-by-line timing aligned to the official YouTube video.
+- Blocking issue: those coarse anchors are not sufficient to establish exact 10–45 second start/end boundaries for exceptional shadowing clips across the full episode without inferring endpoints.
+- Do not fabricate or interpolate boundaries from 30-second anchors, chapter markers, or summaries. Leave this source queued until a dense YouTube-aligned transcript/caption source can be verified.
+- Next autonomous curation run should proceed to `The Tim Ferriss Show #662 · Naval Ravikant · 2023` unless a precise Deutsch Files IV transcript source becomes available first.
