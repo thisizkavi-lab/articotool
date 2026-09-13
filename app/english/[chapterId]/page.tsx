@@ -1,8 +1,9 @@
-import { ArrowLeft, Search, Star } from 'lucide-react'
+import { ArrowLeft, Play, Search, Star } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { EVERYDAY_ENGLISH_ACCENT, getEverydayEnglishChapter } from '@/lib/everyday-english'
+import { EVERYDAY_ENGLISH_COLLECTIONS, getEverydayEnglishClipMatch } from '@/lib/everyday-english-clips'
 
 export default async function EverydayEnglishChapterPage({ params }: { params: Promise<{ chapterId: string }> }) {
   const { chapterId } = await params
@@ -44,7 +45,13 @@ export default async function EverydayEnglishChapterPage({ params }: { params: P
         </div>
 
         <div className="grid gap-3">
-          {chapter.phrases.map((item, index) => (
+          {chapter.phrases.map((item, index) => {
+            const clipMatch = getEverydayEnglishClipMatch(item.id)
+            const collection = clipMatch ? EVERYDAY_ENGLISH_COLLECTIONS.find(source => source.id === clipMatch.collectionId) : undefined
+            const segment = clipMatch && collection ? collection.segments.find(entry => entry.id === clipMatch.segmentId) : undefined
+            const practiceUrl = clipMatch && collection ? `/?v=${collection.videoId}&curated=${collection.id}` : null
+
+            return (
             <Card key={item.id}>
               <CardContent className="p-4 sm:p-5">
                 <div className="flex items-start justify-between gap-4">
@@ -65,7 +72,14 @@ export default async function EverydayEnglishChapterPage({ params }: { params: P
 
                   <div className="text-right shrink-0 hidden sm:block">
                     <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">Clip match</p>
-                    <p className="text-xs font-medium">Not matched yet</p>
+                    {practiceUrl && segment && clipMatch ? (
+                      <a href={practiceUrl} className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+                        <Play className="h-3 w-3 fill-current" />
+                        Practice {Math.round(segment.end - segment.start)}s clip
+                      </a>
+                    ) : (
+                      <p className="text-xs font-medium">Not matched yet</p>
+                    )}
                   </div>
                 </div>
 
@@ -83,7 +97,8 @@ export default async function EverydayEnglishChapterPage({ params }: { params: P
                 )}
               </CardContent>
             </Card>
-          ))}
+            )
+          })}
         </div>
       </main>
     </div>

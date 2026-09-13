@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { UnifiedPracticeView } from '@/components/unified-practice-view'
 import { getCuratedCollection } from '@/lib/curated-library'
 import { getGoldnrushCollection } from '@/lib/goldnrush-curated'
+import { getEverydayEnglishCollection } from '@/lib/everyday-english-clips'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -103,7 +104,7 @@ function HomeContent() {
   } = useAppStore()
 
   const curatedCollection = useMemo(
-    () => getCuratedCollection(curatedId) || getGoldnrushCollection(curatedId),
+    () => getCuratedCollection(curatedId) || getGoldnrushCollection(curatedId) || getEverydayEnglishCollection(curatedId),
     [curatedId],
   )
 
