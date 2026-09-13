@@ -12,20 +12,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Search public Piped instances
+      - name: Resolve IDs from YouTube search metadata
         shell: bash
         run: |
           set -euo pipefail
+          python -m pip install --quiet --upgrade yt-dlp
           python - <<'PY'
-          import json, pathlib, urllib.parse, urllib.request
+          import json, pathlib, re, subprocess, urllib.parse, urllib.request
 
-          instances=[
-            'https://pipedapi.kavin.rocks',
-            'https://pipedapi.tokhmi.xyz',
-            'https://pipedapi.syncpundit.io',
-            'https://api-piped.mha.fi',
-            'https://piped-api.garudalinux.org',
-          ]
           queries={
             'zeebra-149':'GOLDNRUSH PODCAST Ep.149 Zeebra',
             'shigekix-106':'GOLDNRUSH PODCAST Ep.106 Shigekix',
@@ -33,30 +27,40 @@ jobs:
           out={}
           for slug,q in queries.items():
               matches=[]
-              for base in instances:
-                  url=base+'/search?'+urllib.parse.urlencode({'q':q,'filter':'videos'})
+              # First try YouTube's search HTML. It often exposes videoId/title in ytInitialData
+              # even when playback endpoints reject cloud IPs.
+              try:
+                  u='https://www.youtube.com/results?'+urllib.parse.urlencode({'search_query':q})
+                  req=urllib.request.Request(u,headers={'User-Agent':'Mozilla/5.0','Accept-Language':'ja,en;q=0.8'})
+                  text=urllib.request.urlopen(req,timeout=20).read().decode('utf-8','replace')
+                  for m in re.finditer(r'"videoId":"([A-Za-z0-9_-]{11})".{0,700}?"title":\{"runs":\[\{"text":"(.*?)"\}',text,re.S):
+                      vid,title=m.groups()
+                      title=bytes(title,'utf-8').decode('unicode_escape','ignore') if '\\u' in title else title
+                      if slug.startswith('zeebra') and 'zeebra' not in title.lower(): continue
+                      if slug.startswith('shigekix') and 'shigekix' not in title.lower(): continue
+                      row={'videoId':vid,'title':title,'source':'youtube-search-html'}
+                      if row not in matches: matches.append(row)
+              except Exception as e:
+                  print(slug,'html search failed',repr(e))
+
+              # Then try flat yt-dlp search; this does not download the video.
+              if not matches:
                   try:
-                      req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0','Accept':'application/json'})
-                      data=json.loads(urllib.request.urlopen(req,timeout=15).read().decode())
+                      cp=subprocess.run(['yt-dlp','--flat-playlist','--dump-json',f'ytsearch15:{q}'],text=True,capture_output=True,timeout=90)
+                      print(slug,'yt-dlp rc',cp.returncode,'stderr',cp.stderr[-1000:])
+                      for line in cp.stdout.splitlines():
+                          try: item=json.loads(line)
+                          except: continue
+                          title=item.get('title') or ''
+                          vid=item.get('id') or ''
+                          if slug.startswith('zeebra') and 'zeebra' not in title.lower(): continue
+                          if slug.startswith('shigekix') and 'shigekix' not in title.lower(): continue
+                          if len(vid)==11:
+                              row={'videoId':vid,'title':title,'source':'yt-dlp-search'}
+                              if row not in matches: matches.append(row)
                   except Exception as e:
-                      print(slug,base,'failed',repr(e)); continue
-                  items=data.get('items',data if isinstance(data,list) else [])
-                  for item in items[:20]:
-                      title=item.get('title','')
-                      url_path=item.get('url','')
-                      uploader=item.get('uploaderName','')
-                      if 'GOLDNRUSH' not in title.upper() and 'GOLDNRUSH' not in uploader.upper():
-                          continue
-                      if slug.startswith('zeebra') and 'zeebra' not in title.lower():
-                          continue
-                      if slug.startswith('shigekix') and 'shigekix' not in title.lower():
-                          continue
-                      vid=url_path.rsplit('=',1)[-1] if 'watch?v=' in url_path else url_path.strip('/').split('/')[-1]
-                      if len(vid)==11:
-                          row={'videoId':vid,'title':title,'uploader':uploader,'source':base,'url':url_path}
-                          if row not in matches:
-                              matches.append(row)
-                  if matches: break
+                      print(slug,'yt-dlp failed',repr(e))
+
               out[slug]=matches
               print(slug,json.dumps(matches,ensure_ascii=False))
           pathlib.Path('resolved-video-ids.json').write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding='utf-8')
