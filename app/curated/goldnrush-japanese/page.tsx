@@ -1,12 +1,25 @@
 import { ArrowLeft, CheckCircle2, CircleDashed, ExternalLink, Languages, Play, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-const sources = [
+type SourceStatus = 'ready' | 'curating' | 'queued'
+
+type GoldnrushSource = {
+  id: string
+  title: string
+  guest: string
+  status: SourceStatus
+  videoId: string | null
+  duration: string
+  clipCount: number
+  note: string
+}
+
+const sources: GoldnrushSource[] = [
   {
     id: 'goldnrush-mendy-116',
     title: '関口メンディー · GOLDNRUSH Ep.116',
     guest: '関口メンディー',
-    status: 'ready' as const,
+    status: 'ready',
     videoId: 'aQ3rPDWuKrI',
     duration: '1:00:34',
     clipCount: 16,
@@ -16,7 +29,7 @@ const sources = [
     id: 'goldnrush-ito-awa-137',
     title: '伊藤亜和 · GOLDNRUSH Ep.137',
     guest: '伊藤亜和',
-    status: 'ready' as const,
+    status: 'ready',
     videoId: 'FBA7X77QSPI',
     duration: '1:16:53',
     clipCount: 8,
@@ -26,7 +39,7 @@ const sources = [
     id: 'goldnrush-zeebra-149',
     title: 'Zeebra · GOLDNRUSH Ep.149',
     guest: 'Zeebra',
-    status: 'ready' as const,
+    status: 'ready',
     videoId: '2mDTZiK4Dug',
     duration: '1:17:07',
     clipCount: 7,
@@ -36,7 +49,7 @@ const sources = [
     id: 'goldnrush-sarasa-154',
     title: 'さらさ · GOLDNRUSH Ep.154',
     guest: 'さらさ',
-    status: 'ready' as const,
+    status: 'ready',
     videoId: 'hTvGxeAMOuU',
     duration: '58:48',
     clipCount: 11,
@@ -46,7 +59,7 @@ const sources = [
     id: 'goldnrush-shigekix',
     title: 'Shigekix · GOLDNRUSH Ep.106',
     guest: 'Shigekix',
-    status: 'ready' as const,
+    status: 'ready',
     videoId: 'pN7VRUwrXn0',
     duration: '53:37',
     clipCount: 11,
@@ -56,7 +69,7 @@ const sources = [
     id: 'goldnrush-nishida-yuji',
     title: '西田有志 · GOLDNRUSH Ep.110',
     guest: '西田有志',
-    status: 'ready' as const,
+    status: 'ready',
     videoId: '5eCWPY7k0Z4',
     duration: '1:08:42',
     clipCount: 14,
@@ -157,6 +170,7 @@ export default function GoldnrushJapanesePage() {
                       >
                         Open source
                         <ExternalLink className="h-3 w-3" />
+                        Open source
                       </a>
                     )}
                   </div>
