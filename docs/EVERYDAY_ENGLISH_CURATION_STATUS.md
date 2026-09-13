@@ -50,13 +50,17 @@ Evidence:
 Evidence for #494: Tapesearch timestamped transcript `https://www.tapesearch.com/episode/494-visiting-docter-dan/HEwvgRi5jRv5H6Lfph2Roy`; official YouTube source `https://www.youtube.com/watch?v=5EpiYeXluPc`.
 
 ### 05 Opinions and preferences
+- `opinion-01` What do you think? — exact reusable frame in The Basement Yard #351, YouTube `3meSp-LahdM`, 5.5–10.8s: `What do you think of my drawer?`
 - `opinion-08` I'd rather ... — exact natural preference statement in The Basement Yard #339, YouTube `3f3iKts2u30`, 9.2–15.0s: `I'd rather wear this than get into Formula One racing...`
 - Remaining chapter targets — unmatched / not yet verified.
 
-Evidence for #339: Tapesearch `https://www.tapesearch.com/episode/339-how-to-become-a-priest/hSuGVXn9CNNNDVmFGqToBt`; official YouTube `https://www.youtube.com/watch?v=3f3iKts2u30`.
+Evidence: #351 Tapesearch `https://www.tapesearch.com/episode/351-i-ve-made-love-to-my-car/SKiuo7T4PXjXsA6qmYaAaH`, official YouTube `https://www.youtube.com/watch?v=3meSp-LahdM`; #339 Tapesearch `https://www.tapesearch.com/episode/339-how-to-become-a-priest/hSuGVXn9CNNNDVmFGqToBt`, official YouTube `https://www.youtube.com/watch?v=3f3iKts2u30`.
 
 ### 06 Agreeing and disagreeing
-Not yet promoted.
+- `agree-01` Exactly. — exact agreement response `Yeah, exactly.` in The Basement Yard #498, YouTube `OELGdBT6o_I`, 11.5–15.0s.
+- Remaining chapter targets — unmatched / not yet verified.
+
+Evidence for #498: Wave timestamped transcript `https://pod.wave.co/podcast/the-basement-yard/498-the-morning-routine-c132baa4`; official YouTube `https://www.youtube.com/watch?v=OELGdBT6o_I`.
 
 ### 07 Making suggestions
 - `suggest-06` I'm in. — exact natural acceptance in The Basement Yard #477, YouTube `iWBPM_3xMZU`, 224–236s: `Any ripaway pants, I'm in.`
@@ -64,13 +68,19 @@ Not yet promoted.
 
 Evidence for #477: Audioscrape `https://www.audioscrape.com/podcast/the-basement-yard/episode/477---the-worlds-sexiest-podcast-hosts`; official YouTube `https://www.youtube.com/watch?v=iWBPM_3xMZU`.
 
-### 08–13
-Not yet processed in the source-controlled clip corpus. Existing phrase targets remain in `lib/everyday-english.ts`.
+### 08 Saying thank you
+- `thanks-04` I really appreciate it. — exact natural gratitude frame in The Basement Yard #559, YouTube `m77sDceykAw`, 45.0–56.0s: `I really appreciate you inviting me here.`
+- Remaining chapter targets — unmatched / not yet verified.
+
+Evidence for #559: Audioscrape `https://www.audioscrape.com/podcast/the-basement-yard/episode/559-release-the-mosquitos-21020`; official YouTube `https://www.youtube.com/watch?v=m77sDceykAw`.
+
+### 09–13
+Not yet promoted in the source-controlled clip corpus. Existing phrase targets remain in `lib/everyday-english.ts`.
 
 ## Current totals
-- Verified phrase matches: 12
-- Unique playable source clips: 9
-- Anchor sources in production data: The Basement Yard #339, #446, #477, #483, #494, #559, #567
+- Verified phrase matches: 15
+- Unique playable source clips: 12
+- Anchor sources in production data: The Basement Yard #339, #351, #446, #477, #483, #494, #498, #559, #567
 
 ## Rules
 - No clip is promoted without a verified YouTube source ID and defensible timestamped transcript evidence.

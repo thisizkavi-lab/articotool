@@ -112,6 +112,42 @@ const basementYard494: CuratedCollection = {
   ],
 }
 
+const basementYard351: CuratedCollection = {
+  id: 'english-basement-yard-351-opinions',
+  speakerId: 'joe-santagato-frank-alvarez',
+  speaker: 'Joe Santagato / Frank Alvarez',
+  sourceTitle: "The Basement Yard #351 · I've Made Love To My Car",
+  videoId: '3meSp-LahdM',
+  videoTitle: "I've Made Love To My Car | The Basement Yard #351",
+  channelName: 'The Basement Yard',
+  thumbnail: 'https://i.ytimg.com/vi/3meSp-LahdM/hqdefault.jpg',
+  duration: 4080,
+  description: 'Queens/NYC conversational English with a direct, natural request for an opinion in the opening exchange.',
+  focus: ['Everyday English', 'NYC', 'Opinions', 'Natural conversation'],
+  status: 'ready',
+  segments: [
+    segment('TBY351-OPINION-01', 5.5, 10.8, "Opinion · 'What do you think of my drawer?'"),
+  ],
+}
+
+const basementYard498: CuratedCollection = {
+  id: 'english-basement-yard-498-agreement',
+  speakerId: 'joe-santagato-frank-alvarez',
+  speaker: 'Joe Santagato / Frank Alvarez',
+  sourceTitle: 'The Basement Yard #498 · The Morning Routine',
+  videoId: 'OELGdBT6o_I',
+  videoTitle: 'The Morning Routine | The Basement Yard #498',
+  channelName: 'The Basement Yard',
+  thumbnail: 'https://i.ytimg.com/vi/OELGdBT6o_I/hqdefault.jpg',
+  duration: 4491,
+  description: "Natural Queens/NYC turn-taking with a compact exact 'Exactly' agreement response.",
+  focus: ['Everyday English', 'NYC', 'Agreement', 'Natural conversation'],
+  status: 'ready',
+  segments: [
+    segment('TBY498-AGREE-01', 11.5, 15.0, "Agreement · 'Yeah, exactly.'"),
+  ],
+}
+
 const basementYard559: CuratedCollection = {
   id: 'english-basement-yard-559-fillers',
   speakerId: 'joe-santagato-frank-alvarez',
@@ -126,6 +162,7 @@ const basementYard559: CuratedCollection = {
   focus: ['Everyday English', 'NYC', 'Conversation fillers', 'Natural conversation'],
   status: 'ready',
   segments: [
+    segment('TBY559-THANKS-04', 45.0, 56.0, "Gratitude · 'I really appreciate you inviting me here.'"),
     segment('TBY559-FILL-03-07', 82, 98, "Conversation fillers · 'to be honest with you ... I mean, listen'"),
   ],
 }
@@ -150,7 +187,9 @@ const basementYard567: CuratedCollection = {
 
 export const EVERYDAY_ENGLISH_COLLECTIONS: CuratedCollection[] = [
   basementYard339,
+  basementYard351,
   basementYard446,
+  basementYard498,
   basementYard477,
   basementYard483,
   basementYard494,
@@ -248,6 +287,33 @@ export const EVERYDAY_ENGLISH_CLIP_MATCHES: EverydayEnglishClipMatch[] = [
     transcript: 'Baby makes them feel a little uncomfortable. What do you mean? Some people don\'t like baby.',
     matchType: 'exact',
     evidenceUrl: 'https://www.tapesearch.com/episode/494-visiting-docter-dan/HEwvgRi5jRv5H6Lfph2Roy',
+  },
+  {
+    phraseId: 'opinion-01',
+    collectionId: basementYard351.id,
+    segmentId: 'TBY351-OPINION-01',
+    speaker: 'Joe Santagato',
+    transcript: 'What do you think of my drawer?',
+    matchType: 'exact',
+    evidenceUrl: 'https://www.tapesearch.com/episode/351-i-ve-made-love-to-my-car/SKiuo7T4PXjXsA6qmYaAaH',
+  },
+  {
+    phraseId: 'agree-01',
+    collectionId: basementYard498.id,
+    segmentId: 'TBY498-AGREE-01',
+    speaker: 'Joe Santagato',
+    transcript: 'Yeah, exactly.',
+    matchType: 'exact',
+    evidenceUrl: 'https://pod.wave.co/podcast/the-basement-yard/498-the-morning-routine-c132baa4',
+  },
+  {
+    phraseId: 'thanks-04',
+    collectionId: basementYard559.id,
+    segmentId: 'TBY559-THANKS-04',
+    speaker: 'Frank Alvarez',
+    transcript: 'I really appreciate you inviting me here.',
+    matchType: 'exact',
+    evidenceUrl: 'https://www.audioscrape.com/podcast/the-basement-yard/episode/559-release-the-mosquitos-21020',
   },
   {
     phraseId: 'opinion-08',
