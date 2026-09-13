@@ -1,0 +1,142 @@
+name: Patch Everyday English run 4
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.head_ref == 'curate/everyday-english-run4'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Add verified phrase clips
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('lib/everyday-english-clips.ts')
+          s = p.read_text()
+
+          anchor = "const basementYard559: CuratedCollection = {\n"
+          insert = r'''const basementYard351: CuratedCollection = {
+  id: 'english-basement-yard-351-opinions',
+  speakerId: 'joe-santagato-frank-alvarez',
+  speaker: 'Joe Santagato / Frank Alvarez',
+  sourceTitle: "The Basement Yard #351 · I've Made Love To My Car",
+  videoId: '3meSp-LahdM',
+  videoTitle: "I've Made Love To My Car | The Basement Yard #351",
+  channelName: 'The Basement Yard',
+  thumbnail: 'https://i.ytimg.com/vi/3meSp-LahdM/hqdefault.jpg',
+  duration: 4080,
+  description: 'Queens/NYC conversational English with a direct, natural request for an opinion in the opening exchange.',
+  focus: ['Everyday English', 'NYC', 'Opinions', 'Natural conversation'],
+  status: 'ready',
+  segments: [
+    segment('TBY351-OPINION-01', 5.5, 10.8, "Opinion · 'What do you think of my drawer?'"),
+  ],
+}
+
+const basementYard498: CuratedCollection = {
+  id: 'english-basement-yard-498-agreement',
+  speakerId: 'joe-santagato-frank-alvarez',
+  speaker: 'Joe Santagato / Frank Alvarez',
+  sourceTitle: 'The Basement Yard #498 · The Morning Routine',
+  videoId: 'OELGdBT6o_I',
+  videoTitle: 'The Morning Routine | The Basement Yard #498',
+  channelName: 'The Basement Yard',
+  thumbnail: 'https://i.ytimg.com/vi/OELGdBT6o_I/hqdefault.jpg',
+  duration: 4491,
+  description: "Natural Queens/NYC turn-taking with a compact exact 'Exactly' agreement response.",
+  focus: ['Everyday English', 'NYC', 'Agreement', 'Natural conversation'],
+  status: 'ready',
+  segments: [
+    segment('TBY498-AGREE-01', 11.5, 15.0, "Agreement · 'Yeah, exactly.'"),
+  ],
+}
+
+'''
+          if 'const basementYard351:' not in s:
+              if anchor not in s:
+                  raise SystemExit('collection insertion anchor missing')
+              s = s.replace(anchor, insert + anchor, 1)
+
+          old_segments = "  segments: [\n    segment('TBY559-FILL-03-07', 82, 98, \"Conversation fillers · 'to be honest with you ... I mean, listen'\"),\n  ],\n}"
+          new_segments = "  segments: [\n    segment('TBY559-THANKS-04', 45.0, 56.0, \"Gratitude · 'I really appreciate you inviting me here.'\"),\n    segment('TBY559-FILL-03-07', 82, 98, \"Conversation fillers · 'to be honest with you ... I mean, listen'\"),\n  ],\n}"
+          if "TBY559-THANKS-04" not in s:
+              if old_segments not in s:
+                  raise SystemExit('559 segment anchor missing')
+              s = s.replace(old_segments, new_segments, 1)
+
+          old_collections = "export const EVERYDAY_ENGLISH_COLLECTIONS: CuratedCollection[] = [\n  basementYard339,\n  basementYard446,"
+          new_collections = "export const EVERYDAY_ENGLISH_COLLECTIONS: CuratedCollection[] = [\n  basementYard339,\n  basementYard351,\n  basementYard446,\n  basementYard498,"
+          if '  basementYard351,' not in s:
+              if old_collections not in s:
+                  raise SystemExit('collections array anchor missing')
+              s = s.replace(old_collections, new_collections, 1)
+
+          opinion_anchor = "  {\n    phraseId: 'opinion-08',"
+          match_insert = r'''  {
+    phraseId: 'opinion-01',
+    collectionId: basementYard351.id,
+    segmentId: 'TBY351-OPINION-01',
+    speaker: 'Joe Santagato',
+    transcript: 'What do you think of my drawer?',
+    matchType: 'exact',
+    evidenceUrl: 'https://www.tapesearch.com/episode/351-i-ve-made-love-to-my-car/SKiuo7T4PXjXsA6qmYaAaH',
+  },
+  {
+    phraseId: 'agree-01',
+    collectionId: basementYard498.id,
+    segmentId: 'TBY498-AGREE-01',
+    speaker: 'Joe Santagato',
+    transcript: 'Yeah, exactly.',
+    matchType: 'exact',
+    evidenceUrl: 'https://pod.wave.co/podcast/the-basement-yard/498-the-morning-routine-c132baa4',
+  },
+  {
+    phraseId: 'thanks-04',
+    collectionId: basementYard559.id,
+    segmentId: 'TBY559-THANKS-04',
+    speaker: 'Frank Alvarez',
+    transcript: 'I really appreciate you inviting me here.',
+    matchType: 'exact',
+    evidenceUrl: 'https://www.audioscrape.com/podcast/the-basement-yard/episode/559-release-the-mosquitos-21020',
+  },
+'''
+          if "phraseId: 'opinion-01'" not in s:
+              if opinion_anchor not in s:
+                  raise SystemExit('match insertion anchor missing')
+              s = s.replace(opinion_anchor, match_insert + opinion_anchor, 1)
+
+          p.write_text(s)
+
+          p = Path('docs/EVERYDAY_ENGLISH_CURATION_STATUS.md')
+          s = p.read_text()
+          s = s.replace(
+              "### 05 Opinions and preferences\n- `opinion-08` I'd rather ... — exact natural preference statement in The Basement Yard #339, YouTube `3f3iKts2u30`, 9.2–15.0s: `I'd rather wear this than get into Formula One racing...`\n- Remaining chapter targets — unmatched / not yet verified.\n\nEvidence for #339: Tapesearch `https://www.tapesearch.com/episode/339-how-to-become-a-priest/hSuGVXn9CNNNDVmFGqToBt`; official YouTube `https://www.youtube.com/watch?v=3f3iKts2u30`.\n\n### 06 Agreeing and disagreeing\nNot yet promoted.\n",
+              "### 05 Opinions and preferences\n- `opinion-01` What do you think? — exact reusable frame in The Basement Yard #351, YouTube `3meSp-LahdM`, 5.5–10.8s: `What do you think of my drawer?`\n- `opinion-08` I'd rather ... — exact natural preference statement in The Basement Yard #339, YouTube `3f3iKts2u30`, 9.2–15.0s: `I'd rather wear this than get into Formula One racing...`\n- Remaining chapter targets — unmatched / not yet verified.\n\nEvidence: #351 Tapesearch `https://www.tapesearch.com/episode/351-i-ve-made-love-to-my-car/SKiuo7T4PXjXsA6qmYaAaH`, official YouTube `https://www.youtube.com/watch?v=3meSp-LahdM`; #339 Tapesearch `https://www.tapesearch.com/episode/339-how-to-become-a-priest/hSuGVXn9CNNNDVmFGqToBt`, official YouTube `https://www.youtube.com/watch?v=3f3iKts2u30`.\n\n### 06 Agreeing and disagreeing\n- `agree-01` Exactly. — exact agreement response `Yeah, exactly.` in The Basement Yard #498, YouTube `OELGdBT6o_I`, 11.5–15.0s.\n- Remaining chapter targets — unmatched / not yet verified.\n\nEvidence for #498: Wave timestamped transcript `https://pod.wave.co/podcast/the-basement-yard/498-the-morning-routine-c132baa4`; official YouTube `https://www.youtube.com/watch?v=OELGdBT6o_I`.\n",
+              1,
+          )
+          s = s.replace(
+              "### 08–13\nNot yet processed in the source-controlled clip corpus. Existing phrase targets remain in `lib/everyday-english.ts`.\n",
+              "### 08 Saying thank you\n- `thanks-04` I really appreciate it. — exact natural gratitude frame in The Basement Yard #559, YouTube `m77sDceykAw`, 45.0–56.0s: `I really appreciate you inviting me here.`\n- Remaining chapter targets — unmatched / not yet verified.\n\nEvidence for #559: Audioscrape `https://www.audioscrape.com/podcast/the-basement-yard/episode/559-release-the-mosquitos-21020`; Podscripts gives the same opening sequence; official YouTube `https://www.youtube.com/watch?v=m77sDceykAw`.\n\n### 09–13\nNot yet promoted in the source-controlled clip corpus. Existing phrase targets remain in `lib/everyday-english.ts`.\n",
+              1,
+          )
+          s = s.replace('- Verified phrase matches: 12', '- Verified phrase matches: 15', 1)
+          s = s.replace('- Unique playable source clips: 9', '- Unique playable source clips: 12', 1)
+          s = s.replace('The Basement Yard #339, #446, #477, #483, #494, #559, #567', 'The Basement Yard #339, #351, #446, #477, #483, #494, #498, #559, #567', 1)
+          p.write_text(s)
+          PY
+          git config user.name 'Kavi'
+          git config user.email 'thisizkavi@gmail.com'
+          git add lib/everyday-english-clips.ts docs/EVERYDAY_ENGLISH_CURATION_STATUS.md
+          git commit -m 'Add verified opinion agreement and gratitude clips'
+          git push origin HEAD:${{ github.head_ref }}
