@@ -1,0 +1,73 @@
+name: Patch Everyday English run 6
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.head_ref == 'curate/everyday-english-run6'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Add verified Basement Yard 444 clips
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('lib/everyday-english-clips.ts')
+          s = p.read_text()
+
+          collection = '''const basementYard444: CuratedCollection = {\n  id: 'english-basement-yard-444-time-thanks',\n  speakerId: 'joe-santagato-frank-alvarez',\n  speaker: 'Joe Santagato / Frank Alvarez',\n  sourceTitle: 'The Basement Yard #444 · THE TOUR DATES',\n  videoId: 'BB1L5HDXBko',\n  videoTitle: 'THE TOUR DATES! | The Basement Yard #444',\n  channelName: 'The Basement Yard',\n  thumbnail: 'https://i.ytimg.com/vi/BB1L5HDXBko/hqdefault.jpg',\n  duration: 3900,\n  description: 'Queens/NYC conversational English with a real scheduling question and natural gratitude during a phone call.',\n  focus: ['Everyday English', 'NYC', 'Time', 'Gratitude'],\n  status: 'ready',\n  segments: [\n    segment('TBY444-TIME-01', 314.0, 323.5, \"Scheduling · 'What time do the tickets go on sale?'\"),\n    segment('TBY444-THANKS-03', 329.0, 339.5, \"Warm thanks · 'Thank you so much, Greg. We appreciate it so much. Thank you so much.'\"),\n    segment('TBY444-THANKS-01', 339.5, 348.0, \"Casual thanks · 'Have a good one, fellas. Thanks.'\"),\n  ],\n}\n\n'''
+          anchor = "const basementYard446: CuratedCollection = {\n"
+          if collection not in s:
+              if anchor not in s:
+                  raise SystemExit('collection anchor missing')
+              s = s.replace(anchor, collection + anchor, 1)
+
+          array_anchor = "  basementYard351,\n  basementYard446,\n"
+          if '  basementYard444,\n' not in s:
+              if array_anchor not in s:
+                  raise SystemExit('collection array anchor missing')
+              s = s.replace(array_anchor, "  basementYard351,\n  basementYard444,\n  basementYard446,\n", 1)
+
+          match_anchor = "export const EVERYDAY_ENGLISH_CLIP_MATCHES: EverydayEnglishClipMatch[] = [\n"
+          matches = '''  {\n    phraseId: 'time-01',\n    collectionId: basementYard444.id,\n    segmentId: 'TBY444-TIME-01',\n    speaker: 'Joe Santagato / Frank Alvarez exchange',\n    transcript: 'We want to know what time do the tickets go on sale on April 2nd, presale?',\n    matchType: 'lexical-variant',\n    evidenceUrl: 'https://podscripts.co/podcasts/the-basement-yard/444-the-tour-dates',\n  },\n  {\n    phraseId: 'thanks-03',\n    collectionId: basementYard444.id,\n    segmentId: 'TBY444-THANKS-03',\n    speaker: 'Joe Santagato / Frank Alvarez exchange',\n    transcript: 'Thank you so much, Greg. We appreciate it so much. Thank you so much.',\n    matchType: 'exact',\n    evidenceUrl: 'https://podscripts.co/podcasts/the-basement-yard/444-the-tour-dates',\n  },\n  {\n    phraseId: 'thanks-01',\n    collectionId: basementYard444.id,\n    segmentId: 'TBY444-THANKS-01',\n    speaker: 'Greg / Joe Santagato exchange',\n    transcript: 'Have a good one, fellas, thanks.',\n    matchType: 'exact',\n    evidenceUrl: 'https://podscripts.co/podcasts/the-basement-yard/444-the-tour-dates',\n  },\n'''
+          if "phraseId: 'time-01'" not in s:
+              if match_anchor not in s:
+                  raise SystemExit('match array anchor missing')
+              s = s.replace(match_anchor, match_anchor + matches, 1)
+
+          p.write_text(s)
+
+          p = Path('docs/EVERYDAY_ENGLISH_CURATION_STATUS.md')
+          s = p.read_text()
+          old08 = '''### 08 Saying thank you\n- `thanks-04` I really appreciate it. — exact natural gratitude frame in The Basement Yard #559, YouTube `m77sDceykAw`, 45.0–56.0s: `I really appreciate you inviting me here.`\n- Remaining chapter targets — unmatched / not yet verified.\n\nEvidence for #559: Audioscrape `https://www.audioscrape.com/podcast/the-basement-yard/episode/559-release-the-mosquitos-21020`; official YouTube `https://www.youtube.com/watch?v=m77sDceykAw`.\n'''
+          new08 = '''### 08 Saying thank you\n- `thanks-01` Thanks. — exact match in The Basement Yard #444, YouTube `BB1L5HDXBko`, 5:39.5–5:48: `Have a good one, fellas, thanks.`\n- `thanks-03` Thank you so much. — exact repeated gratitude phrase in The Basement Yard #444, YouTube `BB1L5HDXBko`, 5:29–5:39.5.\n- `thanks-04` I really appreciate it. — exact natural gratitude frame in The Basement Yard #559, YouTube `m77sDceykAw`, 45.0–56.0s: `I really appreciate you inviting me here.`\n- Remaining chapter targets — unmatched / not yet verified.\n\nEvidence: #444 Podscripts timestamped transcript `https://podscripts.co/podcasts/the-basement-yard/444-the-tour-dates`, official YouTube `https://www.youtube.com/watch?v=BB1L5HDXBko`; #559 Audioscrape `https://www.audioscrape.com/podcast/the-basement-yard/episode/559-release-the-mosquitos-21020`, official YouTube `https://www.youtube.com/watch?v=m77sDceykAw`.\n'''
+          if old08 not in s:
+              raise SystemExit('chapter 08 status block changed')
+          s = s.replace(old08, new08, 1)
+
+          old11 = '''### 11 Dates, time, and weather\nNo verified production clips yet.\n'''
+          new11 = '''### 11 Dates, time, and weather\n- `time-01` What time does it start? — matched by the same scheduling function via natural lexical variant `What time do the tickets go on sale?` in The Basement Yard #444, YouTube `BB1L5HDXBko`, 5:14–5:23.5.\n- Remaining chapter targets — unmatched / not yet verified.\n\nEvidence for #444: Podscripts timestamped transcript `https://podscripts.co/podcasts/the-basement-yard/444-the-tour-dates`; official YouTube `https://www.youtube.com/watch?v=BB1L5HDXBko`.\n'''
+          if old11 not in s:
+              raise SystemExit('chapter 11 status block changed')
+          s = s.replace(old11, new11, 1)
+
+          s = s.replace('- Verified phrase matches: 18', '- Verified phrase matches: 21', 1)
+          s = s.replace('- Unique playable source clips: 15', '- Unique playable source clips: 18', 1)
+          s = s.replace('The Basement Yard #339, #351, #446, #477, #480, #483, #494, #498, #559, #565, #567', 'The Basement Yard #339, #351, #444, #446, #477, #480, #483, #494, #498, #559, #565, #567', 1)
+          p.write_text(s)
+          PY
+          git config user.name 'Kavi'
+          git config user.email 'thisizkavi@gmail.com'
+          git add lib/everyday-english-clips.ts docs/EVERYDAY_ENGLISH_CURATION_STATUS.md
+          git commit -m 'Add verified time and thanks clips'
+          git push origin HEAD:${{ github.head_ref }}
