@@ -1,0 +1,120 @@
+name: Run7 patch helper
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/run7-patch-main.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: curate/everyday-english-run7
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Patch verified agreement clips
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('lib/everyday-english-clips.ts')
+          s = p.read_text()
+          old494 = """  description: 'Clean early-episode Queens/NYC conversational exchange with a natural clarification question.',
+  focus: ['Everyday English', 'NYC', 'Clarification', 'Natural conversation'],
+  status: 'ready',
+  segments: [
+    segment('TBY494-UNDERSTAND-05', 14.1, 19.3, \"Clarification · 'What do you mean?'\"),
+  ],
+}"""
+          new494 = """  description: 'Clean early-episode Queens/NYC conversational exchange with natural clarification and agreement examples.',
+  focus: ['Everyday English', 'NYC', 'Clarification', 'Agreement', 'Natural conversation'],
+  status: 'ready',
+  segments: [
+    segment('TBY494-UNDERSTAND-05', 14.1, 19.3, \"Clarification · 'What do you mean?'\"),
+    segment('TBY494-AGREE-02', 19.3, 24.3, \"Agreement · 'Absolutely love it.'\"),
+  ],
+}"""
+          if old494 not in s: raise SystemExit('494 anchor not found')
+          s = s.replace(old494, new494, 1)
+          anchor507 = "const basementYard559: CuratedCollection = {"
+          collection507 = """const basementYard507: CuratedCollection = {
+  id: 'english-basement-yard-507-agreement',
+  speakerId: 'joe-santagato-frank-alvarez',
+  speaker: 'Joe Santagato / Frank Alvarez',
+  sourceTitle: \"The Basement Yard #507 · We're Going To The Major Leagues\",
+  videoId: 'SZex0qbmgrg',
+  videoTitle: \"We're Going To The Major Leagues | The Basement Yard #507\",
+  channelName: 'The Basement Yard',
+  thumbnail: 'https://i.ytimg.com/vi/SZex0qbmgrg/hqdefault.jpg',
+  duration: 0,
+  description: \"Queens/NYC conversational English with a clean natural acknowledgement: 'Really good point.'\",
+  focus: ['Everyday English', 'NYC', 'Agreement', 'Natural conversation'],
+  status: 'ready',
+  segments: [
+    segment('TBY507-AGREE-03', 4255.0, 4262.0, \"Acknowledgement · 'Really good point.'\"),
+  ],
+}
+
+"""
+          if anchor507 not in s: raise SystemExit('507 insertion anchor not found')
+          s = s.replace(anchor507, collection507 + anchor507, 1)
+          old_array = "  basementYard494,\n  basementYard559,"
+          new_array = "  basementYard494,\n  basementYard507,\n  basementYard559,"
+          if old_array not in s: raise SystemExit('collection array anchor not found')
+          s = s.replace(old_array, new_array, 1)
+          match_anchor = "  {\n    phraseId: 'thanks-04',"
+          new_matches = """  {
+    phraseId: 'agree-02',
+    collectionId: basementYard494.id,
+    segmentId: 'TBY494-AGREE-02',
+    speaker: 'Joe Santagato / Frank Alvarez exchange',
+    transcript: 'Love that jacket you got going on there, by the way. Absolutely love it.',
+    matchType: 'exact',
+    evidenceUrl: 'https://www.tapesearch.com/episode/494-visiting-docter-dan/HEwvgRi5jRv5H6Lfph2Roy',
+  },
+  {
+    phraseId: 'agree-03',
+    collectionId: basementYard507.id,
+    segmentId: 'TBY507-AGREE-03',
+    speaker: 'Joe Santagato / Frank Alvarez exchange',
+    transcript: 'Really good point.',
+    matchType: 'lexical-variant',
+    evidenceUrl: 'https://podscripts.co/podcasts/the-basement-yard/507-were-going-to-the-major-leagues',
+  },
+"""
+          if match_anchor not in s: raise SystemExit('match insertion anchor not found')
+          s = s.replace(match_anchor, new_matches + match_anchor, 1)
+          p.write_text(s)
+
+          p = Path('docs/EVERYDAY_ENGLISH_CURATION_STATUS.md')
+          s = p.read_text()
+          old = """### 06 Agreeing and disagreeing
+- `agree-01` Exactly. — exact agreement response `Yeah, exactly.` in The Basement Yard #498, YouTube `OELGdBT6o_I`, 11.5–15.0s.
+- Remaining chapter targets — unmatched / not yet verified.
+
+Evidence for #498: Wave timestamped transcript `https://pod.wave.co/podcast/the-basement-yard/498-the-morning-routine-c132baa4`; official YouTube `https://www.youtube.com/watch?v=OELGdBT6o_I`.
+"""
+          new = """### 06 Agreeing and disagreeing
+- `agree-01` Exactly. — exact agreement response `Yeah, exactly.` in The Basement Yard #498, YouTube `OELGdBT6o_I`, 11.5–15.0s.
+- `agree-02` Absolutely. — exact natural agreement/intensifier `Absolutely love it.` in The Basement Yard #494, YouTube `5EpiYeXluPc`, 19.3–24.3s.
+- `agree-03` That's a good point. — natural lexical variant `Really good point.` in The Basement Yard #507, YouTube `SZex0qbmgrg`, 1:10:55–1:11:02.
+- Remaining chapter targets — unmatched / not yet verified.
+
+Evidence: #498 Wave timestamped transcript `https://pod.wave.co/podcast/the-basement-yard/498-the-morning-routine-c132baa4`, official YouTube `https://www.youtube.com/watch?v=OELGdBT6o_I`; #494 Tapesearch `https://www.tapesearch.com/episode/494-visiting-docter-dan/HEwvgRi5jRv5H6Lfph2Roy`, official YouTube `https://www.youtube.com/watch?v=5EpiYeXluPc`; #507 Podscripts `https://podscripts.co/podcasts/the-basement-yard/507-were-going-to-the-major-leagues`, official YouTube `https://www.youtube.com/watch?v=SZex0qbmgrg`.
+"""
+          if old not in s: raise SystemExit('status chapter 6 anchor not found')
+          s = s.replace(old, new, 1)
+          s = s.replace('- Verified phrase matches: 21', '- Verified phrase matches: 23', 1)
+          s = s.replace('- Unique playable source clips: 18', '- Unique playable source clips: 20', 1)
+          s = s.replace('The Basement Yard #339, #351, #444, #446, #477, #480, #483, #494, #498, #559, #565, #567', 'The Basement Yard #339, #351, #444, #446, #477, #480, #483, #494, #498, #507, #559, #565, #567', 1)
+          p.write_text(s)
+          PY
+          git config user.name 'Kavi'
+          git config user.email 'thisizkavi@gmail.com'
+          git add lib/everyday-english-clips.ts docs/EVERYDAY_ENGLISH_CURATION_STATUS.md
+          git commit -m 'Add verified agreement phrase clips'
+          git push origin HEAD:curate/everyday-english-run7
