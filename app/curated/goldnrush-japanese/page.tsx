@@ -10,57 +10,57 @@ const sources = [
     videoId: 'aQ3rPDWuKrI',
     duration: '1:00:34',
     clipCount: 16,
-    note: '16 high-quality Mendy turns are ready for shadowing. Selected for natural phrasing, reframing, explanation, self-reflection, and clean single-speaker delivery.',
+    note: 'Natural phrasing, reframing, explanation, self-reflection, and clean single-speaker delivery.',
   },
   {
     id: 'goldnrush-ito-awa-137',
     title: '伊藤亜和 · GOLDNRUSH Ep.137',
     guest: '伊藤亜和',
-    status: 'curating' as const,
+    status: 'ready' as const,
     videoId: 'FBA7X77QSPI',
     duration: '1:16:53',
-    clipCount: 0,
-    note: 'In active curation. Speaker identity, overlap, and exact shadowing endpoints still have to pass review.',
+    clipCount: 8,
+    note: 'Thinking aloud, qualification, writing process, self-deprecation, and nuanced opinion.',
   },
   {
     id: 'goldnrush-zeebra-149',
     title: 'Zeebra · GOLDNRUSH Ep.149',
     guest: 'Zeebra',
-    status: 'queued' as const,
-    videoId: null,
-    duration: '',
-    clipCount: 0,
-    note: 'Queued for one-source-at-a-time Japanese transcript verification and clip selection.',
+    status: 'ready' as const,
+    videoId: '2mDTZiK4Dug',
+    duration: '1:17:07',
+    clipCount: 7,
+    note: 'Clear opinion-building, originality, comparison, responsibility, and compact storytelling.',
   },
   {
     id: 'goldnrush-sarasa-154',
     title: 'さらさ · GOLDNRUSH Ep.154',
     guest: 'さらさ',
-    status: 'queued' as const,
-    videoId: null,
-    duration: '',
-    clipCount: 0,
-    note: 'Queued for one-source-at-a-time Japanese transcript verification and clip selection.',
+    status: 'ready' as const,
+    videoId: 'hTvGxeAMOuU',
+    duration: '58:48',
+    clipCount: 11,
+    note: 'Young contemporary Japanese with introspection, emotional precision, values, and natural problem-solving language.',
   },
   {
     id: 'goldnrush-shigekix',
-    title: 'Shigekix · GOLDNRUSH guest episode',
+    title: 'Shigekix · GOLDNRUSH Ep.106',
     guest: 'Shigekix',
-    status: 'queued' as const,
-    videoId: null,
-    duration: '',
-    clipCount: 0,
-    note: 'Queued. Kansai speech should be preserved and tagged rather than normalized away when this source is curated.',
+    status: 'ready' as const,
+    videoId: 'pN7VRUwrXn0',
+    duration: '53:37',
+    clipCount: 11,
+    note: 'Energetic explanation, originality, creative identity, challenge, and motivating other people.',
   },
   {
     id: 'goldnrush-nishida-yuji',
-    title: '西田有志 · GOLDNRUSH guest episode',
+    title: '西田有志 · GOLDNRUSH Ep.110',
     guest: '西田有志',
-    status: 'queued' as const,
-    videoId: null,
-    duration: '',
-    clipCount: 0,
-    note: 'Queued for one-source-at-a-time Japanese transcript verification and clip selection.',
+    status: 'ready' as const,
+    videoId: '5eCWPY7k0Z4',
+    duration: '1:08:42',
+    clipCount: 14,
+    note: 'Direct practical Japanese on learning, feedback, teamwork, pressure, practice, and effort.',
   },
 ]
 
@@ -94,11 +94,11 @@ export default function GoldnrushJapanesePage() {
           </div>
           <h2 className="text-2xl font-semibold tracking-tight mb-2">Build native conversational Japanese carefully.</h2>
           <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-            Each source is processed separately. Only clean, reusable speaker turns with defensible timestamps are promoted into practice.
+            Each source is reviewed separately. Only reusable guest turns with defensible timestamps, coherent boundaries, and strong conversational value are promoted into practice.
           </p>
           <div className="flex items-start gap-2 rounded-lg border border-border/60 bg-secondary/20 px-3 py-2.5 text-xs text-muted-foreground">
             <Sparkles className="h-4 w-4 mt-0.5 shrink-0" />
-            <p>Start with Mendy. The first 16 clips are deliberately selective rather than trying to cover the whole episode.</p>
+            <p>GOLDNRUSH v1 is ready: six speakers, 67 deliberately selected clips. Pick a voice and start shadowing.</p>
           </div>
         </section>
 
