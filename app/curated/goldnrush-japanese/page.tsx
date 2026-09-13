@@ -170,7 +170,6 @@ export default function GoldnrushJapanesePage() {
                       >
                         Open source
                         <ExternalLink className="h-3 w-3" />
-                        Open source
                       </a>
                     )}
                   </div>
