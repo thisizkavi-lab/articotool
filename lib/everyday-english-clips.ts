@@ -434,7 +434,7 @@ export const EVERYDAY_ENGLISH_CLIP_MATCHES: EverydayEnglishClipMatch[] = [
     segmentId: 'TBY494-AGREE-02',
     speaker: 'Joe Santagato / Frank Alvarez exchange',
     transcript: 'Absolutely love it.',
-    matchType: 'exact',
+    matchType: 'lexical-variant',
     evidenceUrl: 'https://www.tapesearch.com/episode/494-visiting-docter-dan/HEwvgRi5jRv5H6Lfph2Roy',
   },
   {
@@ -452,7 +452,7 @@ export const EVERYDAY_ENGLISH_CLIP_MATCHES: EverydayEnglishClipMatch[] = [
     segmentId: 'TBY558-SORRY-03-07',
     speaker: 'Frank Alvarez',
     transcript: "I'm so sorry.",
-    matchType: 'exact',
+    matchType: 'lexical-variant',
     evidenceUrl: 'https://pod.wave.co/podcast/the-basement-yard/558-frank-fires-joe-new-tour-dates',
   },
   {
