@@ -1,0 +1,63 @@
+name: Verify remaining Naval YouTube captions
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  captions:
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        include:
+          - slug: smart-friends-philosophy
+            video: buHeUV_tXtc
+          - slug: smart-friends-learning-happiness
+            video: 0HiUWufjzuM
+          - slug: smart-friends-saving-yourself
+            video: vt8wd-i4n0I
+          - slug: smart-friends-building-judgement
+            video: 3lzfXM0qcuU
+          - slug: deutsch-knowledge-1
+            video: YyxepLfH1ZU
+          - slug: deutsch-files-3
+            video: fizPWAAo-lc
+          - slug: deutsch-files-4
+            video: WUEUozkGXes
+          - slug: tim-ferriss-662
+            video: FfWbcrObpUY
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Fetch English captions
+        shell: bash
+        env:
+          SLUG: ${{ matrix.slug }}
+          VIDEO: ${{ matrix.video }}
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet --upgrade yt-dlp
+          mkdir -p captions
+          cd captions
+          yt-dlp \
+            --skip-download \
+            --write-subs \
+            --write-auto-subs \
+            --sub-langs 'en.*,en' \
+            --sub-format vtt \
+            --output "${SLUG}.%(ext)s" \
+            "https://www.youtube.com/watch?v=${VIDEO}" || true
+          ls -la
+          if ! compgen -G "${SLUG}*.vtt" > /dev/null; then
+            echo "No English VTT available" > "${SLUG}.no-captions.txt"
+          fi
+      - name: Upload captions
+        uses: actions/upload-artifact@v4
+        with:
+          name: naval-${{ matrix.slug }}-youtube-captions
+          path: captions/
+          retention-days: 1
