@@ -1,20 +1,19 @@
 name: Patch Everyday English run 4
 
 on:
-  pull_request:
-    branches: [main]
+  push:
+    branches: [curate/everyday-english-run4]
 
 permissions:
   contents: write
 
 jobs:
   patch:
-    if: github.head_ref == 'curate/everyday-english-run4'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          ref: curate/everyday-english-run4
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Add verified phrase clips
         shell: bash
@@ -138,5 +137,5 @@ const basementYard498: CuratedCollection = {
           git config user.name 'Kavi'
           git config user.email 'thisizkavi@gmail.com'
           git add lib/everyday-english-clips.ts docs/EVERYDAY_ENGLISH_CURATION_STATUS.md
-          git commit -m 'Add verified opinion agreement and gratitude clips'
-          git push origin HEAD:${{ github.head_ref }}
+          git commit -m 'Add verified opinion agreement and gratitude clips' || true
+          git push origin HEAD:curate/everyday-english-run4
