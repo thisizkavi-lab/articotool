@@ -3,7 +3,8 @@ name: Run7 patch helper
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/run7-patch-main.yml']
+    paths:
+      - '.github/workflows/run7-patch-main.yml'
 
 permissions:
   contents: write
@@ -19,100 +20,8 @@ jobs:
       - name: Patch verified agreement clips
         shell: bash
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          p = Path('lib/everyday-english-clips.ts')
-          s = p.read_text()
-          old494 = """  description: 'Clean early-episode Queens/NYC conversational exchange with a natural clarification question.',
-  focus: ['Everyday English', 'NYC', 'Clarification', 'Natural conversation'],
-  status: 'ready',
-  segments: [
-    segment('TBY494-UNDERSTAND-05', 14.1, 19.3, \"Clarification · 'What do you mean?'\"),
-  ],
-}"""
-          new494 = """  description: 'Clean early-episode Queens/NYC conversational exchange with natural clarification and agreement examples.',
-  focus: ['Everyday English', 'NYC', 'Clarification', 'Agreement', 'Natural conversation'],
-  status: 'ready',
-  segments: [
-    segment('TBY494-UNDERSTAND-05', 14.1, 19.3, \"Clarification · 'What do you mean?'\"),
-    segment('TBY494-AGREE-02', 19.3, 24.3, \"Agreement · 'Absolutely love it.'\"),
-  ],
-}"""
-          if old494 not in s: raise SystemExit('494 anchor not found')
-          s = s.replace(old494, new494, 1)
-          anchor507 = "const basementYard559: CuratedCollection = {"
-          collection507 = """const basementYard507: CuratedCollection = {
-  id: 'english-basement-yard-507-agreement',
-  speakerId: 'joe-santagato-frank-alvarez',
-  speaker: 'Joe Santagato / Frank Alvarez',
-  sourceTitle: \"The Basement Yard #507 · We're Going To The Major Leagues\",
-  videoId: 'SZex0qbmgrg',
-  videoTitle: \"We're Going To The Major Leagues | The Basement Yard #507\",
-  channelName: 'The Basement Yard',
-  thumbnail: 'https://i.ytimg.com/vi/SZex0qbmgrg/hqdefault.jpg',
-  duration: 0,
-  description: \"Queens/NYC conversational English with a clean natural acknowledgement: 'Really good point.'\",
-  focus: ['Everyday English', 'NYC', 'Agreement', 'Natural conversation'],
-  status: 'ready',
-  segments: [
-    segment('TBY507-AGREE-03', 4255.0, 4262.0, \"Acknowledgement · 'Really good point.'\"),
-  ],
-}
-
-"""
-          if anchor507 not in s: raise SystemExit('507 insertion anchor not found')
-          s = s.replace(anchor507, collection507 + anchor507, 1)
-          old_array = "  basementYard494,\n  basementYard559,"
-          new_array = "  basementYard494,\n  basementYard507,\n  basementYard559,"
-          if old_array not in s: raise SystemExit('collection array anchor not found')
-          s = s.replace(old_array, new_array, 1)
-          match_anchor = "  {\n    phraseId: 'thanks-04',"
-          new_matches = """  {
-    phraseId: 'agree-02',
-    collectionId: basementYard494.id,
-    segmentId: 'TBY494-AGREE-02',
-    speaker: 'Joe Santagato / Frank Alvarez exchange',
-    transcript: 'Love that jacket you got going on there, by the way. Absolutely love it.',
-    matchType: 'exact',
-    evidenceUrl: 'https://www.tapesearch.com/episode/494-visiting-docter-dan/HEwvgRi5jRv5H6Lfph2Roy',
-  },
-  {
-    phraseId: 'agree-03',
-    collectionId: basementYard507.id,
-    segmentId: 'TBY507-AGREE-03',
-    speaker: 'Joe Santagato / Frank Alvarez exchange',
-    transcript: 'Really good point.',
-    matchType: 'lexical-variant',
-    evidenceUrl: 'https://podscripts.co/podcasts/the-basement-yard/507-were-going-to-the-major-leagues',
-  },
-"""
-          if match_anchor not in s: raise SystemExit('match insertion anchor not found')
-          s = s.replace(match_anchor, new_matches + match_anchor, 1)
-          p.write_text(s)
-
-          p = Path('docs/EVERYDAY_ENGLISH_CURATION_STATUS.md')
-          s = p.read_text()
-          old = """### 06 Agreeing and disagreeing
-- `agree-01` Exactly. — exact agreement response `Yeah, exactly.` in The Basement Yard #498, YouTube `OELGdBT6o_I`, 11.5–15.0s.
-- Remaining chapter targets — unmatched / not yet verified.
-
-Evidence for #498: Wave timestamped transcript `https://pod.wave.co/podcast/the-basement-yard/498-the-morning-routine-c132baa4`; official YouTube `https://www.youtube.com/watch?v=OELGdBT6o_I`.
-"""
-          new = """### 06 Agreeing and disagreeing
-- `agree-01` Exactly. — exact agreement response `Yeah, exactly.` in The Basement Yard #498, YouTube `OELGdBT6o_I`, 11.5–15.0s.
-- `agree-02` Absolutely. — exact natural agreement/intensifier `Absolutely love it.` in The Basement Yard #494, YouTube `5EpiYeXluPc`, 19.3–24.3s.
-- `agree-03` That's a good point. — natural lexical variant `Really good point.` in The Basement Yard #507, YouTube `SZex0qbmgrg`, 1:10:55–1:11:02.
-- Remaining chapter targets — unmatched / not yet verified.
-
-Evidence: #498 Wave timestamped transcript `https://pod.wave.co/podcast/the-basement-yard/498-the-morning-routine-c132baa4`, official YouTube `https://www.youtube.com/watch?v=OELGdBT6o_I`; #494 Tapesearch `https://www.tapesearch.com/episode/494-visiting-docter-dan/HEwvgRi5jRv5H6Lfph2Roy`, official YouTube `https://www.youtube.com/watch?v=5EpiYeXluPc`; #507 Podscripts `https://podscripts.co/podcasts/the-basement-yard/507-were-going-to-the-major-leagues`, official YouTube `https://www.youtube.com/watch?v=SZex0qbmgrg`.
-"""
-          if old not in s: raise SystemExit('status chapter 6 anchor not found')
-          s = s.replace(old, new, 1)
-          s = s.replace('- Verified phrase matches: 21', '- Verified phrase matches: 23', 1)
-          s = s.replace('- Unique playable source clips: 18', '- Unique playable source clips: 20', 1)
-          s = s.replace('The Basement Yard #339, #351, #444, #446, #477, #480, #483, #494, #498, #559, #565, #567', 'The Basement Yard #339, #351, #444, #446, #477, #480, #483, #494, #498, #507, #559, #565, #567', 1)
-          p.write_text(s)
-          PY
+          echo 'ZnJvbSBwYXRobGliIGltcG9ydCBQYXRoCgpwID0gUGF0aCgibGliL2V2ZXJ5ZGF5LWVuZ2xpc2gtY2xpcHMudHMiKQpzID0gcC5yZWFkX3RleHQoKQoKb2xkNDk0ID0gIiIiICBkZXNjcmlwdGlvbjogJ0NsZWFuIGVhcmx5LWVwaXNvZGUgUXVlZW5zL05ZQyBjb252ZXJzYXRpb25hbCBleGNoYW5nZSB3aXRoIGEgbmF0dXJhbCBjbGFyaWZpY2F0aW9uIHF1ZXN0aW9uLicsCiAgZm9jdXM6IFsnRXZlcnlkYXkgRW5nbGlzaCcsICdOWUMnLCAnQ2xhcmlmaWNhdGlvbicsICdOYXR1cmFsIGNvbnZlcnNhdGlvbiddLAogIHN0YXR1czogJ3JlYWR5JywKICBzZWdtZW50czogWwogICAgc2VnbWVudCgnVEJZNDk0LVVOREVSU1RBTkQtMDUnLCAxNC4xLCAxOS4zLCAiQ2xhcmlmaWNhdGlvbiDCtyAnV2hhdCBkbyB5b3UgbWVhbj8nIiksCiAgXSwKfSIiIgpuZXc0OTQgPSAiIiIgIGRlc2NyaXB0aW9uOiAnQ2xlYW4gZWFybHktZXBpc29kZSBRdWVlbnMvTllDIGNvbnZlcnNhdGlvbmFsIGV4Y2hhbmdlIHdpdGggbmF0dXJhbCBjbGFyaWZpY2F0aW9uIGFuZCBhZ3JlZW1lbnQgZXhhbXBsZXMuJywKICBmb2N1czogWydFdmVyeWRheSBFbmdsaXNoJywgJ05ZQycsICdDbGFyaWZpY2F0aW9uJywgJ0FncmVlbWVudCcsICdOYXR1cmFsIGNvbnZlcnNhdGlvbiddLAogIHN0YXR1czogJ3JlYWR5JywKICBzZWdtZW50czogWwogICAgc2VnbWVudCgnVEJZNDk0LVVOREVSU1RBTkQtMDUnLCAxNC4xLCAxOS4zLCAiQ2xhcmlmaWNhdGlvbiDCtyAnV2hhdCBkbyB5b3UgbWVhbj8nIiksCiAgICBzZWdtZW50KCdUQlk0OTQtQUdSRUUtMDInLCAxOS4zLCAyNC4zLCAiQWdyZWVtZW50IMK3ICdBYnNvbHV0ZWx5IGxvdmUgaXQuJyIpLAogIF0sCn0iIiIKaWYgb2xkNDk0IG5vdCBpbiBzOgogICAgcmFpc2UgU3lzdGVtRXhpdCgiNDk0IGFuY2hvciBub3QgZm91bmQiKQpzID0gcy5yZXBsYWNlKG9sZDQ5NCwgbmV3NDk0LCAxKQoKYW5jaG9yNTA3ID0gImNvbnN0IGJhc2VtZW50WWFyZDU1OTogQ3VyYXRlZENvbGxlY3Rpb24gPSB7Igpjb2xsZWN0aW9uNTA3ID0gIiIiY29uc3QgYmFzZW1lbnRZYXJkNTA3OiBDdXJhdGVkQ29sbGVjdGlvbiA9IHsKICBpZDogJ2VuZ2xpc2gtYmFzZW1lbnQteWFyZC01MDctYWdyZWVtZW50JywKICBzcGVha2VySWQ6ICdqb2Utc2FudGFnYXRvLWZyYW5rLWFsdmFyZXonLAogIHNwZWFrZXI6ICdKb2UgU2FudGFnYXRvIC8gRnJhbmsgQWx2YXJleicsCiAgc291cmNlVGl0bGU6ICJUaGUgQmFzZW1lbnQgWWFyZCAjNTA3IMK3IFdlJ3JlIEdvaW5nIFRvIFRoZSBNYWpvciBMZWFndWVzIiwKICB2aWRlb0lkOiAnU1pleDBxYm1ncmcnLAogIHZpZGVvVGl0bGU6ICJXZSdyZSBHb2luZyBUbyBUaGUgTWFqb3IgTGVhZ3VlcyB8IFRoZSBCYXNlbWVudCBZYXJkICM1MDciLAogIGNoYW5uZWxOYW1lOiAnVGhlIEJhc2VtZW50IFlhcmQnLAogIHRodW1ibmFpbDogJ2h0dHBzOi8vaS55dGltZy5jb20vdmkvU1pleDBxYm1ncmcvaHFkZWZhdWx0LmpwZycsCiAgZHVyYXRpb246IDAsCiAgZGVzY3JpcHRpb246ICJRdWVlbnMvTllDIGNvbnZlcnNhdGlvbmFsIEVuZ2xpc2ggd2l0aCBhIGNsZWFuIG5hdHVyYWwgYWNrbm93bGVkZ2VtZW50OiAnUmVhbGx5IGdvb2QgcG9pbnQuJyIsCiAgZm9jdXM6IFsnRXZlcnlkYXkgRW5nbGlzaCcsICdOWUMnLCAnQWdyZWVtZW50JywgJ05hdHVyYWwgY29udmVyc2F0aW9uJ10sCiAgc3RhdHVzOiAncmVhZHknLAogIHNlZ21lbnRzOiBbCiAgICBzZWdtZW50KCdUQlk1MDctQUdSRUUtMDMnLCA0MjU1LjAsIDQyNjIuMCwgIkFja25vd2xlZGdlbWVudCDCtyAnUmVhbGx5IGdvb2QgcG9pbnQuJyIpLAogIF0sCn0KCiIiIgppZiBhbmNob3I1MDcgbm90IGluIHM6CiAgICByYWlzZSBTeXN0ZW1FeGl0KCI1MDcgaW5zZXJ0aW9uIGFuY2hvciBub3QgZm91bmQiKQpzID0gcy5yZXBsYWNlKGFuY2hvcjUwNywgY29sbGVjdGlvbjUwNyArIGFuY2hvcjUwNywgMSkKCm9sZF9hcnJheSA9ICIgIGJhc2VtZW50WWFyZDQ5NCxcbiAgYmFzZW1lbnRZYXJkNTU5LCIKbmV3X2FycmF5ID0gIiAgYmFzZW1lbnRZYXJkNDk0LFxuICBiYXNlbWVudFphcmQ1MDcsXG4gIGJhc2VtZW50WWFyZDU1OSwiCmlmIG9sZF9hcnJheSBub3QgaW4gczoKICAgIHJhaXNlIFN5c3RlbUV4aXQoImNvbGxlY3Rpb24gYXJyYXkgYW5jaG9yIG5vdCBmb3VuZCIpCnMgPSBzLnJlcGxhY2Uob2xkX2FycmF5LCBuZXdfYXJyYXksIDEpCgptYXRjaF9hbmNob3IgPSAiICB7XG4gICAgcGhyYXNlSWQ6ICd0aGFua3MtMDQnLCIKbmV3X21hdGNoZXMgPSAiIiIgIHsKICAgIHBIcmFzZUlkOiAnYWdyZWUtMDInLAogICAgY29sbGVjdGlvbklkOiBiYXNlbWVudFphcmQ0OTQuaWQsCiAgICBzZWdtZW50SWQ6ICdUQlk0OTQtQUdSRUUtMDInLAogICAgc3BlYWtlcjogJ0pvZSBTYW50YWdhdG8gLyBGcmFuayBBbHZhcmV6IGV4Y2hhbmdlJywKICAgIHRyYW5zY3JpcHQ6ICdMb3ZlIHRoYXQgamFja2V0IHlvdSBnb3QgZ29pbmcgb24gdGhlcmUsIGJ5IHRoZSB3YXkuIEFic29sdXRlbHkgbG92ZSBpdC4nLAogICAgbWF0Y2hUeXBlOiAnZXhhY3QnLAogICAgZXZpZGVuY2VVcmw6ICdodHRwczovL3d3dy50YXBlc2VhcmNoLmNvbS9lcGlzb2RlLzQ5NC12aXNpdGluZy1kb2N0ZXItZGFuL0hFd3ZnUmk1alJ2NUg2TGZwaDJSb3knLAogIH0sCiAgewogICAgcGhyYXNlSWQ6ICdhZ3JlZS0wMycsCiAgICBjb2xsZWN0aW9uSWQ6IGJhc2VtZW50WWFyZDUwNy5pZCwKICAgIHNlZ21lbnRJZDogJ1RCWTUwNy1BR1JFRS0wMycsCiAgICBzcGVha2VyOiAnSm9lIFNhbnRhZ2F0byAvIEZyYW5rIEFsdmFyZXogZXhjaGFuZ2UnLAogICAgdHJhbnNjcmlwdDogJ1JlYWxseSBnb29kIHBvaW50LicsCiAgICBtYXRjaFR5cGU6ICdsZXhpY2FsLXZhcmlhbnQnLAogICAgZXZpZGVuY2VVcmw6ICdodHRwczovL3BvZHNjcmlwdHMuY28vcG9kY2FzdHMvdGhlLWJhc2VtZW50LXlhcmQvNTA3LXdlcmUtZ29pbmctdG8tdGhlLW1ham9yLWxlYWd1ZXMnLAogIH0sCiIiIgppZiBtYXRjaF9hbmNob3Igbm90IGluIHM6CiAgICByYWlzZSBTeXN0ZW1FeGl0KCJtYXRjaCBpbnNlcnRpb24gYW5jaG9yIG5vdCBmb3VuZCIpCnMgPSBzLnJlcGxhY2UobWF0Y2hfYW5jaG9yLCBuZXdfbWF0Y2hlcyArIG1hdGNoX2FuY2hvciwgMSkKcC53cml0ZV90ZXh0KHMpCgpwID0gUGF0aCgiZG9jcy9FVkVSWURBWV9FTkdMSVNIX0NVUkFUSU9OX1NUQVRVUy5tZCIpCnMgPSBwLnJlYWRfdGV4dCgpCm9sZCA9ICIiIiMjIyAwNiBBZ3JlZWluZyBhbmQgZGlzYWdyZWVpbmcKLSBgYWdyZWUtMDFgIEV4YWN0bHkuIOKAlCBleGFjdCBhZ3JlZW1lbnQgcmVzcG9uc2UgYFllYWgsIGV4YWN0bHkuYCBpbiBUaGUgQmFzZW1lbnQgWWFyZCAjNDk4LCBZb3VUdWJlIGBPRUxHZEJUNm9fSWAsIDExLjXigJMxNS4wcy4KLSBSZW1haW5pbmcgY2hhcHRlciB0YXJnZXRzIOKAlCB1bm1hdGNoZWQgLyBub3QgeWV0IHZlcmlmaWVkLgoKRXZpZGVuY2UgZm9yICM0OTg6IFdhdmUgdGltZXN0YW1wZWQgdHJhbnNjcmlwdCBgaHR0cHM6Ly9wb2Qud2F2ZS5jby9wb2RjYXN0L3RoZS1iYXNlbWVudC15YXJkLzQ5OC10aGUtbW9ybmluZy1yb3V0aW5lLWMxMzJiYWE0YDsgb2ZmaWNpYWwgWW91VHViZSBgaHR0cHM6Ly93d3cueW91dHViZS5jb20vd2F0Y2g/dj1PRUxHZEJUNm9fSWAuCiIiIgpuZXcgPSAiIiIjIyMgMDYgQWdyZWVpbmcgYW5kIGRpc2FncmVlaW5nCi0gYGFncmVlLTAxYCBFeGFjdGx5LiDigJQgZXhhY3QgYWdyZWVtZW50IHJlc3BvbnNlIGBZZWFoLCBleGFjdGx5LmAgaW4gVGhlIEJhc2VtZW50IFlhcmQgIzQ5OCwgWW91VHViZSBgT0VMR2RCVDZvX0lgLCAxMS41LTE1LjBzLgotIGBhZ3JlZS0wMmAgQWJzb2x1dGVseS4g4oCUIBleGFjdCBuYXR1cmFsIGFncmVlbWVudC9pbnRlbnNpZmllciBgQWJzb2x1dGVseSBsb3ZlIGl0LmAgaW4gVGhlIEJhc2VtZW50IFlhcmQgIzQ5NCwgWW91VHViZSBgNUVwaVllWGx1UGNgLCAxOS4zLTI0LjNzLgotIGBhZ3JlZS0wM2AgVGhhdCdzIGEgZ29vZCBwb2ludC4g4oCUIBuYXR1cmFsIGxleGljYWwgdmFyaWFudCBgUmVhbGx5IGdvb2QgcG9pbnQuYCBpbiBUaGUgQmFzZW1lbnQgWWFyZCAjNTA3LCBZb3VUdWJlIGBTWmV4MHFibWdyZ2AsIDE6MTA6NTXigJMxOjExOjAyLgotIFJlbWFpbmluZyBjaGFwdGVyIHRhcmdldHMg4oCUIHVubWF0Y2hlZCAvIG5vdCB5ZXQgdmVyaWZpZWQuCgpFdmlkZW5jZTogIzQ5OCBXYXZlIHRpbWVzdGFtcGVkIHRyYW5zY3JpcHQgYGh0dHBzOi8vcG9kLndhdmUuY28vcG9kY2FzdC90aGUtYmFzZW1lbnQteWFyZC80OTgtdGhlLW1vcm5pbmctcm91dGluZS1jMTMyYmFhNGJgLCBvZmZpY2lhbCBZb3VUdWJlIGBodHRwczovL3d3dy55b3V0dWJlLmNvbS93YXRjaD92PU9FTEdkQlQ2b19JYDsgIzQ5NCBUYXBlc2VhcmNoIGBodHRwczovL3d3dy50YXBlc2VhcmNoLmNvbS9lcGlzb2RlLzQ5NC12aXNpdGluZy1kb2N0ZXItZGFuL0hFd3ZnUmk1alJ2NUg2TGZwaDJSb3lgLCBvZmZpY2lhbCBZb3VUdWJlIGBodHRwczovL3d3dy55b3V0dWJlLmNvbS93YXRjaD92PTVFcGlZZVhsdVBjYDsgIzUwNyBQb2RzY3JpcHRzIGBodHRwczovL3BvZHNjcmlwdHMuY28vcG9kY2FzdHMvdGhlLWJhc2VtZW50LXlhcmQvNTA3LXdlcmUtZ29pbmctdG8tdGhlLW1ham9yLWxlYWd1ZXNgLCBvZmZpY2lhbCBZb3VUdWJlIGBodHRwczovL3d3dy55b3V0dWJlLmNvbS93YXRjaD92PVNaZXgwcWJtZ3JnYC4KIiIiCmlmIG9sZCBub3QgaW4gczoKICAgIHJhaXNlIFN5c3RlbUV4aXQoInN0YXR1cyBjaGFwdGVyIDYgYW5jaG9yIG5vdCBmb3VuZCIpCnMgPSBzLnJlcGxhY2Uob2xkLCBuZXcsIDEpCnMgPSBzLnJlcGxhY2UoIi0gVmVyaWZpZWQgcGhyYXNlIG1hdGNoZXM6IDIxIiwgIi0gVmVyaWZpZWQgcGhyYXNlIG1hdGNoZXM6IDIzIiwgMSkKcyA9IHMucmVwbGFjZSgiLSBVbmlxdWUgcGxheWFibGUgc291cmNlIGNsaXBzOiAxOCIsICItIFVuaXF1ZSBwbGF5YWJsZSBzb3VyY2UgY2xpcHM6IDIwIiwgMSkKcyA9IHMucmVwbGFjZSgKICAgICJUaGUgQmFzZW1lbnQgWWFyZCAjMzM5LCAjMzUxLCAjNDQ0LCAjNDQ2LCAjNDc3LCAjNDgwLCAjNDgzLCAjNDk0LCAjNDk4LCAjNTU5LCAjNTY1LCAjNTY3IiwKICAgICJUaGUgQmFzZW1lbnQgWWFyZCAjMzM5LCAjMzUxLCAjNDQ0LCAjNDQ2LCAjNDc3LCAjNDgwLCAjNDgzLCAjNDk0LCAjNDk4LCAjNTA3LCAjNTU5LCAjNTY1LCAjNTY3IiwKICAgIDEsCikKcC53cml0ZV90ZXh0KHMpCg==' | base64 -d > /tmp/patch.py
+          python /tmp/patch.py
           git config user.name 'Kavi'
           git config user.email 'thisizkavi@gmail.com'
           git add lib/everyday-english-clips.ts docs/EVERYDAY_ENGLISH_CURATION_STATUS.md
