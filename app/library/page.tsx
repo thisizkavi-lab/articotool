@@ -7,11 +7,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { ArrowLeft, Plus, FolderPlus, MoreVertical, Trash2, Edit, Video, Loader2 } from 'lucide-react'
+import { ArrowLeft, Plus, FolderPlus, MoreVertical, Trash2, Edit, Video, Loader2, BookOpen, ArrowRight } from 'lucide-react'
 import { getLibrary, createGroup, updateGroup, deleteGroup } from '@/lib/library-storage'
 import { LibraryService } from '@/lib/services/library-service'
 import { useAppStore } from '@/lib/store'
 import type { Library, LibraryGroup } from '@/lib/types'
+import { EVERYDAY_ENGLISH_CHAPTERS, EVERYDAY_ENGLISH_PHRASE_COUNT } from '@/lib/everyday-english'
 
 const EMOJI_OPTIONS = ['📁', '🎯', '🎤', '💪', '🧠', '📚', '🌟', '🔥', '💡', '🎬', '🎧', '🗣️']
 
@@ -183,6 +184,39 @@ export default function LibraryPage() {
             </header>
 
             <main className="container mx-auto px-4 py-6">
+                <section className="mb-8">
+                    <div className="mb-3">
+                        <h2 className="text-sm font-semibold tracking-tight">Built-in learning</h2>
+                        <p className="text-xs text-muted-foreground mt-0.5">Structured collections that live alongside your own practice groups.</p>
+                    </div>
+                    <Card
+                        className="cursor-pointer hover:border-primary/50 transition-colors group max-w-xl"
+                        onClick={() => router.push('/english')}
+                    >
+                        <CardHeader className="pb-2">
+                            <div className="flex items-start justify-between gap-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="h-11 w-11 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                                        <BookOpen className="h-5 w-5 text-primary" />
+                                    </div>
+                                    <div>
+                                        <CardTitle className="text-lg">Everyday English</CardTitle>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            {EVERYDAY_ENGLISH_CHAPTERS.length} chapters • {EVERYDAY_ENGLISH_PHRASE_COUNT} American speaking targets
+                                        </p>
+                                    </div>
+                                </div>
+                                <ArrowRight className="h-4 w-4 text-muted-foreground mt-1 transition-transform group-hover:translate-x-1" />
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-muted-foreground leading-relaxed">
+                                Conversation-first American English organized by chapter, with a contemporary NYC / Northeast General American target accent.
+                            </p>
+                        </CardContent>
+                    </Card>
+                </section>
+
                 {isLoading ? (
                     <div className="flex items-center justify-center py-20">
                         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
