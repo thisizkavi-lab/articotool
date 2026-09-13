@@ -58,6 +58,8 @@ Evidence: #351 Tapesearch `https://www.tapesearch.com/episode/351-i-ve-made-love
 
 ### 06 Agreeing and disagreeing
 - `agree-01` Exactly. — exact agreement response `Yeah, exactly.` in The Basement Yard #498, YouTube `OELGdBT6o_I`, 11.5–15.0s.
+- `agree-02` Absolutely. — exact natural `Absolutely love it.` in The Basement Yard #494, YouTube `5EpiYeXluPc`, 19.3–24.3s.
+- `agree-03` That's a good point. — lexical variant `Really good point.` in The Basement Yard #507, YouTube `SZex0qbmgrg`, 1:10:55–1:11:02.
 - Remaining chapter targets — unmatched / not yet verified.
 
 Evidence for #498: Wave timestamped transcript `https://pod.wave.co/podcast/the-basement-yard/498-the-morning-routine-c132baa4`; official YouTube `https://www.youtube.com/watch?v=OELGdBT6o_I`.
@@ -102,9 +104,9 @@ No verified production clips yet.
 Evidence for #480: Audioscrape timestamped transcript `https://www.audioscrape.com/podcast/the-basement-yard/episode/480---ai-is-officially-coming-for-us`; official YouTube `https://www.youtube.com/watch?v=NFqQCoEdGA0`.
 
 ## Current totals
-- Verified phrase matches: 21
-- Unique playable source clips: 18
-- Anchor sources in production data: The Basement Yard #339, #351, #444, #446, #477, #480, #483, #494, #498, #559, #565, #567
+- Verified phrase matches: 23
+- Unique playable source clips: 20
+- Anchor sources in production data: The Basement Yard #339, #351, #444, #446, #477, #480, #483, #494, #498, #507, #559, #565, #567
 
 ## Rules
 - No clip is promoted without a verified YouTube source ID and defensible timestamped transcript evidence.
