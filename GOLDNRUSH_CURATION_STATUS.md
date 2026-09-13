@@ -1,36 +1,64 @@
 # GOLDNRUSH Japanese curation status
 
-## Ready
+## GOLDNRUSH v1 · ready
 
-### 関口メンディー · GOLDNRUSH Ep.116
+All six selected sources are ready for shadowing. The practice UI remains unchanged; only source-controlled curated segments were added.
 
-- Status: ready for shadowing
-- Verified source: GOLDNRUSH Podcast Ep.116 with 関口メンディー, YouTube `aQ3rPDWuKrI`.
-- Runtime alignment: official GOLDNRUSH RSS audio is 3633 seconds and the YouTube source is approximately 3634 seconds; transcript spot-checks at multiple points align to the same episode timebase.
-- Curation basis: official GOLDNRUSH podcast audio plus timestamped Japanese ASR, cross-checked against the public YouTube transcript timing.
-- Speaker: all 16 promoted clips are Mendy turns; obvious Isaac interjections and mixed-speaker windows were excluded.
-- Selection rule: natural contemporary Japanese, coherent thought boundaries, reusable phrasing, clean single-speaker stretches, conversational rhythm, and clips worth actually imitating.
-- Curated clips: 16 source-controlled segments, mostly 14–38 seconds.
+### 関口メンディー · Ep.116
 
-## Curating next
+- YouTube: `aQ3rPDWuKrI`
+- Speaker: 関口メンディー
+- Curated clips: 16
+- Focus: natural phrasing, reframing, explanation, self-reflection, answer structure
 
-### 伊藤亜和 · GOLDNRUSH Ep.137
+### 伊藤亜和 · Ep.137
 
-- Status: curating
-- Verified source: GOLDNRUSH Podcast Ep.137 with 伊藤亜和, YouTube `FBA7X77QSPI`.
-- Verified runtime: approximately 1:16:53.
-- Curation goal: extract only high-quality Japanese shadowing segments with exact timestamps, clean single-speaker audio, coherent thought boundaries, natural contemporary phrasing, and explicit speaker attribution (Isaac vs. Ito Awa).
-- Do not synthesize segments from chapter markers or summaries; use a timestamped transcript/audio workflow comparable to Mendy before promotion.
+- YouTube: `FBA7X77QSPI`
+- Speaker: 伊藤亜和
+- Curated clips: 8
+- Focus: thinking aloud, qualification, writing process, self-deprecation, nuanced opinion
 
-## Planned queue
+### Zeebra · Ep.149
 
-Process these one source at a time after Ito Awa:
+- YouTube: `2mDTZiK4Dug`
+- Speaker: Zeebra
+- Curated clips: 7
+- Focus: originality, opinion-building, comparison, responsibility, storytelling
 
-- Zeebra · Ep.149
-- さらさ · Ep.154
-- Shigekix guest episode
-- 西田有志 guest episode
+### さらさ · Ep.154
 
-## Curation rule
+- YouTube: `hTvGxeAMOuU`
+- Speaker: さらさ
+- Curated clips: 11
+- Focus: introspection, emotional precision, values, problem-solving, creative explanation
 
-A source is complete only when every selected clip has a defensible exact start/end time, verified speaker identity, and is genuinely worth shadowing for natural Japanese conversation. Prefer fewer strong clips over filling a quota.
+### Shigekix · Ep.106
+
+- YouTube: `pN7VRUwrXn0`
+- Speaker: Shigekix
+- Curated clips: 11
+- Focus: growth, originality, expression, challenge, motivation
+
+### 西田有志 · Ep.110
+
+- YouTube: `5eCWPY7k0Z4`
+- Speaker: 西田有志
+- Curated clips: 14
+- Focus: learning, feedback, teamwork, pressure, practice, effort
+
+## Curation basis
+
+- Official GOLDNRUSH podcast RSS audio was used as the stable source for full-episode Japanese timestamped ASR when YouTube caption retrieval was blocked from cloud infrastructure.
+- YouTube video IDs were independently resolved and the curated boundaries use the same episode timebase. Mendy and Sarasa were additionally spot-checked against public YouTube timing/chapter anchors.
+- Segment selection was manual and intentionally conservative: coherent guest turns, reusable contemporary Japanese, strong rhythm, useful phrasing, minimal overlap/noise, and clean boundaries around host prompts/backchannels.
+- Segment labels name the actual speaker. Isaac prompts/interjections were not intentionally promoted as guest clips.
+- No transcript text is shown in the practice UI and no transcript tab was added.
+
+## Totals
+
+- Sources: 6
+- Curated clips: 67
+
+## Rule for future additions
+
+A source is complete only when each promoted clip has a defensible start/end time, clear speaker attribution, and is genuinely worth shadowing. Prefer fewer strong clips over filling a quota.
