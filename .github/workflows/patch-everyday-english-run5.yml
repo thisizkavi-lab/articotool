@@ -1,20 +1,19 @@
 name: Patch Everyday English run 5
 
 on:
-  pull_request:
-    branches: [main]
+  push:
+    branches: [curate/everyday-english-09-13]
 
 permissions:
   contents: write
 
 jobs:
   patch:
-    if: github.head_ref == 'curate/everyday-english-09-13'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          ref: curate/everyday-english-09-13
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Add verified apology goodbye and weather clips
         shell: bash
@@ -24,7 +23,6 @@ jobs:
 
           p = Path('lib/everyday-english-clips.ts')
           s = p.read_text()
-
           anchor = "export const EVERYDAY_ENGLISH_COLLECTIONS: CuratedCollection[] = [\n"
           additions = r'''const basementYard480: CuratedCollection = {
   id: 'english-basement-yard-480-weather',
@@ -68,17 +66,10 @@ const basementYard565: CuratedCollection = {
               if anchor not in s:
                   raise SystemExit('collections anchor not found')
               s = s.replace(anchor, additions + anchor, 1)
-
-          s = s.replace(
-              "  basementYard477,\n",
-              "  basementYard477,\n  basementYard480,\n",
-              1,
-          )
-          s = s.replace(
-              "  basementYard559,\n  basementYard567,\n",
-              "  basementYard559,\n  basementYard565,\n  basementYard567,\n",
-              1,
-          )
+          if '  basementYard480,\n' not in s:
+              s = s.replace("  basementYard477,\n", "  basementYard477,\n  basementYard480,\n", 1)
+          if '  basementYard565,\n' not in s:
+              s = s.replace("  basementYard559,\n  basementYard567,\n", "  basementYard559,\n  basementYard565,\n  basementYard567,\n", 1)
 
           match_anchor = "  {\n    phraseId: 'suggest-06',\n"
           new_matches = r'''  {
@@ -113,16 +104,35 @@ const basementYard565: CuratedCollection = {
               if match_anchor not in s:
                   raise SystemExit('match anchor not found')
               s = s.replace(match_anchor, new_matches + match_anchor, 1)
-
           p.write_text(s)
 
           p = Path('docs/EVERYDAY_ENGLISH_CURATION_STATUS.md')
           s = p.read_text()
-          s = s.replace(
-              "### 09–13\nNot yet promoted in the source-controlled clip corpus. Existing phrase targets remain in `lib/everyday-english.ts`.\n",
-              """### 09 Saying sorry\n- `sorry-02` My bad. — exact match `Oh, my bad.` from Frank Alvarez in The Basement Yard #565, YouTube `WGN6kLtVYBk`, 79:25–79:35.\n- Remaining chapter targets — unmatched / not yet verified.\n\nEvidence for #565: Podwave timestamped transcript `https://pod.wave.co/podcast/the-basement-yard/565-are-we-ready-for-pie`; official YouTube `https://www.youtube.com/watch?v=WGN6kLtVYBk`.\n\n### 10 Saying goodbye\n- `bye-02` See you. — matched via natural lexical variant `See you guys next time.` from Joe Santagato in The Basement Yard #565, YouTube `WGN6kLtVYBk`, 79:48–79:57.\n- Remaining chapter targets — unmatched / not yet verified.\n\n### 11 Dates, time, and weather\nNo verified production clips yet.\n\n### 12 Making arrangements\nNo verified production clips yet.\n\n### 13 Talking about the weather\n- `weather-02` It's freezing. — natural lexical variant `It's freezing out.` in the opening of The Basement Yard #480, YouTube `NFqQCoEdGA0`, 0:00–0:10.\n- Remaining chapter targets — unmatched / not yet verified.\n\nEvidence for #480: Audioscrape timestamped transcript `https://www.audioscrape.com/podcast/the-basement-yard/episode/480---ai-is-officially-coming-for-us`; official YouTube `https://www.youtube.com/watch?v=NFqQCoEdGA0`.\n""",
-              1,
-          )
+          old = "### 09–13\nNot yet promoted in the source-controlled clip corpus. Existing phrase targets remain in `lib/everyday-english.ts`.\n"
+          new = """### 09 Saying sorry
+- `sorry-02` My bad. — exact match `Oh, my bad.` from Frank Alvarez in The Basement Yard #565, YouTube `WGN6kLtVYBk`, 79:25–79:35.
+- Remaining chapter targets — unmatched / not yet verified.
+
+Evidence for #565: Podwave timestamped transcript `https://pod.wave.co/podcast/the-basement-yard/565-are-we-ready-for-pie`; official YouTube `https://www.youtube.com/watch?v=WGN6kLtVYBk`.
+
+### 10 Saying goodbye
+- `bye-02` See you. — matched via natural lexical variant `See you guys next time.` from Joe Santagato in The Basement Yard #565, YouTube `WGN6kLtVYBk`, 79:48–79:57.
+- Remaining chapter targets — unmatched / not yet verified.
+
+### 11 Dates, time, and weather
+No verified production clips yet.
+
+### 12 Making arrangements
+No verified production clips yet.
+
+### 13 Talking about the weather
+- `weather-02` It's freezing. — natural lexical variant `It's freezing out.` in the opening of The Basement Yard #480, YouTube `NFqQCoEdGA0`, 0:00–0:10.
+- Remaining chapter targets — unmatched / not yet verified.
+
+Evidence for #480: Audioscrape timestamped transcript `https://www.audioscrape.com/podcast/the-basement-yard/episode/480---ai-is-officially-coming-for-us`; official YouTube `https://www.youtube.com/watch?v=NFqQCoEdGA0`.
+"""
+          if old in s:
+              s = s.replace(old, new, 1)
           s = s.replace('- Verified phrase matches: 15', '- Verified phrase matches: 18', 1)
           s = s.replace('- Unique playable source clips: 12', '- Unique playable source clips: 15', 1)
           s = s.replace(
@@ -135,5 +145,9 @@ const basementYard565: CuratedCollection = {
           git config user.name 'Kavi'
           git config user.email 'thisizkavi@gmail.com'
           git add lib/everyday-english-clips.ts docs/EVERYDAY_ENGLISH_CURATION_STATUS.md
-          git commit -m 'Add verified apology goodbye and weather clips'
-          git push origin HEAD:${{ github.head_ref }}
+          if git diff --cached --quiet; then
+            echo 'Patch already applied.'
+          else
+            git commit -m 'Add verified apology goodbye and weather clips'
+            git push origin HEAD:curate/everyday-english-09-13
+          fi
