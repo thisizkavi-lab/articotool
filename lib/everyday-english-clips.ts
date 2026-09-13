@@ -38,6 +38,26 @@ const basementYard339: CuratedCollection = {
   ],
 }
 
+const basementYard444: CuratedCollection = {
+  id: 'english-basement-yard-444-time-thanks',
+  speakerId: 'joe-santagato-frank-alvarez',
+  speaker: 'Joe Santagato / Frank Alvarez',
+  sourceTitle: 'The Basement Yard #444 · THE TOUR DATES',
+  videoId: 'BB1L5HDXBko',
+  videoTitle: 'THE TOUR DATES! | The Basement Yard #444',
+  channelName: 'The Basement Yard',
+  thumbnail: 'https://i.ytimg.com/vi/BB1L5HDXBko/hqdefault.jpg',
+  duration: 3900,
+  description: 'Queens/NYC conversational English with a real scheduling question and natural gratitude during a phone call.',
+  focus: ['Everyday English', 'NYC', 'Time', 'Gratitude'],
+  status: 'ready',
+  segments: [
+    segment('TBY444-TIME-01', 314.0, 323.5, "Scheduling · 'What time do the tickets go on sale?'"),
+    segment('TBY444-THANKS-03', 329.0, 339.5, "Warm thanks · 'Thank you so much, Greg. We appreciate it so much. Thank you so much.'"),
+    segment('TBY444-THANKS-01', 339.5, 348.0, "Casual thanks · 'Have a good one, fellas. Thanks.'"),
+  ],
+}
+
 const basementYard446: CuratedCollection = {
   id: 'english-basement-yard-446-greetings',
   speakerId: 'joe-santagato-frank-alvarez',
@@ -225,6 +245,7 @@ const basementYard567: CuratedCollection = {
 export const EVERYDAY_ENGLISH_COLLECTIONS: CuratedCollection[] = [
   basementYard339,
   basementYard351,
+  basementYard444,
   basementYard446,
   basementYard498,
   basementYard477,
@@ -237,6 +258,33 @@ export const EVERYDAY_ENGLISH_COLLECTIONS: CuratedCollection[] = [
 ]
 
 export const EVERYDAY_ENGLISH_CLIP_MATCHES: EverydayEnglishClipMatch[] = [
+  {
+    phraseId: 'time-01',
+    collectionId: basementYard444.id,
+    segmentId: 'TBY444-TIME-01',
+    speaker: 'Joe Santagato / Frank Alvarez exchange',
+    transcript: 'We want to know what time do the tickets go on sale on April 2nd, presale?',
+    matchType: 'lexical-variant',
+    evidenceUrl: 'https://podscripts.co/podcasts/the-basement-yard/444-the-tour-dates',
+  },
+  {
+    phraseId: 'thanks-03',
+    collectionId: basementYard444.id,
+    segmentId: 'TBY444-THANKS-03',
+    speaker: 'Joe Santagato / Frank Alvarez exchange',
+    transcript: 'Thank you so much, Greg. We appreciate it so much. Thank you so much.',
+    matchType: 'exact',
+    evidenceUrl: 'https://podscripts.co/podcasts/the-basement-yard/444-the-tour-dates',
+  },
+  {
+    phraseId: 'thanks-01',
+    collectionId: basementYard444.id,
+    segmentId: 'TBY444-THANKS-01',
+    speaker: 'Greg / Joe Santagato exchange',
+    transcript: 'Have a good one, fellas, thanks.',
+    matchType: 'exact',
+    evidenceUrl: 'https://podscripts.co/podcasts/the-basement-yard/444-the-tour-dates',
+  },
   {
     phraseId: 'greet-01',
     collectionId: basementYard567.id,

@@ -69,10 +69,12 @@ Evidence for #498: Wave timestamped transcript `https://pod.wave.co/podcast/the-
 Evidence for #477: Audioscrape `https://www.audioscrape.com/podcast/the-basement-yard/episode/477---the-worlds-sexiest-podcast-hosts`; official YouTube `https://www.youtube.com/watch?v=iWBPM_3xMZU`.
 
 ### 08 Saying thank you
+- `thanks-01` Thanks. — exact match in The Basement Yard #444, YouTube `BB1L5HDXBko`, 5:39.5–5:48: `Have a good one, fellas, thanks.`
+- `thanks-03` Thank you so much. — exact repeated gratitude phrase in The Basement Yard #444, YouTube `BB1L5HDXBko`, 5:29–5:39.5.
 - `thanks-04` I really appreciate it. — exact natural gratitude frame in The Basement Yard #559, YouTube `m77sDceykAw`, 45.0–56.0s: `I really appreciate you inviting me here.`
 - Remaining chapter targets — unmatched / not yet verified.
 
-Evidence for #559: Audioscrape `https://www.audioscrape.com/podcast/the-basement-yard/episode/559-release-the-mosquitos-21020`; official YouTube `https://www.youtube.com/watch?v=m77sDceykAw`.
+Evidence: #444 Podscripts timestamped transcript `https://podscripts.co/podcasts/the-basement-yard/444-the-tour-dates`, official YouTube `https://www.youtube.com/watch?v=BB1L5HDXBko`; #559 Audioscrape `https://www.audioscrape.com/podcast/the-basement-yard/episode/559-release-the-mosquitos-21020`, official YouTube `https://www.youtube.com/watch?v=m77sDceykAw`.
 
 ### 09 Saying sorry
 - `sorry-02` My bad. — exact match `Oh, my bad.` from Frank Alvarez in The Basement Yard #565, YouTube `WGN6kLtVYBk`, 79:25–79:35.
@@ -85,7 +87,10 @@ Evidence for #565: Podwave timestamped transcript `https://pod.wave.co/podcast/t
 - Remaining chapter targets — unmatched / not yet verified.
 
 ### 11 Dates, time, and weather
-No verified production clips yet.
+- `time-01` What time does it start? — matched by the same scheduling function via natural lexical variant `What time do the tickets go on sale?` in The Basement Yard #444, YouTube `BB1L5HDXBko`, 5:14–5:23.5.
+- Remaining chapter targets — unmatched / not yet verified.
+
+Evidence for #444: Podscripts timestamped transcript `https://podscripts.co/podcasts/the-basement-yard/444-the-tour-dates`; official YouTube `https://www.youtube.com/watch?v=BB1L5HDXBko`.
 
 ### 12 Making arrangements
 No verified production clips yet.
@@ -97,9 +102,9 @@ No verified production clips yet.
 Evidence for #480: Audioscrape timestamped transcript `https://www.audioscrape.com/podcast/the-basement-yard/episode/480---ai-is-officially-coming-for-us`; official YouTube `https://www.youtube.com/watch?v=NFqQCoEdGA0`.
 
 ## Current totals
-- Verified phrase matches: 18
-- Unique playable source clips: 15
-- Anchor sources in production data: The Basement Yard #339, #351, #446, #477, #480, #483, #494, #498, #559, #565, #567
+- Verified phrase matches: 21
+- Unique playable source clips: 18
+- Anchor sources in production data: The Basement Yard #339, #351, #444, #446, #477, #480, #483, #494, #498, #559, #565, #567
 
 ## Rules
 - No clip is promoted without a verified YouTube source ID and defensible timestamped transcript evidence.
