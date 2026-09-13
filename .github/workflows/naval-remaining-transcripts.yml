@@ -12,42 +12,42 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Resolve official YouTube sources
+      - name: Resolve YouTube sources
         shell: bash
         run: |
           set -euo pipefail
           python -m pip install --quiet --upgrade yt-dlp
           python - <<'PY'
-          import json, subprocess, pathlib
+          import json, pathlib, subprocess
 
-          out = {}
-          def run_json(args):
-              p = subprocess.run(args, text=True, capture_output=True)
-              print('CMD', ' '.join(args))
+          def rows(args):
+              p=subprocess.run(args,text=True,capture_output=True)
+              print('CMD',' '.join(args))
               print(p.stderr[-4000:])
-              rows=[]
+              out=[]
               for line in p.stdout.splitlines():
-                  try: rows.append(json.loads(line))
+                  try: out.append(json.loads(line))
                   except Exception: pass
-              return rows
+              return out
 
+          result={}
           playlist='https://www.youtube.com/playlist?list=PLH0UT1Np8HZ0GllM_xCLMusBc4RAXg0L8'
-          rows=run_json(['yt-dlp','--flat-playlist','--dump-json',playlist])
-          out['smart_friends_playlist']=[{'id':r.get('id'),'title':r.get('title'),'duration':r.get('duration'),'url':r.get('url')} for r in rows]
-
-          searches={
-            'tim-ferriss-662':'ytsearch10:Tim Ferriss 662 David Deutsch Naval Ravikant',
-            'deutsch-files-3':'ytsearch10:The Deutsch Files III Naval',
-            'deutsch-files-4':'ytsearch10:The Deutsch Files IV Naval',
-          }
-          for key,q in searches.items():
-              rows=run_json(['yt-dlp','--flat-playlist','--dump-json',q])
-              out[key]=[{'id':r.get('id'),'title':r.get('title'),'channel':r.get('channel'),'duration':r.get('duration'),'url':r.get('url')} for r in rows]
-
-          pathlib.Path('naval-youtube-sources.json').write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding='utf-8')
-          print(json.dumps(out,ensure_ascii=False,indent=2))
+          result['smart_friends_playlist']=[
+              {'id':r.get('id'),'title':r.get('title'),'duration':r.get('duration'),'url':r.get('url')}
+              for r in rows(['yt-dlp','--flat-playlist','--dump-json',playlist])
+          ]
+          for key,query in {
+              'tim-ferriss-662':'ytsearch10:Tim Ferriss 662 David Deutsch Naval Ravikant',
+              'deutsch-files-3':'ytsearch10:The Deutsch Files III Naval',
+              'deutsch-files-4':'ytsearch10:The Deutsch Files IV Naval',
+          }.items():
+              result[key]=[
+                  {'id':r.get('id'),'title':r.get('title'),'channel':r.get('channel'),'duration':r.get('duration'),'url':r.get('url')}
+                  for r in rows(['yt-dlp','--flat-playlist','--dump-json',query])
+              ]
+          pathlib.Path('naval-youtube-sources.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps(result,ensure_ascii=False,indent=2))
           PY
-
       - name: Upload YouTube source map
         uses: actions/upload-artifact@v4
         with:
@@ -62,33 +62,33 @@ jobs:
       matrix:
         include:
           - slug: smart-friends-philosophy
-            feed: https://feeds.megaphone.fm/SOMC8581176390
-            match: My Conversation with Naval on Philosophy
+            feed: 'https://feeds.megaphone.fm/SOMC8581176390'
+            match: 'My Conversation with Naval on Philosophy'
           - slug: smart-friends-learning-happiness
-            feed: https://feeds.megaphone.fm/SOMC8581176390
-            match: My Conversation with Naval on Learning Happiness
+            feed: 'https://feeds.megaphone.fm/SOMC8581176390'
+            match: 'My Conversation with Naval on Learning Happiness'
           - slug: smart-friends-saving-yourself
-            feed: https://feeds.megaphone.fm/SOMC8581176390
-            match: My Conversation with Naval on Saving Yourself
+            feed: 'https://feeds.megaphone.fm/SOMC8581176390'
+            match: 'My Conversation with Naval on Saving Yourself'
           - slug: smart-friends-building-judgement
-            feed: https://feeds.megaphone.fm/SOMC8581176390
-            match: My Conversation with Naval on Building Judgement
+            feed: 'https://feeds.megaphone.fm/SOMC8581176390'
+            match: 'My Conversation with Naval on Building Judgement'
           - slug: deutsch-knowledge-1
-            feed: https://naval.libsyn.com/rss
-            match: David Deutsch: Knowledge Creation and The Human Race, Part 1
+            feed: 'https://naval.libsyn.com/rss'
+            match: 'David Deutsch: Knowledge Creation and The Human Race, Part 1'
           - slug: deutsch-files-3
-            feed: https://naval.libsyn.com/rss
-            match: The Deutsch Files III
+            feed: 'https://naval.libsyn.com/rss'
+            match: 'The Deutsch Files III'
           - slug: deutsch-files-4
-            feed: https://naval.libsyn.com/rss
-            match: The Deutsch Files IV
+            feed: 'https://naval.libsyn.com/rss'
+            match: 'The Deutsch Files IV'
           - slug: tim-ferriss-662
-            feed: https://rss.art19.com/tim-ferriss-show
-            match: "#662: David Deutsch and Naval Ravikant"
+            feed: 'https://rss.art19.com/tim-ferriss-show'
+            match: '#662: David Deutsch and Naval Ravikant'
     runs-on: ubuntu-latest
     timeout-minutes: 55
     steps:
-      - name: Resolve official RSS audio
+      - name: Resolve RSS audio
         shell: bash
         env:
           FEED: ${{ matrix.feed }}
@@ -98,44 +98,42 @@ jobs:
           set -euo pipefail
           curl --retry 4 --retry-delay 2 -fLsS "$FEED" -o feed.xml
           python - <<'PY'
-          import os, json, pathlib, xml.etree.ElementTree as ET
-          match=os.environ['MATCH'].lower()
+          import json, os, pathlib, xml.etree.ElementTree as ET
+          wanted=os.environ['MATCH'].lower()
           root=ET.parse('feed.xml').getroot()
+          items=root.findall('.//item')
           hits=[]
-          for item in root.findall('.//item'):
+          for item in items:
               title=(item.findtext('title') or '').strip()
-              if match in title.lower():
+              if wanted in title.lower():
                   enc=item.find('enclosure')
-                  audio=enc.attrib.get('url') if enc is not None else None
-                  hits.append({'title':title,'audio':audio,'guid':item.findtext('guid'),'link':item.findtext('link'),'duration':item.findtext('{http://www.itunes.com/dtds/podcast-1.0.dtd}duration')})
+                  hits.append((title, enc.attrib.get('url') if enc is not None else None, item))
           if not hits:
-              # Looser fallback for punctuation differences.
-              needle=' '.join(match.replace(':',' ').replace('—',' ').replace('-',' ').split())
-              for item in root.findall('.//item'):
+              words=[w for w in wanted.replace(':',' ').replace('—',' ').replace('-',' ').split() if len(w)>2]
+              for item in items:
                   title=(item.findtext('title') or '').strip()
-                  norm=' '.join(title.lower().replace(':',' ').replace('—',' ').replace('-',' ').split())
-                  if needle in norm or all(w in norm for w in needle.split()[:6]):
+                  norm=title.lower().replace(':',' ').replace('—',' ').replace('-',' ')
+                  if words and all(w in norm for w in words[:min(5,len(words))]):
                       enc=item.find('enclosure')
-                      audio=enc.attrib.get('url') if enc is not None else None
-                      hits.append({'title':title,'audio':audio,'guid':item.findtext('guid'),'link':item.findtext('link'),'duration':item.findtext('{http://www.itunes.com/dtds/podcast-1.0.dtd}duration')})
+                      hits.append((title, enc.attrib.get('url') if enc is not None else None, item))
           if not hits:
-              raise SystemExit(f'No RSS episode matched {os.environ["MATCH"]!r}')
-          hit=hits[0]
-          if not hit['audio']:
-              raise SystemExit(f'RSS match has no enclosure: {hit}')
-          pathlib.Path('episode.json').write_text(json.dumps(hit,ensure_ascii=False,indent=2),encoding='utf-8')
-          pathlib.Path('audio-url.txt').write_text(hit['audio'],encoding='utf-8')
-          print(json.dumps(hit,ensure_ascii=False))
+              print('Available matching-ish titles:')
+              for item in items[:100]: print(item.findtext('title'))
+              raise SystemExit('No RSS episode matched '+os.environ['MATCH'])
+          title,audio,item=hits[0]
+          if not audio: raise SystemExit('Matched episode has no enclosure')
+          meta={'title':title,'audio':audio,'guid':item.findtext('guid'),'link':item.findtext('link'),'duration':item.findtext('{http://www.itunes.com/dtds/podcast-1.0.dtd}duration')}
+          pathlib.Path('episode.json').write_text(json.dumps(meta,ensure_ascii=False,indent=2),encoding='utf-8')
+          pathlib.Path('audio-url.txt').write_text(audio,encoding='utf-8')
+          print(json.dumps(meta,ensure_ascii=False))
           PY
-
-      - name: Download official podcast audio
+      - name: Download audio
         shell: bash
         run: |
           set -euo pipefail
           curl --retry 4 --retry-delay 2 -fLsS "$(cat audio-url.txt)" -o episode.mp3
           ls -lh episode.mp3
-
-      - name: Transcribe full English source
+      - name: Transcribe English source
         shell: bash
         env:
           SLUG: ${{ matrix.slug }}
@@ -145,44 +143,24 @@ jobs:
           python - <<'PY'
           import json, os, re
           from faster_whisper import WhisperModel
-
           slug=os.environ['SLUG']
           meta=json.load(open('episode.json',encoding='utf-8'))
           model=WhisperModel('base',device='cpu',compute_type='int8')
-          segments,info=model.transcribe(
-              'episode.mp3',
-              language='en',
-              beam_size=3,
-              vad_filter=True,
-              word_timestamps=True,
-              condition_on_previous_text=True,
-          )
+          segments,info=model.transcribe('episode.mp3',language='en',beam_size=3,vad_filter=True,word_timestamps=True,condition_on_previous_text=True)
           out=[]; words=[]
           for s in segments:
               text=re.sub(r'\s+',' ',s.text).strip()
-              if text:
-                  out.append({'start':round(float(s.start),3),'end':round(float(s.end),3),'text':text})
+              if text: out.append({'start':round(float(s.start),3),'end':round(float(s.end),3),'text':text})
               for w in (s.words or []):
-                  if w.start is None or w.end is None: continue
-                  words.append({'start':round(float(w.start),3),'end':round(float(w.end),3),'word':w.word})
-          payload={
-              'slug':slug,
-              'episode':meta,
-              'language':getattr(info,'language','en'),
-              'languageProbability':getattr(info,'language_probability',None),
-              'model':'faster-whisper-base',
-              'segments':out,
-              'words':words,
-          }
-          open(f'{slug}.json','w',encoding='utf-8').write(json.dumps(payload,ensure_ascii=False,indent=2))
-          with open(f'{slug}.txt','w',encoding='utf-8') as f:
-              for x in out:
-                  f.write(f"[{x['start']:.3f} --> {x['end']:.3f}] {x['text']}\n")
+                  if w.start is not None and w.end is not None:
+                      words.append({'start':round(float(w.start),3),'end':round(float(w.end),3),'word':w.word})
+          payload={'slug':slug,'episode':meta,'language':getattr(info,'language','en'),'languageProbability':getattr(info,'language_probability',None),'model':'faster-whisper-base','segments':out,'words':words}
+          open(slug+'.json','w',encoding='utf-8').write(json.dumps(payload,ensure_ascii=False,indent=2))
+          with open(slug+'.txt','w',encoding='utf-8') as f:
+              for x in out: f.write(f"[{x['start']:.3f} --> {x['end']:.3f}] {x['text']}\n")
           print('slug',slug,'segments',len(out),'words',len(words),'last_end',out[-1]['end'] if out else None)
-          if len(out) < 40 or not out or out[-1]['end'] < 1200:
-              raise SystemExit('Transcript coverage unexpectedly incomplete')
+          if len(out)<40 or not out or out[-1]['end']<1200: raise SystemExit('Transcript coverage unexpectedly incomplete')
           PY
-
       - name: Upload transcript
         uses: actions/upload-artifact@v4
         with:
