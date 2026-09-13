@@ -203,6 +203,22 @@ const basementYard507: CuratedCollection = {
   segments: [segment('TBY507-AGREE-03', 4255, 4262, "Acknowledgement · 'Really good point.'")],
 }
 
+const basementYard558: CuratedCollection = {
+  id: 'english-basement-yard-558-apologies',
+  speakerId: 'joe-santagato-frank-alvarez',
+  speaker: 'Joe Santagato / Frank Alvarez',
+  sourceTitle: 'The Basement Yard #558 · FRANK FIRES JOE!! + New Tour Dates',
+  videoId: 'kJF8Zz2iExo',
+  videoTitle: 'FRANK FIRES JOE!! + New Tour Dates | The Basement Yard #558',
+  channelName: 'The Basement Yard',
+  thumbnail: 'https://i.ytimg.com/vi/kJF8Zz2iExo/hqdefault.jpg',
+  duration: 5222,
+  description: "Queens/NYC conversational English with a natural correction: 'I'm so sorry.' / 'It's okay.'",
+  focus: ['Everyday English', 'NYC', 'Apologies', 'Natural conversation'],
+  status: 'ready',
+  segments: [segment('TBY558-SORRY-03-07', 1495, 1505, "Apology exchange · 'I'm so sorry.' / 'It's okay.'")],
+}
+
 const basementYard559: CuratedCollection = {
   id: 'english-basement-yard-559-fillers',
   speakerId: 'joe-santagato-frank-alvarez',
@@ -270,6 +286,7 @@ export const EVERYDAY_ENGLISH_COLLECTIONS: CuratedCollection[] = [
   basementYard483,
   basementYard494,
   basementYard507,
+  basementYard558,
   basementYard559,
   basementYard565,
   basementYard567,
@@ -428,6 +445,24 @@ export const EVERYDAY_ENGLISH_CLIP_MATCHES: EverydayEnglishClipMatch[] = [
     transcript: 'Really good point.',
     matchType: 'lexical-variant',
     evidenceUrl: 'https://podscripts.co/podcasts/the-basement-yard/507-were-going-to-the-major-leagues',
+  },
+  {
+    phraseId: 'sorry-03',
+    collectionId: basementYard558.id,
+    segmentId: 'TBY558-SORRY-03-07',
+    speaker: 'Frank Alvarez',
+    transcript: "I'm so sorry.",
+    matchType: 'exact',
+    evidenceUrl: 'https://pod.wave.co/podcast/the-basement-yard/558-frank-fires-joe-new-tour-dates',
+  },
+  {
+    phraseId: 'sorry-07',
+    collectionId: basementYard558.id,
+    segmentId: 'TBY558-SORRY-03-07',
+    speaker: 'Joe Santagato',
+    transcript: "It's okay.",
+    matchType: 'lexical-variant',
+    evidenceUrl: 'https://pod.wave.co/podcast/the-basement-yard/558-frank-fires-joe-new-tour-dates',
   },
   {
     phraseId: 'thanks-04',

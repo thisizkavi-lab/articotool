@@ -80,6 +80,8 @@ Evidence: #444 Podscripts timestamped transcript `https://podscripts.co/podcasts
 
 ### 09 Saying sorry
 - `sorry-02` My bad. — exact match `Oh, my bad.` from Frank Alvarez in The Basement Yard #565, YouTube `WGN6kLtVYBk`, 79:25–79:35.
+- `sorry-03` I'm really sorry. — exact phrase `I'm so sorry.` in The Basement Yard #558, YouTube `kJF8Zz2iExo`, 24:55–25:05.
+- `sorry-07` That's okay. — natural lexical variant `It's okay.` in the same #558 exchange, 24:55–25:05.
 - Remaining chapter targets — unmatched / not yet verified.
 
 Evidence for #565: Podwave timestamped transcript `https://pod.wave.co/podcast/the-basement-yard/565-are-we-ready-for-pie`; official YouTube `https://www.youtube.com/watch?v=WGN6kLtVYBk`.
@@ -104,9 +106,9 @@ No verified production clips yet.
 Evidence for #480: Audioscrape timestamped transcript `https://www.audioscrape.com/podcast/the-basement-yard/episode/480---ai-is-officially-coming-for-us`; official YouTube `https://www.youtube.com/watch?v=NFqQCoEdGA0`.
 
 ## Current totals
-- Verified phrase matches: 23
-- Unique playable source clips: 20
-- Anchor sources in production data: The Basement Yard #339, #351, #444, #446, #477, #480, #483, #494, #498, #507, #559, #565, #567
+- Verified phrase matches: 25
+- Unique playable source clips: 21
+- Anchor sources in production data: The Basement Yard #339, #351, #444, #446, #477, #480, #483, #494, #498, #507, #558, #559, #565, #567
 
 ## Rules
 - No clip is promoted without a verified YouTube source ID and defensible timestamped transcript evidence.
