@@ -12,37 +12,62 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Scrape Yutura GOLDNRUSH archive
+      - name: Search public Piped instances
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
-          import re, html, urllib.request, pathlib, json
-          ua={'User-Agent':'Mozilla/5.0'}
-          targets=['Zeebra','Shigekix']
-          found=[]
-          for page in range(1,25):
-              url='https://yutura.net/channel/103553/latest/' + (f'?p={page}' if page>1 else '')
-              try:
-                  req=urllib.request.Request(url,headers=ua)
-                  text=urllib.request.urlopen(req,timeout=20).read().decode('utf-8','replace')
-              except Exception as e:
-                  print('page failed',page,e); continue
-              # Yutura detail URLs contain the YouTube ID directly: /channel/103553/video/<id>/
-              for m in re.finditer(r'<a[^>]+href=["\']([^"\']*/channel/103553/video/([A-Za-z0-9_-]{11})/[^"\']*)["\'][^>]*>(.*?)</a>',text,re.I|re.S):
-                  href,vid,body=m.groups()
-                  title=html.unescape(re.sub('<[^>]+>',' ',body))
-                  title=re.sub(r'\s+',' ',title).strip()
-                  if any(t.lower() in title.lower() for t in targets):
-                      row={'page':page,'videoId':vid,'title':title,'href':href}
-                      if row not in found: found.append(row); print(json.dumps(row,ensure_ascii=False))
-          pathlib.Path('resolved-video-ids.json').write_text(json.dumps(found,ensure_ascii=False,indent=2),encoding='utf-8')
-          if not found:
-              raise SystemExit('No target Yutura video links found')
+          import json, pathlib, urllib.parse, urllib.request
+
+          instances=[
+            'https://pipedapi.kavin.rocks',
+            'https://pipedapi.tokhmi.xyz',
+            'https://pipedapi.syncpundit.io',
+            'https://api-piped.mha.fi',
+            'https://piped-api.garudalinux.org',
+          ]
+          queries={
+            'zeebra-149':'GOLDNRUSH PODCAST Ep.149 Zeebra',
+            'shigekix-106':'GOLDNRUSH PODCAST Ep.106 Shigekix',
+          }
+          out={}
+          for slug,q in queries.items():
+              matches=[]
+              for base in instances:
+                  url=base+'/search?'+urllib.parse.urlencode({'q':q,'filter':'videos'})
+                  try:
+                      req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0','Accept':'application/json'})
+                      data=json.loads(urllib.request.urlopen(req,timeout=15).read().decode())
+                  except Exception as e:
+                      print(slug,base,'failed',repr(e)); continue
+                  items=data.get('items',data if isinstance(data,list) else [])
+                  for item in items[:20]:
+                      title=item.get('title','')
+                      url_path=item.get('url','')
+                      uploader=item.get('uploaderName','')
+                      if 'GOLDNRUSH' not in title.upper() and 'GOLDNRUSH' not in uploader.upper():
+                          continue
+                      if slug.startswith('zeebra') and 'zeebra' not in title.lower():
+                          continue
+                      if slug.startswith('shigekix') and 'shigekix' not in title.lower():
+                          continue
+                      vid=url_path.rsplit('=',1)[-1] if 'watch?v=' in url_path else url_path.strip('/').split('/')[-1]
+                      if len(vid)==11:
+                          row={'videoId':vid,'title':title,'uploader':uploader,'source':base,'url':url_path}
+                          if row not in matches:
+                              matches.append(row)
+                  if matches: break
+              out[slug]=matches
+              print(slug,json.dumps(matches,ensure_ascii=False))
+          pathlib.Path('resolved-video-ids.json').write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding='utf-8')
+          if not out['zeebra-149'] or not out['shigekix-106']:
+              raise SystemExit('Did not resolve both target video IDs')
           PY
       - name: Upload results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: goldnrush-video-ids
           path: resolved-video-ids.json
+          if-no-files-found: warn
           retention-days: 1
