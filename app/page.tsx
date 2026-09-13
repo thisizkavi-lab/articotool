@@ -49,9 +49,6 @@ function Header() {
             <a href="/curated" className="text-xs">Curated</a>
           </Button>
           <Button variant="ghost" size="sm" asChild>
-            <a href="/english" className="text-xs">English</a>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
             <a href="/explore" className="text-xs">Explore</a>
           </Button>
           <Button variant="ghost" size="sm" asChild>
