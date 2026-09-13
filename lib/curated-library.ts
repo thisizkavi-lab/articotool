@@ -1,4 +1,14 @@
 import type { Segment } from './types'
+import {
+  navalSmartFriendsPhilosophy,
+  navalSmartFriendsLearningHappiness,
+  navalSmartFriendsSavingYourself,
+  navalSmartFriendsBuildingJudgement,
+  navalDeutschKnowledge1,
+  navalDeutschFiles3,
+  navalDeutschFiles4,
+  navalTimFerriss662,
+} from './naval-curated-extra'
 
 export type CuratedSourceStatus = 'ready' | 'curating' | 'queued'
 
@@ -528,23 +538,23 @@ export const CURATED_SPEAKERS: CuratedSpeaker[] = [
       navalTimFerriss473,
       navalHowToGetRich,
       navalSmartFriendsBuildingWealth,
-      queuedSource('naval-smart-friends-philosophy', 'Smart Friends · Philosophy · 2025', 'Recent Naval on meaning, truth, authenticity, philosophy, risk, and end games.', ['Current style', 'Philosophy', 'Reflection']),
-      queuedSource('naval-smart-friends-learning-happiness', 'Smart Friends · Learning Happiness · 2025', 'Recent Naval revisiting happiness, desire, learning, and self-observation.', ['Current style', 'Happiness', 'Learning']),
-      queuedSource('naval-smart-friends-saving-yourself', 'Smart Friends · Saving Yourself · 2025', 'Recent Naval on authenticity, environment, iteration, envy, and self-direction.', ['Current style', 'Self-direction', 'Reflection']),
-      queuedSource('naval-smart-friends-building-judgement', 'Smart Friends · Building Judgement · 2025', 'Recent Naval on judgment, decisions, knowledge, and long-term thinking.', ['Current style', 'Judgment', 'Decision-making']),
+      navalSmartFriendsPhilosophy,
+      navalSmartFriendsLearningHappiness,
+      navalSmartFriendsSavingYourself,
+      navalSmartFriendsBuildingJudgement,
       navalTimFerriss97,
       navalAfterOnEndGames1,
       navalSellTheTruth,
 
       // Scientific / epistemology conversations — important for studying how Naval
       // asks, reframes, and explains around genuinely technical thinkers.
-      queuedSource('naval-deutsch-knowledge-1', 'David Deutsch · Knowledge Creation and the Human Race · Part 1', 'Naval in sustained conversation with physicist David Deutsch on knowledge, AGI, explanations, and quantum computing.', ['Scientific dialogue', 'Questions', 'Clarification']),
+      navalDeutschKnowledge1,
       navalDeutschKnowledge2,
       navalDeutschFiles1,
       navalDeutschFiles2,
-      queuedSource('naval-deutsch-files-3', 'The Deutsch Files III · 2024', 'Technical conversation around AGI, Popper, misunderstanding, and explanation.', ['Scientific dialogue', 'Disagreement', 'Precision']),
-      queuedSource('naval-deutsch-files-4', 'The Deutsch Files IV · 2024', 'Long-form attempt to connect Deutsch’s major theories into one coherent picture.', ['Synthesis', 'Technical questioning', 'Conceptual structure']),
-      queuedSource('naval-tim-ferriss-662', 'Tim Ferriss #662 · David Deutsch + Naval Ravikant', 'Naval alongside a leading physicist discussing reality, knowledge, AGI, quantum computing, optimism, and wealth.', ['Scientific dialogue', 'Translation', 'High-level synthesis']),
+      navalDeutschFiles3,
+      navalDeutschFiles4,
+      navalTimFerriss662,
     ],
   },
 ]
