@@ -147,6 +147,7 @@ const basementYard494: CuratedCollection = {
   status: 'ready',
   segments: [
     segment('TBY494-UNDERSTAND-05', 14.1, 19.3, "Clarification · 'What do you mean?'"),
+    segment('TBY494-AGREE-02', 19.3, 24.3, "Agreement · 'Absolutely love it.'"),
   ],
 }
 
@@ -184,6 +185,38 @@ const basementYard498: CuratedCollection = {
   segments: [
     segment('TBY498-AGREE-01', 11.5, 15.0, "Agreement · 'Yeah, exactly.'"),
   ],
+}
+
+const basementYard507: CuratedCollection = {
+  id: 'english-basement-yard-507-agreement',
+  speakerId: 'joe-santagato-frank-alvarez',
+  speaker: 'Joe Santagato / Frank Alvarez',
+  sourceTitle: "The Basement Yard #507 · We're Going To The Major Leagues",
+  videoId: 'SZex0qbmgrg',
+  videoTitle: "We're Going To The Major Leagues | The Basement Yard #507",
+  channelName: 'The Basement Yard',
+  thumbnail: 'https://i.ytimg.com/vi/SZex0qbmgrg/hqdefault.jpg',
+  duration: 0,
+  description: "Queens/NYC conversational English with a clean natural acknowledgement: 'Really good point.'",
+  focus: ['Everyday English', 'NYC', 'Agreement', 'Natural conversation'],
+  status: 'ready',
+  segments: [segment('TBY507-AGREE-03', 4255, 4262, "Acknowledgement · 'Really good point.'")],
+}
+
+const basementYard558: CuratedCollection = {
+  id: 'english-basement-yard-558-apologies',
+  speakerId: 'joe-santagato-frank-alvarez',
+  speaker: 'Joe Santagato / Frank Alvarez',
+  sourceTitle: 'The Basement Yard #558 · FRANK FIRES JOE!! + New Tour Dates',
+  videoId: 'kJF8Zz2iExo',
+  videoTitle: 'FRANK FIRES JOE!! + New Tour Dates | The Basement Yard #558',
+  channelName: 'The Basement Yard',
+  thumbnail: 'https://i.ytimg.com/vi/kJF8Zz2iExo/hqdefault.jpg',
+  duration: 5222,
+  description: "Queens/NYC conversational English with a natural correction: 'I'm so sorry.' / 'It's okay.'",
+  focus: ['Everyday English', 'NYC', 'Apologies', 'Natural conversation'],
+  status: 'ready',
+  segments: [segment('TBY558-SORRY-03-07', 1495, 1505, "Apology exchange · 'I'm so sorry.' / 'It's okay.'")],
 }
 
 const basementYard559: CuratedCollection = {
@@ -252,6 +285,8 @@ export const EVERYDAY_ENGLISH_COLLECTIONS: CuratedCollection[] = [
   basementYard480,
   basementYard483,
   basementYard494,
+  basementYard507,
+  basementYard558,
   basementYard559,
   basementYard565,
   basementYard567,
@@ -392,6 +427,42 @@ export const EVERYDAY_ENGLISH_CLIP_MATCHES: EverydayEnglishClipMatch[] = [
     transcript: 'Yeah, exactly.',
     matchType: 'exact',
     evidenceUrl: 'https://pod.wave.co/podcast/the-basement-yard/498-the-morning-routine-c132baa4',
+  },
+  {
+    phraseId: 'agree-02',
+    collectionId: basementYard494.id,
+    segmentId: 'TBY494-AGREE-02',
+    speaker: 'Joe Santagato / Frank Alvarez exchange',
+    transcript: 'Absolutely love it.',
+    matchType: 'lexical-variant',
+    evidenceUrl: 'https://www.tapesearch.com/episode/494-visiting-docter-dan/HEwvgRi5jRv5H6Lfph2Roy',
+  },
+  {
+    phraseId: 'agree-03',
+    collectionId: basementYard507.id,
+    segmentId: 'TBY507-AGREE-03',
+    speaker: 'Joe Santagato / Frank Alvarez exchange',
+    transcript: 'Really good point.',
+    matchType: 'lexical-variant',
+    evidenceUrl: 'https://podscripts.co/podcasts/the-basement-yard/507-were-going-to-the-major-leagues',
+  },
+  {
+    phraseId: 'sorry-03',
+    collectionId: basementYard558.id,
+    segmentId: 'TBY558-SORRY-03-07',
+    speaker: 'Frank Alvarez',
+    transcript: "I'm so sorry.",
+    matchType: 'lexical-variant',
+    evidenceUrl: 'https://pod.wave.co/podcast/the-basement-yard/558-frank-fires-joe-new-tour-dates',
+  },
+  {
+    phraseId: 'sorry-07',
+    collectionId: basementYard558.id,
+    segmentId: 'TBY558-SORRY-03-07',
+    speaker: 'Joe Santagato',
+    transcript: "It's okay.",
+    matchType: 'lexical-variant',
+    evidenceUrl: 'https://pod.wave.co/podcast/the-basement-yard/558-frank-fires-joe-new-tour-dates',
   },
   {
     phraseId: 'thanks-04',

@@ -58,6 +58,8 @@ Evidence: #351 Tapesearch `https://www.tapesearch.com/episode/351-i-ve-made-love
 
 ### 06 Agreeing and disagreeing
 - `agree-01` Exactly. — exact agreement response `Yeah, exactly.` in The Basement Yard #498, YouTube `OELGdBT6o_I`, 11.5–15.0s.
+- `agree-02` Absolutely. — natural lexical variant `Absolutely love it.` in The Basement Yard #494, YouTube `5EpiYeXluPc`, 19.3–24.3s.
+- `agree-03` That's a good point. — lexical variant `Really good point.` in The Basement Yard #507, YouTube `SZex0qbmgrg`, 1:10:55–1:11:02.
 - Remaining chapter targets — unmatched / not yet verified.
 
 Evidence for #498: Wave timestamped transcript `https://pod.wave.co/podcast/the-basement-yard/498-the-morning-routine-c132baa4`; official YouTube `https://www.youtube.com/watch?v=OELGdBT6o_I`.
@@ -78,6 +80,8 @@ Evidence: #444 Podscripts timestamped transcript `https://podscripts.co/podcasts
 
 ### 09 Saying sorry
 - `sorry-02` My bad. — exact match `Oh, my bad.` from Frank Alvarez in The Basement Yard #565, YouTube `WGN6kLtVYBk`, 79:25–79:35.
+- `sorry-03` I'm really sorry. — natural lexical variant `I'm so sorry.` in The Basement Yard #558, YouTube `kJF8Zz2iExo`, 24:55–25:05.
+- `sorry-07` That's okay. — natural lexical variant `It's okay.` in the same #558 exchange, 24:55–25:05.
 - Remaining chapter targets — unmatched / not yet verified.
 
 Evidence for #565: Podwave timestamped transcript `https://pod.wave.co/podcast/the-basement-yard/565-are-we-ready-for-pie`; official YouTube `https://www.youtube.com/watch?v=WGN6kLtVYBk`.
@@ -102,9 +106,9 @@ No verified production clips yet.
 Evidence for #480: Audioscrape timestamped transcript `https://www.audioscrape.com/podcast/the-basement-yard/episode/480---ai-is-officially-coming-for-us`; official YouTube `https://www.youtube.com/watch?v=NFqQCoEdGA0`.
 
 ## Current totals
-- Verified phrase matches: 21
-- Unique playable source clips: 18
-- Anchor sources in production data: The Basement Yard #339, #351, #444, #446, #477, #480, #483, #494, #498, #559, #565, #567
+- Verified phrase matches: 25
+- Unique playable source clips: 21
+- Anchor sources in production data: The Basement Yard #339, #351, #444, #446, #477, #480, #483, #494, #498, #507, #558, #559, #565, #567
 
 ## Rules
 - No clip is promoted without a verified YouTube source ID and defensible timestamped transcript evidence.
