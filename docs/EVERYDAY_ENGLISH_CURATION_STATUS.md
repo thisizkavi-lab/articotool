@@ -26,14 +26,16 @@ Not yet promoted. Search has begun, but no candidate has both a clean reusable t
 - `fill-02` Well, ... — unmatched
 - `fill-03` I mean, ... — matched exactly inside a natural discourse-marker sequence in The Basement Yard #559, YouTube `m77sDceykAw`, 82–98s
 - `fill-04` You know, ... — unmatched
-- `fill-05` Actually, ... — unmatched
-- `fill-06` I guess. — unmatched
+- `fill-05` Actually, ... — exact natural filler in The Basement Yard #483, YouTube `z1p0j3GZH9k`, 127–136s
+- `fill-06` I guess. — exact natural filler in the same #483 clip, 127–136s
 - `fill-07` To be honest, ... — matched via natural lexical variant `to be honest with you` in The Basement Yard #559, YouTube `m77sDceykAw`, 82–98s
 - `fill-08` Right. — unmatched
 - `fill-09` Uh-huh. — unmatched
-- `fill-10` Really? — unmatched
+- `fill-10` Really? — exact reaction in The Basement Yard #483, YouTube `z1p0j3GZH9k`, 160–166s
 
-Evidence for #559: Audioscrape speaker-attributed transcript `https://www.audioscrape.com/podcast/the-basement-yard/episode/559-release-the-mosquitos-21020`; official YouTube source independently verified as `https://www.youtube.com/watch?v=m77sDceykAw`.
+Evidence:
+- #559: Audioscrape `https://www.audioscrape.com/podcast/the-basement-yard/episode/559-release-the-mosquitos-21020`; official YouTube `https://www.youtube.com/watch?v=m77sDceykAw`.
+- #483: Audioscrape `https://www.audioscrape.com/podcast/the-basement-yard/episode/483---theres-human-dna-in-hot-dogs`; Tapesearch episode `https://www.tapesearch.com/episode/483-there-s-human-dna-in-hot-dogs/mUufMU7kWEZdKDu3bEzraM`; official YouTube `https://www.youtube.com/watch?v=z1p0j3GZH9k`.
 
 ### 04 Saying you don't understand
 - `understand-01` Sorry? — unmatched
@@ -47,13 +49,28 @@ Evidence for #559: Audioscrape speaker-attributed transcript `https://www.audios
 
 Evidence for #494: Tapesearch timestamped transcript `https://www.tapesearch.com/episode/494-visiting-docter-dan/HEwvgRi5jRv5H6Lfph2Roy`; official YouTube source `https://www.youtube.com/watch?v=5EpiYeXluPc`.
 
-### 05–13
+### 05 Opinions and preferences
+- `opinion-08` I'd rather ... — exact natural preference statement in The Basement Yard #339, YouTube `3f3iKts2u30`, 9.2–15.0s: `I'd rather wear this than get into Formula One racing...`
+- Remaining chapter targets — unmatched / not yet verified.
+
+Evidence for #339: Tapesearch `https://www.tapesearch.com/episode/339-how-to-become-a-priest/hSuGVXn9CNNNDVmFGqToBt`; official YouTube `https://www.youtube.com/watch?v=3f3iKts2u30`.
+
+### 06 Agreeing and disagreeing
+Not yet promoted.
+
+### 07 Making suggestions
+- `suggest-06` I'm in. — exact natural acceptance in The Basement Yard #477, YouTube `iWBPM_3xMZU`, 224–236s: `Any ripaway pants, I'm in.`
+- Remaining chapter targets — unmatched / not yet verified.
+
+Evidence for #477: Audioscrape `https://www.audioscrape.com/podcast/the-basement-yard/episode/477---the-worlds-sexiest-podcast-hosts`; official YouTube `https://www.youtube.com/watch?v=iWBPM_3xMZU`.
+
+### 08–13
 Not yet processed in the source-controlled clip corpus. Existing phrase targets remain in `lib/everyday-english.ts`.
 
 ## Current totals
-- Verified phrase matches: 7
-- Unique playable source clips: 5
-- Anchor sources in production data: The Basement Yard #446, #494, #559, #567
+- Verified phrase matches: 12
+- Unique playable source clips: 9
+- Anchor sources in production data: The Basement Yard #339, #446, #477, #483, #494, #559, #567
 
 ## Rules
 - No clip is promoted without a verified YouTube source ID and defensible timestamped transcript evidence.

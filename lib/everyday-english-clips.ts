@@ -20,6 +20,24 @@ const segment = (id: string, start: number, end: number, label: string): Segment
   createdAt: 0,
 })
 
+const basementYard339: CuratedCollection = {
+  id: 'english-basement-yard-339-preferences',
+  speakerId: 'joe-santagato-frank-alvarez',
+  speaker: 'Joe Santagato / Frank Alvarez',
+  sourceTitle: 'The Basement Yard #339 · How To Become A Priest',
+  videoId: '3f3iKts2u30',
+  videoTitle: 'How To Become A Priest | The Basement Yard #339',
+  channelName: 'The Basement Yard',
+  thumbnail: 'https://i.ytimg.com/vi/3f3iKts2u30/hqdefault.jpg',
+  duration: 4200,
+  description: 'Queens/NYC conversational English with a clean early-episode preference statement.',
+  focus: ['Everyday English', 'NYC', 'Preferences', 'Natural conversation'],
+  status: 'ready',
+  segments: [
+    segment('TBY339-OPINION-08', 9.2, 15.0, "Preference · 'I'd rather wear this than get into Formula One racing...'"),
+  ],
+}
+
 const basementYard446: CuratedCollection = {
   id: 'english-basement-yard-446-greetings',
   speakerId: 'joe-santagato-frank-alvarez',
@@ -36,6 +54,43 @@ const basementYard446: CuratedCollection = {
   segments: [
     segment('TBY446-GREET-03', 0, 8.2, "Greeting exchange · 'How you doing, Frank?'"),
     segment('TBY446-GREET-05', 13.7, 17.4, "Warm greeting · 'Good to see you.'"),
+  ],
+}
+
+const basementYard477: CuratedCollection = {
+  id: 'english-basement-yard-477-suggestions',
+  speakerId: 'joe-santagato-frank-alvarez',
+  speaker: 'Joe Santagato / Frank Alvarez',
+  sourceTitle: "The Basement Yard #477 · The World's Sexiest Podcast Hosts",
+  videoId: 'iWBPM_3xMZU',
+  videoTitle: "The World's Sexiest Podcast Hosts | The Basement Yard #477",
+  channelName: 'The Basement Yard',
+  thumbnail: 'https://i.ytimg.com/vi/iWBPM_3xMZU/hqdefault.jpg',
+  duration: 4346,
+  description: "Natural Queens/NYC conversation with a compact enthusiastic 'I'm in' acceptance phrase.",
+  focus: ['Everyday English', 'NYC', 'Suggestions', 'Natural conversation'],
+  status: 'ready',
+  segments: [
+    segment('TBY477-SUGGEST-06', 224.0, 236.0, "Acceptance · 'Any ripaway pants, I'm in.'"),
+  ],
+}
+
+const basementYard483: CuratedCollection = {
+  id: 'english-basement-yard-483-fillers',
+  speakerId: 'joe-santagato-frank-alvarez',
+  speaker: 'Joe Santagato / Frank Alvarez',
+  sourceTitle: "The Basement Yard #483 · There's Human DNA In Hot Dogs",
+  videoId: 'z1p0j3GZH9k',
+  videoTitle: "There's Human DNA In The Hot Dogs | The Basement Yard #483",
+  channelName: 'The Basement Yard',
+  thumbnail: 'https://i.ytimg.com/vi/z1p0j3GZH9k/hqdefault.jpg',
+  duration: 3803,
+  description: 'Natural Queens/NYC conversation with clean examples of actually, I guess, and really used in live turn-taking.',
+  focus: ['Everyday English', 'NYC', 'Conversation fillers', 'Natural conversation'],
+  status: 'ready',
+  segments: [
+    segment('TBY483-FILL-05-06', 127.0, 136.0, "Conversation fillers · 'actually, I guess...'"),
+    segment('TBY483-FILL-10', 160.0, 166.0, "Reaction · 'Really?'"),
   ],
 }
 
@@ -94,7 +149,10 @@ const basementYard567: CuratedCollection = {
 }
 
 export const EVERYDAY_ENGLISH_COLLECTIONS: CuratedCollection[] = [
+  basementYard339,
   basementYard446,
+  basementYard477,
+  basementYard483,
   basementYard494,
   basementYard559,
   basementYard567,
@@ -147,6 +205,24 @@ export const EVERYDAY_ENGLISH_CLIP_MATCHES: EverydayEnglishClipMatch[] = [
     evidenceUrl: 'https://www.audioscrape.com/podcast/the-basement-yard/episode/559-release-the-mosquitos-21020',
   },
   {
+    phraseId: 'fill-05',
+    collectionId: basementYard483.id,
+    segmentId: 'TBY483-FILL-05-06',
+    speaker: 'Frank Alvarez',
+    transcript: 'But, like, I drink, actually, I guess everything except wine with an ice cube.',
+    matchType: 'exact',
+    evidenceUrl: 'https://www.audioscrape.com/podcast/the-basement-yard/episode/483---theres-human-dna-in-hot-dogs',
+  },
+  {
+    phraseId: 'fill-06',
+    collectionId: basementYard483.id,
+    segmentId: 'TBY483-FILL-05-06',
+    speaker: 'Frank Alvarez',
+    transcript: 'But, like, I drink, actually, I guess everything except wine with an ice cube.',
+    matchType: 'exact',
+    evidenceUrl: 'https://www.audioscrape.com/podcast/the-basement-yard/episode/483---theres-human-dna-in-hot-dogs',
+  },
+  {
     phraseId: 'fill-07',
     collectionId: basementYard559.id,
     segmentId: 'TBY559-FILL-03-07',
@@ -156,6 +232,15 @@ export const EVERYDAY_ENGLISH_CLIP_MATCHES: EverydayEnglishClipMatch[] = [
     evidenceUrl: 'https://www.audioscrape.com/podcast/the-basement-yard/episode/559-release-the-mosquitos-21020',
   },
   {
+    phraseId: 'fill-10',
+    collectionId: basementYard483.id,
+    segmentId: 'TBY483-FILL-10',
+    speaker: 'Joe Santagato / Frank Alvarez exchange',
+    transcript: 'Really? Make it cold.',
+    matchType: 'exact',
+    evidenceUrl: 'https://www.audioscrape.com/podcast/the-basement-yard/episode/483---theres-human-dna-in-hot-dogs',
+  },
+  {
     phraseId: 'understand-05',
     collectionId: basementYard494.id,
     segmentId: 'TBY494-UNDERSTAND-05',
@@ -163,6 +248,24 @@ export const EVERYDAY_ENGLISH_CLIP_MATCHES: EverydayEnglishClipMatch[] = [
     transcript: 'Baby makes them feel a little uncomfortable. What do you mean? Some people don\'t like baby.',
     matchType: 'exact',
     evidenceUrl: 'https://www.tapesearch.com/episode/494-visiting-docter-dan/HEwvgRi5jRv5H6Lfph2Roy',
+  },
+  {
+    phraseId: 'opinion-08',
+    collectionId: basementYard339.id,
+    segmentId: 'TBY339-OPINION-08',
+    speaker: 'Joe Santagato / Frank Alvarez exchange',
+    transcript: "I'd rather wear this than get into Formula One racing two days ago...",
+    matchType: 'exact',
+    evidenceUrl: 'https://www.tapesearch.com/episode/339-how-to-become-a-priest/hSuGVXn9CNNNDVmFGqToBt',
+  },
+  {
+    phraseId: 'suggest-06',
+    collectionId: basementYard477.id,
+    segmentId: 'TBY477-SUGGEST-06',
+    speaker: 'Frank Alvarez',
+    transcript: "Any ripaway pants, I'm in.",
+    matchType: 'exact',
+    evidenceUrl: 'https://www.audioscrape.com/podcast/the-basement-yard/episode/477---the-worlds-sexiest-podcast-hosts',
   },
 ]
 
