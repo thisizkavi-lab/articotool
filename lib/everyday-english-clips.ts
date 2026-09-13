@@ -75,6 +75,24 @@ const basementYard477: CuratedCollection = {
   ],
 }
 
+const basementYard480: CuratedCollection = {
+  id: 'english-basement-yard-480-weather',
+  speakerId: 'joe-santagato-frank-alvarez',
+  speaker: 'Joe Santagato / Frank Alvarez',
+  sourceTitle: 'The Basement Yard #480 · A.I Is Officially Coming For Us!',
+  videoId: 'NFqQCoEdGA0',
+  videoTitle: 'A.I Is Officially Coming For Us! | The Basement Yard #480',
+  channelName: 'The Basement Yard',
+  thumbnail: 'https://i.ytimg.com/vi/NFqQCoEdGA0/hqdefault.jpg',
+  duration: 0,
+  description: "Queens/NYC conversational English with a clean opening weather comment: 'it's freezing out.'",
+  focus: ['Everyday English', 'NYC', 'Weather', 'Natural conversation'],
+  status: 'ready',
+  segments: [
+    segment('TBY480-WEATHER-02', 0.0, 10.0, "Weather · 'It's freezing out.'"),
+  ],
+}
+
 const basementYard483: CuratedCollection = {
   id: 'english-basement-yard-483-fillers',
   speakerId: 'joe-santagato-frank-alvarez',
@@ -167,6 +185,25 @@ const basementYard559: CuratedCollection = {
   ],
 }
 
+const basementYard565: CuratedCollection = {
+  id: 'english-basement-yard-565-apology-goodbye',
+  speakerId: 'joe-santagato-frank-alvarez',
+  speaker: 'Joe Santagato / Frank Alvarez',
+  sourceTitle: 'The Basement Yard #565 · Are We Ready For Pie?!',
+  videoId: 'WGN6kLtVYBk',
+  videoTitle: 'Are We Ready For Pie?! | The Basement Yard #565',
+  channelName: 'The Basement Yard',
+  thumbnail: 'https://i.ytimg.com/vi/WGN6kLtVYBk/hqdefault.jpg',
+  duration: 0,
+  description: "Recent Queens/NYC conversation with a compact 'my bad' correction and a clean 'see you' outro.",
+  focus: ['Everyday English', 'NYC', 'Apologies', 'Goodbyes'],
+  status: 'ready',
+  segments: [
+    segment('TBY565-SORRY-02', 4765.0, 4775.0, "Casual apology · 'Oh, my bad.'"),
+    segment('TBY565-BYE-02', 4788.0, 4797.0, "Casual goodbye · 'See you guys next time.'"),
+  ],
+}
+
 const basementYard567: CuratedCollection = {
   id: 'english-basement-yard-567-greetings',
   speakerId: 'joe-santagato-frank-alvarez',
@@ -191,9 +228,11 @@ export const EVERYDAY_ENGLISH_COLLECTIONS: CuratedCollection[] = [
   basementYard446,
   basementYard498,
   basementYard477,
+  basementYard480,
   basementYard483,
   basementYard494,
   basementYard559,
+  basementYard565,
   basementYard567,
 ]
 
@@ -323,6 +362,33 @@ export const EVERYDAY_ENGLISH_CLIP_MATCHES: EverydayEnglishClipMatch[] = [
     transcript: "I'd rather wear this than get into Formula One racing two days ago...",
     matchType: 'exact',
     evidenceUrl: 'https://www.tapesearch.com/episode/339-how-to-become-a-priest/hSuGVXn9CNNNDVmFGqToBt',
+  },
+  {
+    phraseId: 'sorry-02',
+    collectionId: basementYard565.id,
+    segmentId: 'TBY565-SORRY-02',
+    speaker: 'Frank Alvarez',
+    transcript: 'Oh, my bad.',
+    matchType: 'exact',
+    evidenceUrl: 'https://pod.wave.co/podcast/the-basement-yard/565-are-we-ready-for-pie',
+  },
+  {
+    phraseId: 'bye-02',
+    collectionId: basementYard565.id,
+    segmentId: 'TBY565-BYE-02',
+    speaker: 'Joe Santagato',
+    transcript: 'See you guys next time.',
+    matchType: 'lexical-variant',
+    evidenceUrl: 'https://pod.wave.co/podcast/the-basement-yard/565-are-we-ready-for-pie',
+  },
+  {
+    phraseId: 'weather-02',
+    collectionId: basementYard480.id,
+    segmentId: 'TBY480-WEATHER-02',
+    speaker: 'Joe Santagato / Frank Alvarez exchange',
+    transcript: "Keep it warm. It's freezing out. The weather is starting to turn.",
+    matchType: 'lexical-variant',
+    evidenceUrl: 'https://www.audioscrape.com/podcast/the-basement-yard/episode/480---ai-is-officially-coming-for-us',
   },
   {
     phraseId: 'suggest-06',
