@@ -1,0 +1,124 @@
+name: Fetch remaining GOLDNRUSH Japanese transcripts
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  transcribe:
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        include:
+          - slug: ito-awa-137
+            match: 伊藤亜和
+          - slug: zeebra-149
+            match: Zeebra
+          - slug: sarasa-154
+            match: 自然体に見える人ほど
+          - slug: shigekix
+            match: Shigekix
+          - slug: nishida-yuji-110
+            match: 西田有志
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Resolve official RSS audio
+        shell: bash
+        env:
+          MATCH: ${{ matrix.match }}
+          SLUG: ${{ matrix.slug }}
+        run: |
+          set -euo pipefail
+          curl --retry 4 --retry-delay 2 -fLsS 'https://anchor.fm/s/b76397fc/podcast/rss' -o feed.xml
+          python - <<'PY'
+          import os, json, pathlib, xml.etree.ElementTree as ET
+          match=os.environ['MATCH']
+          root=ET.parse('feed.xml').getroot()
+          hits=[]
+          for item in root.findall('.//item'):
+              title=(item.findtext('title') or '').strip()
+              if match.lower() in title.lower():
+                  enc=item.find('enclosure')
+                  audio=enc.attrib.get('url') if enc is not None else None
+                  hits.append({'title':title,'audio':audio,'guid':item.findtext('guid'),'link':item.findtext('link'),'duration':item.findtext('{http://www.itunes.com/dtds/podcast-1.0.dtd}duration')})
+          if not hits:
+              raise SystemExit(f'No RSS episode matched {match!r}')
+          # Prefer the first exact/latest RSS hit and refuse missing audio.
+          hit=hits[0]
+          if not hit['audio']:
+              raise SystemExit(f'RSS match has no enclosure: {hit}')
+          pathlib.Path('episode.json').write_text(json.dumps(hit,ensure_ascii=False,indent=2),encoding='utf-8')
+          pathlib.Path('audio-url.txt').write_text(hit['audio'],encoding='utf-8')
+          print(json.dumps(hit,ensure_ascii=False))
+          PY
+
+      - name: Download official podcast audio
+        shell: bash
+        run: |
+          set -euo pipefail
+          AUDIO_URL="$(cat audio-url.txt)"
+          curl --retry 4 --retry-delay 2 -fLsS "$AUDIO_URL" -o episode.mp3
+          ls -lh episode.mp3
+
+      - name: Transcribe full Japanese conversation
+        shell: bash
+        env:
+          SLUG: ${{ matrix.slug }}
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet --upgrade faster-whisper
+          python - <<'PY'
+          import json, os, re
+          from faster_whisper import WhisperModel
+
+          slug=os.environ['SLUG']
+          meta=json.load(open('episode.json',encoding='utf-8'))
+          model=WhisperModel('base',device='cpu',compute_type='int8')
+          segments,info=model.transcribe(
+              'episode.mp3',
+              language='ja',
+              beam_size=3,
+              vad_filter=True,
+              word_timestamps=True,
+              condition_on_previous_text=True,
+          )
+          out=[]; words=[]
+          for s in segments:
+              text=re.sub(r'\s+',' ',s.text).strip()
+              if text:
+                  out.append({'start':round(float(s.start),3),'end':round(float(s.end),3),'text':text})
+              for w in (s.words or []):
+                  if w.start is None or w.end is None: continue
+                  words.append({'start':round(float(w.start),3),'end':round(float(w.end),3),'word':w.word})
+          payload={
+              'slug':slug,
+              'episode':meta,
+              'language':getattr(info,'language','ja'),
+              'languageProbability':getattr(info,'language_probability',None),
+              'model':'faster-whisper-base',
+              'segments':out,
+              'words':words,
+          }
+          open(f'{slug}.json','w',encoding='utf-8').write(json.dumps(payload,ensure_ascii=False,indent=2))
+          with open(f'{slug}.txt','w',encoding='utf-8') as f:
+              for x in out:
+                  f.write(f"[{x['start']:.3f} --> {x['end']:.3f}] {x['text']}\n")
+          print('slug',slug,'segments',len(out),'words',len(words),'last_end',out[-1]['end'] if out else None)
+          if len(out) < 100 or not out or out[-1]['end'] < 1800:
+              raise SystemExit('Transcript coverage unexpectedly incomplete')
+          PY
+
+      - name: Upload transcript
+        uses: actions/upload-artifact@v4
+        with:
+          name: goldnrush-${{ matrix.slug }}-ja
+          path: |
+            ${{ matrix.slug }}.json
+            ${{ matrix.slug }}.txt
+            episode.json
+          retention-days: 1
