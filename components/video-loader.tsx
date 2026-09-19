@@ -3,6 +3,7 @@
 import React from "react"
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
@@ -62,7 +63,8 @@ export function extractVideoId(input: string): string | null {
 
 export function VideoLoader() {
   const [url, setUrl] = useState('')
-  const { loadVideo, isLoading, setError, setLoading } = useAppStore()
+  const router = useRouter()
+  const { isLoading, setError } = useAppStore()
 
   const handleLoad = async () => {
     const videoId = extractVideoId(url)
@@ -72,11 +74,8 @@ export function VideoLoader() {
       return
     }
 
-    // loadVideo starts metadata/transcript requests. Do not make optional metadata
-    // block the actual YouTube player from appearing for a valid pasted link.
-    const loadPromise = loadVideo(videoId)
-    setLoading(false)
-    await loadPromise
+    setError(null)
+    router.replace(`/?v=${encodeURIComponent(videoId)}`, { scroll: false })
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

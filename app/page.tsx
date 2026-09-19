@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from "@/utils/supabase/client"
-import { LogOut, User as UserIcon, AlertCircle } from 'lucide-react'
+import { LogOut, User as UserIcon, AlertCircle, Menu } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { VideoLoader } from '@/components/video-loader'
@@ -35,28 +36,43 @@ function Header() {
 
   return (
     <header className="border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <h1 className="text-xl font-semibold tracking-tight">artiCO shadowing tool</h1>
-          <span className="text-xs text-muted-foreground hidden sm:block">
+      <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-2">
+        <div className="min-w-0 flex items-center gap-4">
+          <h1 className="text-sm sm:text-xl font-semibold tracking-tight truncate">artiCO shadowing tool</h1>
+          <span className="text-xs text-muted-foreground hidden xl:block">
             Shadow. Record. Compare. Repeat.
           </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+          <nav aria-label="Main navigation" className="hidden md:flex items-center gap-2">
           <Button variant="ghost" size="sm" asChild>
-            <a href="/library" className="text-xs">Library</a>
+            <Link href="/library" className="text-xs">Library</Link>
           </Button>
           <Button variant="ghost" size="sm" asChild>
-            <a href="/curated" className="text-xs">Curated</a>
+            <Link href="/curated" className="text-xs">Curated</Link>
           </Button>
           <Button variant="ghost" size="sm" asChild>
-            <a href="/explore" className="text-xs">Explore</a>
+            <Link href="/explore" className="text-xs">Explore</Link>
           </Button>
           <Button variant="ghost" size="sm" asChild>
-            <a href="/history" className="text-xs">History</a>
+            <Link href="/history" className="text-xs">History</Link>
           </Button>
-
           <div className="h-4 w-[1px] bg-border mx-2" />
+          </nav>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open navigation">
+                <Menu className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Practice</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {[['Library', '/library'], ['Curated', '/curated'], ['Explore', '/explore'], ['History', '/history']].map(([label, href]) => (
+                <DropdownMenuItem key={href} asChild><Link href={href}>{label}</Link></DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {isLoading ? (
             <Button variant="ghost" size="sm" disabled>
@@ -65,7 +81,7 @@ function Header() {
           ) : user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full">
+                <Button variant="ghost" size="icon" className="rounded-full" aria-label="Account menu">
                   <div className="bg-primary/10 w-8 h-8 rounded-full flex items-center justify-center">
                     <UserIcon className="h-4 w-4 text-primary" />
                   </div>
@@ -121,10 +137,10 @@ function HomeContent() {
   }, [initialize])
 
   useEffect(() => {
-    if (initialized && urlVideoId && urlVideoId !== videoId && !isLoading) {
+    if (initialized && urlVideoId && urlVideoId !== useAppStore.getState().videoId) {
       loadVideo(urlVideoId)
     }
-  }, [initialized, urlVideoId, videoId, isLoading, loadVideo])
+  }, [initialized, urlVideoId, loadVideo])
 
   // Curated clip boundaries are source-controlled and should always replace session clips.
   useEffect(() => {
@@ -170,10 +186,11 @@ function HomeContent() {
 
         {videoId && (
           <UnifiedPracticeView
+            key={videoId}
             video={{
               id: videoId,
               title: videoTitle || "Individual Video",
-              segments: segments.map(s => ({ ...s, lines: [], createdAt: s.createdAt || Date.now() })) as any[],
+              segments,
               transcript: [],
               thumbnail: "",
               channelName: "",
@@ -183,7 +200,7 @@ function HomeContent() {
               recordings: [],
               notes,
             }}
-            recordings={recordings}
+            recordings={recordings.filter(recording => !recording.groupId && (!recording.videoId || recording.videoId === videoId))}
             onAddSegments={handleAddSegments}
             onClearSegments={handleClearSegments}
             onDeleteSegment={handleDeleteSegment}

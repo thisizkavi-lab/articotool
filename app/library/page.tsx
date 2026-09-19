@@ -18,7 +18,7 @@ const EMOJI_OPTIONS = ['📁', '🎯', '🎤', '💪', '🧠', '📚', '🌟', '
 
 export default function LibraryPage() {
     const router = useRouter()
-    const { user } = useAppStore()
+    const { user, authInitialized } = useAppStore()
     const [library, setLibrary] = useState<Library | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [isCreating, setIsCreating] = useState(false)
@@ -27,6 +27,7 @@ export default function LibraryPage() {
     const [editingGroup, setEditingGroup] = useState<LibraryGroup | null>(null)
 
     const loadLibrary = useCallback(async () => {
+        if (!authInitialized) return
         setIsLoading(true)
         if (user) {
             const lib = await LibraryService.getLibrary()
@@ -36,14 +37,14 @@ export default function LibraryPage() {
             setLibrary(lib)
         }
         setIsLoading(false)
-    }, [user])
+    }, [user, authInitialized])
 
     useEffect(() => {
         loadLibrary()
     }, [loadLibrary])
 
     const handleCreateGroup = async () => {
-        if (!newGroupName.trim()) return
+        if (!authInitialized || !newGroupName.trim()) return
         setIsCreating(true)
 
         if (user) {
@@ -128,7 +129,7 @@ export default function LibraryPage() {
                     {/* Create Group Dialog */}
                     <Dialog>
                         <DialogTrigger asChild>
-                            <Button size="sm">
+                            <Button size="sm" disabled={!authInitialized}>
                                 <FolderPlus className="h-4 w-4 mr-2" />
                                 New Group
                             </Button>

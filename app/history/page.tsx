@@ -11,13 +11,9 @@ import { format } from 'date-fns'
 
 export default function HistoryPage() {
     const router = useRouter()
-    const { setVideoId, setVideoTitle, setTranscript, setSegments, setNotes } = useAppStore()
+    const { loadVideo } = useAppStore()
     const [sessions, setSessions] = useState<SavedSession[]>([])
     const [isLoading, setIsLoading] = useState(true)
-
-    useEffect(() => {
-        loadHistory()
-    }, [])
 
     const loadHistory = async () => {
         setIsLoading(true)
@@ -32,18 +28,13 @@ export default function HistoryPage() {
     }
 
     const handleResume = async (session: SavedSession) => {
-        // Save to current session key
-        await StorageService.saveCurrentSession(session)
-
-        // Update store state immediately (optional, but good for UX)
-        setVideoId(session.videoId)
-        setVideoTitle(session.videoTitle)
-        setSegments(session.segments)
-        setNotes(session.notes || '')
-
-        // Navigate home
-        router.push('/')
+        await loadVideo(session.videoId)
+        router.push(`/?v=${encodeURIComponent(session.videoId)}`)
     }
+
+    useEffect(() => {
+        void loadHistory()
+    }, [])
 
     return (
         <div className="min-h-screen bg-background p-6">

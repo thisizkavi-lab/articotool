@@ -7,6 +7,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react'
 import { getLibrary, addSegmentsToVideo, deleteSegment, updateVideoLastPracticed, updateVideoTranscript, clearVideoSegments, updateVideoNotes } from '@/lib/library-storage'
 import { LibraryService } from '@/lib/services/library-service'
 import { useAppStore } from '@/lib/store'
+import { StorageService } from '@/lib/storage'
 import type { LibraryGroup, LibraryVideo, Recording } from '@/lib/types'
 import { UnifiedPracticeView } from '@/components/unified-practice-view'
 
@@ -32,7 +33,7 @@ function parseTime(timeStr: string): number | null {
 export default function PracticePage({ params }: { params: Promise<{ groupId: string; videoId: string }> }) {
     const { groupId, videoId } = use(params)
     const router = useRouter()
-    const { user } = useAppStore()
+    const { user, authInitialized } = useAppStore()
 
     const [group, setGroup] = useState<LibraryGroup | null>(null)
     const [video, setVideo] = useState<LibraryVideo | null>(null)
@@ -41,6 +42,7 @@ export default function PracticePage({ params }: { params: Promise<{ groupId: st
     const [recordings, setRecordings] = useState<Recording[]>([])
 
     const loadData = useCallback(async () => {
+        if (!authInitialized) return
         setIsLoading(true)
         try {
             if (user) {
@@ -67,11 +69,22 @@ export default function PracticePage({ params }: { params: Promise<{ groupId: st
         } finally {
             setIsLoading(false)
         }
-    }, [groupId, videoId, user])
+    }, [groupId, videoId, user, authInitialized])
 
     useEffect(() => {
         loadData()
     }, [loadData])
+
+    useEffect(() => {
+        let cancelled = false
+        let loaded: Recording[] = []
+        void StorageService.getRecordingsForVideo(videoId, [], groupId).then(items => {
+            loaded = items
+            if (cancelled) items.forEach(item => URL.revokeObjectURL(item.blobUrl))
+            else setRecordings(items)
+        }).catch(error => console.error('Could not restore recordings:', error))
+        return () => { cancelled = true; loaded.forEach(item => URL.revokeObjectURL(item.blobUrl)) }
+    }, [groupId, videoId])
 
     const handleAddSegments = async (segments: { start: number; end: number; label: string; lines: any[] }[], replaceTranscript?: boolean) => {
         setIsBulkAdding(true)
@@ -124,10 +137,15 @@ export default function PracticePage({ params }: { params: Promise<{ groupId: st
     }
 
     const handleSaveRecording = async (rec: Recording) => {
-        setRecordings(prev => [...prev, rec])
+        const saved = { ...rec, videoId, groupId }
+        await StorageService.saveRecording(saved)
+        setRecordings(prev => [...prev, saved])
     }
 
     const handleDeleteRecording = async (id: string) => {
+        await StorageService.deleteRecording(id)
+        const recording = recordings.find(item => item.id === id)
+        if (recording) URL.revokeObjectURL(recording.blobUrl)
         setRecordings(prev => prev.filter(r => r.id !== id))
     }
 
@@ -196,10 +214,8 @@ export default function PracticePage({ params }: { params: Promise<{ groupId: st
                     onSaveRecording={handleSaveRecording}
                     onDeleteRecording={handleDeleteRecording}
                     onUpdateNotes={handleUpdateNotes}
-                    onUpdateTranscript={handleUpdateTranscript}
                 />
             </main>
         </div>
     )
 }
-

@@ -94,7 +94,8 @@ export function SegmentCreator() {
       label: segmentName.trim() || `Segment ${segments.length + 1}`,
       start,
       end,
-      transcriptText: '',
+      lines: [],
+      createdAt: Date.now(),
     }
 
     addSegment(segment)
@@ -117,7 +118,8 @@ export function SegmentCreator() {
       label: segmentName.trim() || `Segment ${segments.length + 1}`,
       start,
       end,
-      transcriptText: '',
+      lines: [],
+      createdAt: Date.now(),
     }
 
     addSegment(segment)

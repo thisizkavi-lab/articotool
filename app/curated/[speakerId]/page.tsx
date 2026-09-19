@@ -1,4 +1,5 @@
 import { ArrowLeft, Clock, Play, Sparkles, CheckCircle2 } from 'lucide-react'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { getCuratedSpeaker } from '@/lib/curated-library'
@@ -25,9 +26,9 @@ export default async function CuratedSpeakerPage({ params }: { params: Promise<{
       <header className="border-b border-border/50 bg-background/95 backdrop-blur sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
-            <a href="/curated" aria-label="Back to curated people">
+            <Link href="/curated" aria-label="Back to curated people">
               <ArrowLeft className="h-4 w-4" />
-            </a>
+            </Link>
           </Button>
           <div>
             <h1 className="text-xl font-semibold tracking-tight">{speaker.name}</h1>
@@ -72,7 +73,7 @@ export default async function CuratedSpeakerPage({ params }: { params: Promise<{
             const practiceUrl = `/?v=${source.videoId}&curated=${source.id}`
 
             return (
-              <a key={source.id} href={practiceUrl} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg">
+              <Link key={source.id} href={practiceUrl} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg">
                 <article className="group">
                   <div className="relative aspect-video overflow-hidden rounded-lg bg-secondary border border-border/40">
                     <img
@@ -116,7 +117,7 @@ export default async function CuratedSpeakerPage({ params }: { params: Promise<{
                     </div>
                   </div>
                 </article>
-              </a>
+              </Link>
             )
           })}
         </div>
