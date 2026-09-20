@@ -11,7 +11,6 @@ export default function StandUpComedyPage() {
   const mikeReadyClips = mikeReadySources.reduce((sum, source) => sum + source.segments.length, 0)
   const mikeCuratingSources = mikeSpeaker?.sources.filter(source => source.status === 'curating').length ?? 0
   const mikeQueuedSources = mikeSpeaker?.sources.filter(source => source.status === 'queued').length ?? 0
-
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border/50 bg-background/95 backdrop-blur sticky top-0 z-50">
@@ -61,7 +60,6 @@ export default function StandUpComedyPage() {
             </Button>
           </div>
         </section>
-
         <section className="grid gap-4 sm:grid-cols-3 mb-10">
           <div className="rounded-xl border bg-card px-5 py-4">
             <p className="text-2xl font-semibold">{STAND_UP_COMEDY_MODELS.length}</p>
@@ -134,6 +132,7 @@ export default function StandUpComedyPage() {
         </div>
 
         <p className="text-xs text-muted-foreground mt-8 max-w-2xl">
+          Clips are promoted only after performance, transcript, and playback review. Mike&apos;s page shows the ready set alongside the remaining source queue so the corpus grows deliberately.
           Clips are promoted only after performance, transcript, and playback review. Mike&apos;s page shows the ready set alongside the remaining source queue so the corpus grows deliberately.
         </p>
       </main>
