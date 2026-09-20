@@ -586,6 +586,173 @@ const mikeGirlfriendsBoyfriend: CuratedCollection = {
   ],
 }
 
+const mikeWhatIShouldHaveSaid: CuratedCollection = {
+  id: 'mike-birbiglia-what-i-should-have-said',
+  speakerId: 'mike-birbiglia',
+  speaker: 'Mike Birbiglia',
+  sourceTitle: 'What I Should Have Said Was Nothing · Full Show',
+  videoId: 'FQ0OE6dz5yI',
+  videoTitle: 'Mike Birbiglia: What I Should Have Said Was Nothing (Full Show)',
+  channelName: 'Punchline',
+  thumbnail: 'https://i.ytimg.com/vi/FQ0OE6dz5yI/hqdefault.jpg',
+  duration: 3394,
+  description: 'A full performed show selected for premise, specific detail, character voice, escalation, callbacks, and emotional recovery. These short practice clips use the exact upload\'s timestamped English caption layer and favor complete, shadowable thoughts over the show\'s longer routines.',
+  focus: ['Premise', 'Specific detail', 'Character voice', 'Escalation', 'Callbacks', 'Emotional recovery'],
+  status: 'ready',
+  segments: [
+    segmentWithLines('WSN-001', 39, 99, 'Premise · establish a true story and let the audience lean in', [
+      transcriptLine("I'm going to tell you some stories tonight from my secret public journal, which is a blog that I write.", 39, 24),
+      transcriptLine('The stories I tell are true.', 69, 7),
+      transcriptLine('I always have people come up to me after shows and ask, “Was that true?”', 69, 18),
+      transcriptLine("I guess I could say it louder: yeah, it's probably true.", 87, 11),
+    ]),
+    segmentWithLines('WSN-002', 103, 160, 'Specific detail · turn a family habit into a shared phrase', [
+      transcriptLine("I love them, but if I met them at a party and they were strangers, I'd just be like, ‘These people.’", 103, 20),
+      transcriptLine("They're older, more boring versions of me.", 123, 10),
+    ]),
+    segmentWithLines('WSN-003', 160, 190, 'Language · decode a private family phrase in public', [
+      transcriptLine('They make up phrases.', 164, 6),
+      transcriptLine('My mother would say, “Like, funny at doing that.”', 164, 16),
+      transcriptLine('I decoded it. I realized that “fun” was her way of saying “hell.”', 174, 12),
+    ]),
+    segmentWithLines('WSN-004', 453, 515, 'Escalation · stack specific images on one absurd premise', [
+      transcriptLine("I didn't realize how good I was with computers until I met my parents.", 453, 16),
+      transcriptLine('If a stranger emails you an attachment, you should not open it because you can get a virus.', 453, 24),
+      transcriptLine('They ended up with a porn virus on their computer.', 483, 13),
+      transcriptLine('The icons became dildos.', 515, 7),
+    ]),
+    segmentWithLines('WSN-005', 515, 575, 'Aftermath · extend the image until the object has a point of view', [
+      transcriptLine('The icons became dildos.', 515, 7),
+      transcriptLine('A guy jumped out of the screen and was like, “Where is your daughter?”', 522, 17),
+      transcriptLine('They placed the computer in the corner with the screen facing the wall, like the computer had done something wrong.', 555, 20),
+    ]),
+    segmentWithLines('WSN-006', 1046, 1105, 'Character voice · give an internal voice a physical point of view', [
+      transcriptLine("I feel like when I go to bed at night, it's like a different human being enters my body for the night shift.", 1046, 24),
+      transcriptLine('I call my guy Sleepy Carl.', 1069, 8),
+      transcriptLine("He's a terrible employee, but he's a great dude.", 1069, 13),
+      transcriptLine('Why would you go out there when you can stay here, ride on a Ferris wheel, and make a pizza?', 1087, 18),
+    ]),
+    segmentWithLines('WSN-007', 2115, 2174, 'Callback · let one phrase define the whole performance', [
+      transcriptLine("I'm very awkward, and I have a habit of making awkward situations even more awkward.", 2115, 24),
+      transcriptLine('Now, what I should have said was nothing.', 2145, 9),
+      transcriptLine('What I did say was, “You’d be surprised.”', 2145, 14),
+      transcriptLine("I don't have an on-deck circle for ideas. It's just batter up.", 2159, 15),
+    ]),
+    segmentWithLines('WSN-008', 2632, 2675, 'Recovery · button a failure with generosity and a final turn', [
+      transcriptLine('At that point, I threw in the towel. I thanked the audience and apologized simultaneously.', 2632, 25),
+      transcriptLine('Joe, we are leaving this place now.', 2660, 8),
+      transcriptLine('Because everybody left, my odds are amazing.', 2668, 7),
+    ]),
+  ],
+}
+
+const mikeThirtyMinutesGirlfriendsBoyfriend: CuratedCollection = {
+  id: 'mike-birbiglia-30-minutes-girlfriends-boyfriend',
+  speakerId: 'mike-birbiglia',
+  speaker: 'Mike Birbiglia',
+  sourceTitle: "30 Minutes of My Girlfriend's Boyfriend",
+  videoId: 'DVLomO81nbE',
+  videoTitle: "Mike Birbiglia: 30 Minutes of My Girlfriend's Boyfriend",
+  channelName: 'Comedy Dynamics',
+  thumbnail: 'https://i.ytimg.com/vi/DVLomO81nbE/hqdefault.jpg',
+  duration: 1823,
+  description: 'A tighter performed cut built around precision, romantic awkwardness, delayed realization, and physical escalation. The practice set stays with self-contained beats from the exact upload\'s timestamped English caption layer.',
+  focus: ['Precision', 'Act-outs', 'Romantic awkwardness', 'Delayed realization', 'Red flags', 'Physical escalation'],
+  status: 'ready',
+  segments: [
+    segmentWithLines('MGB30-001', 31, 84, 'Act-out · turn a physical detail into character', [
+      transcriptLine("I've given up on having a traditional male physique, so now I'm going for ‘strong independent woman.’", 31, 19),
+      transcriptLine("Sometimes I'll skip whole sections of the difficult exercises when the instructor isn't looking.", 62, 22),
+    ]),
+    segmentWithLines('MGB30-002', 84, 140, 'Act-out · make the audience see the pose before the narrator explains it', [
+      transcriptLine('When she looks over, I always have to strike a pose as though I have been doing what everybody else has been doing.', 84, 26),
+      transcriptLine('It reminds me of the Olympics.', 110, 10),
+    ]),
+    segmentWithLines('MGB30-003', 223, 283, 'Romantic framing · make rejection concrete', [
+      transcriptLine('For a moment in the back seat, it felt like we were holding up two halves of a broken paper heart.', 223, 22),
+      transcriptLine('I offered to walk her to her room, and she said, “Sure.”', 246, 13),
+      transcriptLine('I think we should connect mouths.', 259, 8),
+      transcriptLine('Those are two very different mouth agendas.', 267, 9),
+    ]),
+    segmentWithLines('MGB30-004', 360, 420, 'Precision · build a comic category with a clean list', [
+      transcriptLine('There was the make-out club and the non-make-out club.', 360, 18),
+      transcriptLine('First order of business: Nintendo. Second order of business: why does nobody like us?', 388, 22),
+    ]),
+    segmentWithLines('MGB30-005', 426, 490, 'Callback · turn a tiny phone detail into a long-running premise', [
+      transcriptLine('She had to talk to me on the phone every night about homework, thanks to alphabetical order.', 426, 23),
+      transcriptLine('Mike, you have to stop. I am going to pee myself.', 458, 17),
+    ]),
+    segmentWithLines('MGB30-006', 933, 996, 'Perspective shift · let the audience see the red flag after the narrator', [
+      transcriptLine('She was a delinquent, and I thought that was a really strong quality.', 933, 19),
+      transcriptLine('I wanted to do things people write articles about.', 969, 12),
+    ]),
+    segmentWithLines('MGB30-007', 996, 1060, 'Red flags · name the pattern only after the story has earned it', [
+      transcriptLine('When you fall in love, you tend to overlook certain red flags.', 996, 15),
+      transcriptLine('The Jedi level of lying is when you lie about little stuff and nobody notices when you are lying about big stuff.', 1024, 23),
+    ]),
+    segmentWithLines('MGB30-008', 1167, 1230, 'Reveal · delay the conclusion by one beat', [
+      transcriptLine("And it's dawning on me that I'm hanging out with my girlfriend's boyfriend.", 1167, 14),
+      transcriptLine("It is indescribable meeting your girlfriend's boyfriend's parents for the first time.", 1209, 21),
+    ]),
+    segmentWithLines('MGB30-009', 1535, 1600, 'Physical escalation · make a confident argument collapse into a beat', [
+      transcriptLine('She sounds crazy, even if what she is saying is not that crazy.', 1535, 16),
+      transcriptLine("I know I'm right. I have to tell her about this in the morning.", 1559, 12),
+      transcriptLine("In one and a half seconds, I'm spun around.", 1571, 10),
+      transcriptLine("I think I'm dead. No, wait, I'm paralyzed. And then I hear nothing.", 1581, 17),
+    ]),
+  ],
+}
+
+const mikeThisAmericanLifeLive: CuratedCollection = {
+  id: 'mike-birbiglia-this-american-life-live',
+  speakerId: 'mike-birbiglia',
+  speaker: 'Mike Birbiglia',
+  sourceTitle: 'This American Life · Live at BAM',
+  videoId: '1x1iL8cNqiw',
+  videoTitle: 'Mike Birbiglia - This American Life - Live at BAM',
+  channelName: 'This American Life',
+  thumbnail: 'https://i.ytimg.com/vi/1x1iL8cNqiw/hqdefault.jpg',
+  duration: 671,
+  description: 'A compact live story with unusually clear presentation architecture: premise, escalation, physical action, and a callback ending. The clips use the exact performance\'s timestamped English caption layer and are kept short enough to rehearse as a story unit.',
+  focus: ['Premise', 'Escalation', 'Physical narration', 'Story stakes', 'Callbacks', 'Ending'],
+  status: 'ready',
+  segments: [
+    segmentWithLines('BAM-001', 59, 119, 'Premise · normalize a strange domestic detail before escalating', [
+      transcriptLine('My favorite thing about being married is that you can share jokes with your wife or husband that are funny to you.', 59, 24),
+      transcriptLine('When you have a cat, your barometer for humor is out the window.', 83, 16),
+      transcriptLine('I called Massachusetts “Catsachusetts,” which is not funny, but in our house was the joke of the year.', 99, 20),
+    ]),
+    segmentWithLines('BAM-002', 119, 180, 'Relationship stakes · let a tiny mistake reveal the whole marriage', [
+      transcriptLine('My wife asked me to acclimate Ivan to the bedroom.', 125, 15),
+      transcriptLine('My wife gave me a look I can only describe as divorce eyes.', 153, 18),
+      transcriptLine('Before that point, I was convinced we would be married forever.', 171, 9),
+    ]),
+    segmentWithLines('BAM-003', 180, 240, 'Escalation · make the relationship stake visible inside an absurd search', [
+      transcriptLine('There were parasitic mice in the house.', 183, 10),
+      transcriptLine('A mouse was watching TV also.', 214, 10),
+      transcriptLine('I do not like this show either.', 224, 8),
+    ]),
+    segmentWithLines('BAM-004', 310, 370, 'Rule · establish a shared agreement, then make the scene physical', [
+      transcriptLine('We have a cat. We do everything for the cat.', 310, 15),
+      transcriptLine('We have a gentleman’s agreement that if a mouse should walk in that door, he will kill that mouse.', 328, 25),
+      transcriptLine('We will never speak of that mouse again.', 353, 12),
+    ]),
+    segmentWithLines('BAM-005', 370, 400, 'Button · land the rule with a compact reference', [
+      transcriptLine("That's from Catfather.", 379, 8),
+    ]),
+    segmentWithLines('BAM-006', 456, 510, 'Physical payoff · make the action legible through clean narration', [
+      transcriptLine('I have a serious sleepwalking disorder, so I am not even really sure it is happening.', 456, 21),
+      transcriptLine('I put a cup over the mouse and take it into the backyard.', 490, 15),
+      transcriptLine('I put the mouse into the forest, where I can only assume that he walked into the mouth of a wolf.', 497, 13),
+    ]),
+    segmentWithLines('BAM-007', 531, 574, 'Callback · repeat the opening phrase with a transformed meaning', [
+      transcriptLine('A few minutes ago I prefaced the story with a Massachusetts-based pun.', 531, 17),
+      transcriptLine('I concluded the story with another Massachusetts-based pun that was nearly identical.', 548, 17),
+      transcriptLine('We applauded it, which means in a way it is like we are married.', 565, 9),
+    ]),
+  ],
+}
+
 const queuedMikeSource = (
   id: string,
   sourceTitle: string,
@@ -673,33 +840,9 @@ export const CURATED_SPEAKERS: CuratedSpeaker[] = [
     portrait: 'https://i.ytimg.com/vi/29LxAwlGTpk/hqdefault.jpg',
     sources: [
       mikeGirlfriendsBoyfriend,
-      queuedMikeSource(
-        'mike-birbiglia-what-i-should-have-said',
-        'What I Should Have Said Was Nothing · Full Show',
-        'FQ0OE6dz5yI',
-        'Mike Birbiglia: What I Should Have Said Was Nothing (Full Show)',
-        'Punchline',
-        3394,
-        'Full performed show candidate. Kept in curation until the transcript and YouTube timebase are aligned for reliable practice boundaries.',
-      ),
-      queuedMikeSource(
-        'mike-birbiglia-30-minutes-girlfriends-boyfriend',
-        "30 Minutes of My Girlfriend's Boyfriend",
-        'DVLomO81nbE',
-        "Mike Birbiglia: 30 Minutes of My Girlfriend's Boyfriend",
-        'Comedy Dynamics',
-        1823,
-        'Performed long-form cut candidate. Useful if the full show needs a shorter entry point; awaiting transcript review.',
-      ),
-      queuedMikeSource(
-        'mike-birbiglia-this-american-life-live',
-        'This American Life · Live at BAM',
-        '1x1iL8cNqiw',
-        'Mike Birbiglia - This American Life - Live at BAM',
-        'This American Life',
-        671,
-        'Live performance candidate with a strong story spine; awaiting a clean, practice-ready transcript layer.',
-      ),
+      mikeWhatIShouldHaveSaid,
+      mikeThirtyMinutesGirlfriendsBoyfriend,
+      mikeThisAmericanLifeLive,
       queuedMikeSource(
         'mike-birbiglia-comedy-central-presents',
         'Comedy Central Presents · Full Special',
