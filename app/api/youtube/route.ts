@@ -2,6 +2,16 @@ import { NextResponse } from 'next/server'
 
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY
 
+async function fallbackVideo(videoId: string) {
+    const url = new URL('https://www.youtube.com/oembed')
+    url.searchParams.set('url', `https://www.youtube.com/watch?v=${videoId}`)
+    url.searchParams.set('format', 'json')
+    const response = await fetch(url, { signal: AbortSignal.timeout(10000) })
+    if (!response.ok) throw new Error('Video metadata is unavailable')
+    const data = await response.json()
+    return { id: videoId, title: data.title, thumbnail: data.thumbnail_url, duration: 0, channelName: data.author_name, publishedAt: '' }
+}
+
 interface YouTubeVideoSnippet {
     title: string
     thumbnails: {
@@ -50,35 +60,25 @@ export async function GET(request: Request) {
     const playlistId = searchParams.get('playlistId')
     const query = searchParams.get('q')
 
+    if (videoId && !/^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
+        return NextResponse.json({ error: 'Invalid YouTube video ID.' }, { status: 400 })
+    }
+
     // If no API key is configured, fallback to oEmbed for single videos, 
     // but fail for search/playlist which require the API.
     if (!YOUTUBE_API_KEY) {
         // Fallback for single video ID
         if (videoId) {
             try {
-                const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`
-                const response = await fetch(oembedUrl)
-                if (!response.ok) throw new Error('Failed to fetch oEmbed data')
-                const data = await response.json()
-
-                return NextResponse.json({
-                    video: {
-                        id: videoId,
-                        title: data.title,
-                        thumbnail: data.thumbnail_url,
-                        duration: 0, // oEmbed doesn't return duration, strict duration requires API key
-                        channelName: data.author_name,
-                        publishedAt: new Date().toISOString() // Unknown
-                    }
-                })
+                return NextResponse.json({ video: await fallbackVideo(videoId) })
             } catch (err) {
-                return NextResponse.json({ error: 'YouTube API key missing and oEmbed fallback failed' }, { status: 500 })
+                return NextResponse.json({ error: 'Could not load this video. Check that the link is public and try again.' }, { status: 503 })
             }
         }
 
         return NextResponse.json({
-            error: 'Searching and Playlists require a YOUTUBE_API_KEY to be configured in settings.'
-        }, { status: 500 })
+            error: 'YouTube search and playlists are temporarily unavailable. You can still paste an individual video link to practice.'
+        }, { status: 503 })
     }
 
     try {
@@ -164,7 +164,8 @@ export async function GET(request: Request) {
             const videoResponse = await fetch(videoUrl)
             const videoData = await videoResponse.json()
 
-            if (!videoResponse.ok || !videoData.items?.length) {
+            if (!videoResponse.ok) throw new Error(videoData.error?.message || 'YouTube metadata lookup failed')
+            if (!videoData.items?.length) {
                 throw new Error('Video not found')
             }
 
@@ -185,8 +186,14 @@ export async function GET(request: Request) {
 
     } catch (error) {
         console.error('YouTube API error:', error)
+        if (videoId) {
+            try { return NextResponse.json({ video: await fallbackVideo(videoId) }) }
+            catch { /* Report a recoverable error if both metadata sources fail. */ }
+        }
         return NextResponse.json({
-            error: error instanceof Error ? error.message : 'Failed to fetch from YouTube'
-        }, { status: 500 })
+            error: videoId
+                ? 'Could not load this video. Check that the link is public and try again.'
+                : 'YouTube search and playlists are temporarily unavailable. You can still paste an individual video link to practice.'
+        }, { status: 503 })
     }
 }

@@ -107,6 +107,8 @@ export function UnifiedPracticeView({
     const [previewIsUnsaved, setPreviewIsUnsaved] = useState(false)
     const [cameraStatus, setCameraStatus] = useState<CameraStatus>('idle')
     const [cameraError, setCameraError] = useState('')
+    const [saveError, setSaveError] = useState('')
+    const [isSaving, setIsSaving] = useState(false)
 
     const playerRef = useRef<YTPlayer | null>(null)
     const playerReadyRef = useRef(false)
@@ -422,13 +424,13 @@ export function UnifiedPracticeView({
         <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6 items-stretch">
                 <Card className="p-4 border-border/50 bg-card">
-                    <div className="flex items-center justify-between mb-2 gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-3">
                         <div className="min-w-0 flex-1">
                             <h3 className="font-semibold text-sm truncate">{video.title}</h3>
                             <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold opacity-70">Watch · imitate · repeat</p>
                         </div>
 
-                        <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
                             <Button variant="ghost" size="sm" onClick={onClearSegments} className="text-destructive h-7 text-xs px-2" disabled={!video.segments.length}>
                                 <Trash2 className="h-3 w-3 mr-1" /> Clear
                             </Button>
@@ -732,9 +734,11 @@ export function UnifiedPracticeView({
                                             }}>
                                                 <RotateCcw className="h-4 w-4 mr-2" /> Retry
                                             </Button>
-                                            <Button onClick={async () => {
+                                            <Button disabled={isSaving} onClick={async () => {
                                                 if (!activeSegment || !previewType) return
-                                                await onSaveRecording({
+                                                setIsSaving(true)
+                                                setSaveError('')
+                                                try { await onSaveRecording({
                                                     id: `rec-${Date.now()}`,
                                                     segmentId: activeSegment.id,
                                                     blobUrl: previewUrl,
@@ -742,12 +746,17 @@ export function UnifiedPracticeView({
                                                     createdAt: Date.now(),
                                                 })
                                                 setPreviewIsUnsaved(false)
+                                                } catch {
+                                                    setSaveError('Could not save this take. Keep this page open and try again.')
+                                                } finally { setIsSaving(false) }
                                             }}>
-                                                Save Take
+                                                {isSaving ? 'Saving…' : 'Save Take'}
                                             </Button>
                                         </>
                                     )}
                                 </div>
+
+                                {saveError && <p role="alert" className="text-sm text-destructive">{saveError}</p>}
 
                                 {!activeSegment && (
                                     <p className="text-xs text-center text-muted-foreground">
@@ -770,7 +779,13 @@ export function UnifiedPracticeView({
                                                         }}>
                                                             <Play className="h-3 w-3" />
                                                         </Button>
-                                                        <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => onDeleteRecording(recording.id)}>
+                                                        <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" aria-label="Delete take" onClick={async () => {
+                                                            try {
+                                                                await onDeleteRecording(recording.id)
+                                                                if (previewUrl === recording.blobUrl) { setPreviewUrl(null); setPreviewType(null) }
+                                                                setSaveError('')
+                                                            } catch { setSaveError('Could not delete this take. Please try again.') }
+                                                        }}>
                                                             <Trash2 className="h-3 w-3" />
                                                         </Button>
                                                     </div>

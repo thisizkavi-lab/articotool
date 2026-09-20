@@ -176,9 +176,10 @@ async function fetchTranscriptManual(videoId: string): Promise<TranscriptSegment
         const initialData = JSON.parse(initialDataMatch[1]!)
         const findParams = (obj: any): void => {
           if (!obj || typeof obj !== 'object' || transcriptParams) return
-          if (obj.getTranscriptEndpoint?.params) {
-            transcriptParams = obj.getTranscriptEndpoint.params
-            debugLog(`[Transcript Debug] Found transcriptParams: ${transcriptParams.slice(0, 20)}...`)
+          if (typeof obj.getTranscriptEndpoint?.params === 'string') {
+            const params: string = obj.getTranscriptEndpoint.params
+            transcriptParams = params
+            debugLog(`[Transcript Debug] Found transcriptParams: ${params.slice(0, 20)}...`)
           }
           for (const key in obj) findParams(obj[key])
         }
@@ -270,7 +271,7 @@ async function fetchTranscriptManual(videoId: string): Promise<TranscriptSegment
 
         if (nextResponse.ok) {
           const nextJson = await nextResponse.json()
-          let freshParams = null
+          let freshParams: string | null = null
 
           // Deep search for getTranscriptEndpoint
           const findParams = (obj: any): void => {

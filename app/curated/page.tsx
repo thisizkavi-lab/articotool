@@ -1,7 +1,9 @@
-import { ArrowLeft, ArrowRight, BookOpen, Languages, Sparkles } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, Languages, Mic2, Sparkles } from 'lucide-react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { CURATED_SPEAKERS } from '@/lib/curated-library'
+import { STAND_UP_COMEDY_MODELS } from '@/lib/stand-up-comedy'
 
 export default function CuratedPage() {
   return (
@@ -9,9 +11,9 @@ export default function CuratedPage() {
       <header className="border-b border-border/50 bg-background/95 backdrop-blur sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
-            <a href="/" aria-label="Back to practice">
+            <Link href="/" aria-label="Back to practice">
               <ArrowLeft className="h-4 w-4" />
-            </a>
+            </Link>
           </Button>
           <div>
             <h1 className="text-xl font-semibold tracking-tight">Curated</h1>
@@ -48,7 +50,7 @@ export default function CuratedPage() {
               const readyClips = readySources.reduce((sum, source) => sum + source.segments.length, 0)
 
               return (
-                <a key={speaker.id} href={`/curated/${speaker.id}`} className="block group">
+                <Link key={speaker.id} href={`/curated/${speaker.id}`} className="block group">
                   <Card className="h-full overflow-hidden transition-colors group-hover:border-primary/50">
                     <div className="aspect-[16/9] bg-secondary overflow-hidden">
                       <img
@@ -84,9 +86,48 @@ export default function CuratedPage() {
                       </div>
                     </CardContent>
                   </Card>
-                </a>
+                </Link>
               )
             })}
+
+            <Link href="/curated/stand-up-comedy" className="block group">
+              <Card className="h-full overflow-hidden transition-colors group-hover:border-primary/50">
+                <div className="aspect-[16/9] bg-secondary flex items-center justify-center px-8">
+                  <div className="text-center">
+                    <Mic2 className="h-12 w-12 mx-auto mb-3 text-muted-foreground" strokeWidth={1.25} />
+                    <p className="text-xs font-medium tracking-[0.18em] text-muted-foreground">STAND-UP COMEDY</p>
+                    <p className="mt-2 text-sm text-muted-foreground">Make ideas land like a performance.</p>
+                  </div>
+                </div>
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground mb-1">English · performance language</p>
+                      <h4 className="text-2xl font-semibold tracking-tight">Stand-up Comedy</h4>
+                      <p className="text-sm text-muted-foreground mt-1">{STAND_UP_COMEDY_MODELS.length} reference models · clip hunt ready</p>
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-muted-foreground mt-1 transition-transform group-hover:translate-x-1" />
+                  </div>
+
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                    Study the mechanics behind memorable communication: story, rhythm, audience connection, structure, persuasion, and language.
+                  </p>
+
+                  <div className="flex flex-wrap gap-2 mb-5">
+                    {['Storytelling', 'Rhythm', 'Audience', 'Structure'].map(item => (
+                      <span key={item} className="text-xs px-2.5 py-1 rounded-md bg-secondary text-secondary-foreground">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <BookOpen className="h-4 w-4" />
+                    Open reference collection
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
         </section>
 
@@ -100,7 +141,7 @@ export default function CuratedPage() {
           </div>
 
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            <a href="/curated/goldnrush-japanese" className="block group">
+            <Link href="/curated/goldnrush-japanese" className="block group">
               <Card className="h-full overflow-hidden transition-colors group-hover:border-primary/50">
                 <div className="aspect-[16/9] bg-secondary overflow-hidden">
                   <img
@@ -137,7 +178,7 @@ export default function CuratedPage() {
                   </div>
                 </CardContent>
               </Card>
-            </a>
+            </Link>
           </div>
         </section>
       </main>

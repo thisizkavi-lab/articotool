@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { PRESET_CHANNELS, type Channel, type VideoItem } from '@/lib/channels'
 import { Button } from '@/components/ui/button'
@@ -22,6 +22,8 @@ import {
 import { toast } from "sonner"
 import { getLibrary, addVideoToGroup } from '@/lib/library-storage'
 import type { Library } from '@/lib/types'
+import { useAppStore } from '@/lib/store'
+import { LibraryService } from '@/lib/services/library-service'
 
 export default function ExplorePage() {
     const router = useRouter()
@@ -32,22 +34,21 @@ export default function ExplorePage() {
     const [isLoading, setIsLoading] = useState(false)
     const [isSearching, setIsSearching] = useState(false)
     const [library, setLibrary] = useState<Library | null>(null)
+    const [error, setError] = useState<string | null>(null)
+    const { user, authInitialized } = useAppStore()
+    const autoSearchStarted = useRef(false)
 
     useEffect(() => {
         const loadLibrary = async () => {
-            const lib = await getLibrary()
+            if (!authInitialized) return
+            const lib = user ? await LibraryService.getLibrary() : await getLibrary()
             setLibrary(lib)
         }
         loadLibrary()
-    }, [])
-
-    useEffect(() => {
-        if (selectedChannel) {
-            loadChannelVideos(selectedChannel.id)
-        }
-    }, [selectedChannel])
+    }, [user, authInitialized])
 
     const loadChannelVideos = async (channelId: string) => {
+        setError(null)
         setIsLoading(true)
         setIsSearching(false)
         setSearchResults([])
@@ -63,26 +64,43 @@ export default function ExplorePage() {
         }
     }
 
-    const handleSearch = async (e?: React.FormEvent) => {
-        if (e) e.preventDefault()
-        if (!searchQuery.trim()) return
-
+    const performSearch = useCallback(async (query: string) => {
         setIsLoading(true)
+        setError(null)
         setIsSearching(true)
         setSelectedChannel(null)
         setVideos([])
 
         try {
-            const response = await fetch(`/api/youtube?q=${encodeURIComponent(searchQuery)}`)
+            const response = await fetch(`/api/youtube?q=${encodeURIComponent(query)}`)
             const data = await response.json()
+            if (!response.ok || data.error) throw new Error(data.error || 'YouTube search is unavailable. Please try again shortly.')
             setSearchResults(data.videos || [])
         } catch (error) {
             console.error('Failed to search videos:', error)
+            setError(error instanceof Error ? error.message : 'YouTube search is unavailable. Please try again shortly.')
             setSearchResults([])
         } finally {
             setIsLoading(false)
         }
+    }, [])
+
+    const handleSearch = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault()
+        const query = searchQuery.trim()
+        if (!query) return
+
+        await performSearch(query)
     }
+
+    useEffect(() => {
+        const query = new URLSearchParams(window.location.search).get('q')?.trim()
+        if (!query || autoSearchStarted.current) return
+
+        autoSearchStarted.current = true
+        setSearchQuery(query)
+        void performSearch(query)
+    }, [performSearch])
 
     const handleVideoClick = (videoId: string) => {
         // Navigate to home with the video ID as a query param
@@ -98,14 +116,17 @@ export default function ExplorePage() {
             const transcriptData = await transcriptRes.json()
 
             // Add to library
-            const success = await addVideoToGroup(groupId, {
+            const videoData = {
                 id: video.id,
                 title: video.title,
                 thumbnail: video.thumbnail,
                 duration: 0, // Duration will be updated when first played or we can try to fetch it
                 channelName: video.channelName,
                 transcript: transcriptData.transcript || []
-            })
+            }
+            const success = user
+                ? await LibraryService.addVideoToGroup(groupId, { ...videoData, segments: [], recordings: [], addedAt: Date.now(), lastPracticedAt: null })
+                : await addVideoToGroup(groupId, videoData)
 
             if (success) {
                 toast.success("Added to library", { id: toastId })
@@ -181,7 +202,7 @@ export default function ExplorePage() {
                             <Card
                                 key={channel.id}
                                 className="cursor-pointer hover:border-primary/50 transition-colors"
-                                onClick={() => setSelectedChannel(channel)}
+                                onClick={() => { setSelectedChannel(channel); void loadChannelVideos(channel.id) }}
                             >
                                 <CardHeader>
                                     <div className="flex items-center gap-3">
@@ -209,6 +230,8 @@ export default function ExplorePage() {
                             <div className="flex items-center justify-center py-20">
                                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                             </div>
+                        ) : error ? (
+                            <div role="alert" className="rounded-lg border border-destructive/40 p-6 text-sm text-destructive">{error}</div>
                         ) : (selectedChannel ? videos : searchResults).length === 0 ? (
                             <div className="text-center py-20 text-muted-foreground">
                                 {isSearching ? 'No videos found for your search.' : 'No videos found for this channel.'}

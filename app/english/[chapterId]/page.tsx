@@ -1,4 +1,5 @@
 import { ArrowLeft, Play, Search, Star } from 'lucide-react'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -17,9 +18,9 @@ export default async function EverydayEnglishChapterPage({ params }: { params: P
       <header className="border-b border-border/50 bg-background/95 backdrop-blur sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
-            <a href="/english" aria-label="Back to Everyday English">
+            <Link href="/english" aria-label="Back to Everyday English">
               <ArrowLeft className="h-4 w-4" />
-            </a>
+            </Link>
           </Button>
           <div>
             <p className="text-xs text-muted-foreground">Everyday English · Chapter {String(chapter.number).padStart(2, '0')}</p>
@@ -73,10 +74,10 @@ export default async function EverydayEnglishChapterPage({ params }: { params: P
                   <div className="text-right shrink-0 hidden sm:block">
                     <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">Clip match</p>
                     {practiceUrl && segment && clipMatch ? (
-                      <a href={practiceUrl} className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+                      <Link href={practiceUrl} className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
                         <Play className="h-3 w-3 fill-current" />
                         Practice {Math.round(segment.end - segment.start)}s clip
-                      </a>
+                      </Link>
                     ) : (
                       <p className="text-xs font-medium">Not matched yet</p>
                     )}

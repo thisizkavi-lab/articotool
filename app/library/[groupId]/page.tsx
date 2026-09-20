@@ -47,7 +47,7 @@ function extractVideoOrPlaylistId(url: string): { type: 'video' | 'playlist'; id
 export default function GroupPage({ params }: { params: Promise<{ groupId: string }> }) {
     const { groupId } = use(params)
     const router = useRouter()
-    const { user } = useAppStore()
+    const { user, authInitialized } = useAppStore()
     const [group, setGroup] = useState<LibraryGroup | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [isAddingVideo, setIsAddingVideo] = useState(false)
@@ -55,6 +55,7 @@ export default function GroupPage({ params }: { params: Promise<{ groupId: strin
     const [addError, setAddError] = useState<string | null>(null)
 
     const loadGroup = useCallback(async () => {
+        if (!authInitialized) return
         setIsLoading(true)
         if (user) {
             const lib = await LibraryService.getLibrary()
@@ -66,7 +67,7 @@ export default function GroupPage({ params }: { params: Promise<{ groupId: strin
             setGroup(foundGroup || null)
         }
         setIsLoading(false)
-    }, [groupId, user])
+    }, [groupId, user, authInitialized])
 
     useEffect(() => {
         loadGroup()

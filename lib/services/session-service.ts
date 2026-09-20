@@ -1,8 +1,19 @@
 
 import { createClient } from "@/utils/supabase/client"
-import { DbSession, DbSegment, TranscriptLine, Segment } from "@/lib/types"
+import type { DbSegment, Segment } from "@/lib/types"
 
 export const SessionService = {
+
+    async findSession(videoId: string): Promise<string | null> {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return null
+        const { data, error } = await supabase.from('sessions').select('id')
+            .eq('video_id', videoId).eq('user_id', user.id)
+            .order('updated_at', { ascending: false }).limit(1).maybeSingle()
+        if (error) throw error
+        return data?.id ?? null
+    },
 
     async createSession(videoId: string): Promise<string | null> {
         const supabase = createClient()
@@ -12,17 +23,16 @@ export const SessionService = {
 
         const timestamp = Date.now()
 
-        // 1. Check if session already exists for this video? 
-        // For now, let's treat every "practice" as a potentially new session or just get the latest one.
-        // Let's try to upsert or just insert. 
-        // Simplest: Check if one exists.
-        const { data: existing } = await supabase
+        const { data: existing, error: lookupError } = await supabase
             .from('sessions')
             .select('id')
             .eq('video_id', videoId)
             .eq('user_id', user.id)
-            .single()
+            .order('updated_at', { ascending: false })
+            .limit(1)
+            .maybeSingle()
 
+        if (lookupError) throw lookupError
         if (existing) return existing.id
 
         // 2. Create new session
@@ -102,38 +112,40 @@ export const SessionService = {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return false
 
-        // 1. Delete all existing segments for this session (Simple Sync)
-        const { error: deleteError } = await supabase
-            .from('segments')
-            .delete()
-            .eq('session_id', sessionId)
+        const { data: existing, error: readError } = await supabase.from('segments')
+            .select('id').eq('session_id', sessionId)
+        if (readError) return false
 
-        if (deleteError) {
-            console.error("Error clearing segments for sync:", deleteError)
-            return false
-        }
-
-        if (segments.length === 0) return true
-
-        // 2. Insert current segments
-        const dbSegments = segments.map(s => ({
+        // Keep stable IDs, including deterministic UUIDs for curated clip IDs.
+        // Upsert before deleting removed rows so a failed save preserves old data.
+        const dbSegments = await Promise.all(segments.map(async s => ({
+            id: await cloudSegmentId(sessionId, s.id),
             session_id: sessionId,
             user_id: user.id,
             start_time: s.start,
             end_time: s.end,
             text: s.label
-        }))
+        })))
 
-        const { error: insertError } = await supabase
+        const { error: insertError } = dbSegments.length ? await supabase
             .from('segments')
-            .insert(dbSegments)
+            .upsert(dbSegments, { onConflict: 'id' }) : { error: null }
 
         if (insertError) {
             console.error("Error inserting segments for sync:", insertError)
             return false
         }
 
-        return true
+        const keep = new Set(dbSegments.map(segment => segment.id))
+        const removed = (existing ?? []).filter(segment => !keep.has(segment.id)).map(segment => segment.id)
+        if (removed.length) {
+            const { error } = await supabase.from('segments').delete()
+                .eq('session_id', sessionId).in('id', removed)
+            if (error) return false
+        }
+        const { error } = await supabase.from('sessions')
+            .update({ updated_at: new Date().toISOString() }).eq('id', sessionId)
+        return !error
     },
 
     async saveSegment(sessionId: string, segment: Segment): Promise<string | null> {
@@ -171,4 +183,13 @@ export const SessionService = {
         const supabase = createClient()
         await supabase.from('segments').delete().eq('session_id', sessionId)
     }
+}
+
+async function cloudSegmentId(sessionId: string, segmentId: string): Promise<string> {
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(segmentId)) return segmentId
+    const bytes = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${sessionId}:${segmentId}`))).slice(0, 16)
+    bytes[6] = (bytes[6] & 0x0f) | 0x50
+    bytes[8] = (bytes[8] & 0x3f) | 0x80
+    const hex = Array.from(bytes, value => value.toString(16).padStart(2, '0')).join('')
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`
 }
