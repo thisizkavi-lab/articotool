@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { PRESET_CHANNELS, type Channel, type VideoItem } from '@/lib/channels'
 import { Button } from '@/components/ui/button'
@@ -36,6 +36,7 @@ export default function ExplorePage() {
     const [library, setLibrary] = useState<Library | null>(null)
     const [error, setError] = useState<string | null>(null)
     const { user, authInitialized } = useAppStore()
+    const autoSearchStarted = useRef(false)
 
     useEffect(() => {
         const loadLibrary = async () => {
@@ -63,10 +64,7 @@ export default function ExplorePage() {
         }
     }
 
-    const handleSearch = async (e?: React.FormEvent) => {
-        if (e) e.preventDefault()
-        if (!searchQuery.trim()) return
-
+    const performSearch = useCallback(async (query: string) => {
         setIsLoading(true)
         setError(null)
         setIsSearching(true)
@@ -74,7 +72,7 @@ export default function ExplorePage() {
         setVideos([])
 
         try {
-            const response = await fetch(`/api/youtube?q=${encodeURIComponent(searchQuery)}`)
+            const response = await fetch(`/api/youtube?q=${encodeURIComponent(query)}`)
             const data = await response.json()
             if (!response.ok || data.error) throw new Error(data.error || 'YouTube search is unavailable. Please try again shortly.')
             setSearchResults(data.videos || [])
@@ -85,7 +83,24 @@ export default function ExplorePage() {
         } finally {
             setIsLoading(false)
         }
+    }, [])
+
+    const handleSearch = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault()
+        const query = searchQuery.trim()
+        if (!query) return
+
+        await performSearch(query)
     }
+
+    useEffect(() => {
+        const query = new URLSearchParams(window.location.search).get('q')?.trim()
+        if (!query || autoSearchStarted.current) return
+
+        autoSearchStarted.current = true
+        setSearchQuery(query)
+        void performSearch(query)
+    }, [performSearch])
 
     const handleVideoClick = (videoId: string) => {
         // Navigate to home with the video ID as a query param
