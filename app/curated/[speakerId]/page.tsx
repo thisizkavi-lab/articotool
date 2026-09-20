@@ -20,6 +20,8 @@ export default async function CuratedSpeakerPage({ params }: { params: Promise<{
 
   const readySources = speaker.sources.filter(source => source.status === 'ready' && source.videoId !== null)
   const readyClips = readySources.reduce((sum, source) => sum + source.segments.length, 0)
+  const pendingSources = speaker.sources.filter(source => source.status !== 'ready')
+  const isPerformanceStudy = speaker.id === 'mike-birbiglia'
 
   return (
     <div className="min-h-screen bg-background">
@@ -45,9 +47,11 @@ export default async function CuratedSpeakerPage({ params }: { params: Promise<{
           <div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
               <Sparkles className="h-3.5 w-3.5" />
-              Articulation study
+              {isPerformanceStudy ? 'Performance study' : 'Articulation study'}
             </div>
-            <h2 className="text-2xl font-semibold tracking-tight mb-2">Only finished sources belong here.</h2>
+            <h2 className="text-2xl font-semibold tracking-tight mb-2">
+              {isPerformanceStudy ? 'Shadow the finished set; keep the queue honest.' : 'Only finished sources belong here.'}
+            </h2>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-3xl mb-4">{speaker.description}</p>
             <div className="flex flex-wrap gap-1.5">
               {speaker.focus.map(item => (
@@ -121,6 +125,48 @@ export default async function CuratedSpeakerPage({ params }: { params: Promise<{
             )
           })}
         </div>
+
+        {isPerformanceStudy && pendingSources.length > 0 && (
+          <section className="mt-12 border-t border-border/60 pt-7">
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold tracking-tight">Source pipeline</h3>
+              <p className="mt-1 max-w-2xl text-xs leading-relaxed text-muted-foreground">
+                These are performed candidates, not search results. They stay out of practice until the transcript and playback boundaries are dependable.
+              </p>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              {pendingSources.map(source => {
+                const statusLabel = source.status === 'curating' ? 'Transcript review' : 'Queued'
+                const statusClass = source.status === 'curating'
+                  ? 'bg-amber-500/10 text-amber-700 dark:text-amber-300'
+                  : 'bg-secondary text-secondary-foreground'
+
+                return (
+                  <div key={source.id} className="rounded-xl border bg-card p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h4 className="text-sm font-semibold leading-snug">{source.sourceTitle}</h4>
+                        <p className="mt-1 text-[11px] text-muted-foreground">{source.channelName} · {formatTime(source.duration)}</p>
+                      </div>
+                      <span className={`shrink-0 rounded-md px-2 py-1 text-[10px] font-medium ${statusClass}`}>{statusLabel}</span>
+                    </div>
+                    <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{source.description}</p>
+                    {source.videoId && (
+                      <a
+                        href={`https://www.youtube.com/watch?v=${source.videoId}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-3 inline-flex text-xs font-medium text-primary hover:underline"
+                      >
+                        Open performed source
+                      </a>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+        )}
       </main>
     </div>
   )

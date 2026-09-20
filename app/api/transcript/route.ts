@@ -1,11 +1,8 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
 
-const LOG_FILE = path.join(process.cwd(), 'youtube-debug.log')
 function debugLog(message: string) {
-  const timestamp = new Date().toISOString()
-  fs.appendFileSync(LOG_FILE, `[${timestamp}] ${message}\n`)
+  // Vercel functions run with a read-only filesystem. Keep diagnostics in the
+  // function log stream instead of attempting to write into the deployment.
   console.log(message)
 }
 

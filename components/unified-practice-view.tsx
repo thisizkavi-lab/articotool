@@ -622,6 +622,21 @@ export function UnifiedPracticeView({
                                     </div>
                                 </div>
 
+                                {activeSegment && activeSegment.lines.length > 0 && (
+                                    <div className="shrink-0 rounded-lg border border-border/60 bg-secondary/20 p-3">
+                                        <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                                            <FileText className="h-3.5 w-3.5" />
+                                            Shadow text
+                                        </div>
+                                        <p className="mt-2 text-sm leading-relaxed">
+                                            {activeSegment.lines.map(line => line.text).join(' ')}
+                                        </p>
+                                        <p className="mt-2 text-[10px] text-muted-foreground">
+                                            Reviewed cue layer · listen once, then imitate the structure and delivery.
+                                        </p>
+                                    </div>
+                                )}
+
                                 <div className="flex justify-center gap-6 shrink-0">
                                     <label className="flex items-center gap-2 cursor-pointer">
                                         <Checkbox checked={recordAudio} onCheckedChange={value => setRecordAudio(!!value)} disabled={isRecording} />

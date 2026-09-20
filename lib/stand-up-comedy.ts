@@ -4,7 +4,6 @@ export interface StandUpReferenceModel {
   skill: string
   description: string
   study: string[]
-  searchQuery: string
 }
 
 export const STAND_UP_COMEDY_MODELS: StandUpReferenceModel[] = [
@@ -14,7 +13,6 @@ export const STAND_UP_COMEDY_MODELS: StandUpReferenceModel[] = [
     skill: 'Storytelling and vulnerability',
     description: 'Study how personal detail becomes a story with a clear emotional turn, without forcing the performance.',
     study: ['Story structure', 'Personal detail', 'Calm delivery', 'Callbacks', 'Emotional payoff'],
-    searchQuery: 'Mike Birbiglia storytelling stand up interview',
   },
   {
     id: 'john-mulaney',
@@ -22,7 +20,6 @@ export const STAND_UP_COMEDY_MODELS: StandUpReferenceModel[] = [
     skill: 'Precision and rhythm',
     description: 'Study sentence-level construction: how exact wording, pauses, and physical delivery make a thought feel inevitable.',
     study: ['Sentence design', 'Wording', 'Timing', 'Pauses', 'Act-outs', 'Setup and payoff'],
-    searchQuery: 'John Mulaney stand up storytelling timing interview',
   },
   {
     id: 'trevor-noah',
@@ -30,7 +27,6 @@ export const STAND_UP_COMEDY_MODELS: StandUpReferenceModel[] = [
     skill: 'Audience connection and translation',
     description: 'Study how one experience can be translated across cultures and audiences while staying warm, specific, and human.',
     study: ['Explaining experiences to different audiences', 'Perspective shifts', 'Warmth', 'Character voices'],
-    searchQuery: 'Trevor Noah stand up storytelling audience perspective interview',
   },
   {
     id: 'hasan-minhaj',
@@ -38,7 +34,6 @@ export const STAND_UP_COMEDY_MODELS: StandUpReferenceModel[] = [
     skill: 'Presentation architecture',
     description: 'Study how a presentation compounds: a thesis becomes evidence, visual logic, escalation, and personal stakes.',
     study: ['Thesis', 'Evidence', 'Visuals', 'Escalation', 'Personal stakes', 'Dramatic structure'],
-    searchQuery: 'Hasan Minhaj presentation storytelling thesis evidence interview',
   },
   {
     id: 'chris-rock',
@@ -46,7 +41,6 @@ export const STAND_UP_COMEDY_MODELS: StandUpReferenceModel[] = [
     skill: 'Persuasive force',
     description: 'Study how repetition, emphasis, and vocal energy turn a strong opinion into an argument people can feel.',
     study: ['Repetition', 'Emphasis', 'Rhythm', 'Vocal energy', 'Strong opinions', 'Argument-building'],
-    searchQuery: 'Chris Rock stand up argument repetition rhythm interview',
   },
   {
     id: 'george-carlin',
@@ -54,6 +48,5 @@ export const STAND_UP_COMEDY_MODELS: StandUpReferenceModel[] = [
     skill: 'Language and thinking',
     description: 'Study how definitions, categories, contrasts, and economical word choice make an idea sharper and harder to forget.',
     study: ['Definitions', 'Categorization', 'Contrast', 'Word choice', 'Intellectual clarity', 'Verbal economy'],
-    searchQuery: 'George Carlin language thinking definitions word choice interview',
   },
 ]
