@@ -1,7 +1,8 @@
 import { ArrowLeft, CheckCircle2, Clock, Play } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { getCuratedSpeaker } from '@/lib/curated-library'
+import { CURATED_SPEAKERS } from '@/lib/curated-library'
+import { STAND_UP_COMEDY_MODELS } from '@/lib/stand-up-comedy'
 
 function formatTime(seconds: number): string {
   const hours = Math.floor(seconds / 3600)
@@ -13,8 +14,14 @@ function formatTime(seconds: number): string {
 }
 
 export default function StandUpComedyPage() {
-  const mikeSpeaker = getCuratedSpeaker('mike-birbiglia')
-  const readySources = mikeSpeaker?.sources.filter(source => source.status === 'ready' && source.videoId !== null) ?? []
+  const standUpModelIds = new Set(STAND_UP_COMEDY_MODELS.map(model => model.id))
+  const standUpSpeakers = CURATED_SPEAKERS.filter(speaker => standUpModelIds.has(speaker.id))
+  const readySources = standUpSpeakers.flatMap(speaker =>
+    speaker.sources.filter(source => source.status === 'ready' && source.videoId !== null),
+  )
+  const pendingSources = standUpSpeakers.flatMap(speaker =>
+    speaker.sources.filter(source => source.status !== 'ready'),
+  )
 
   return (
     <div className="min-h-screen bg-background">
@@ -38,7 +45,9 @@ export default function StandUpComedyPage() {
             <h2 className="text-lg font-semibold tracking-tight">Videos</h2>
             <p className="text-xs text-muted-foreground mt-0.5">Open a performance to practice its curated segments.</p>
           </div>
-          <p className="text-xs text-muted-foreground hidden sm:block">{readySources.length} ready source{readySources.length === 1 ? '' : 's'}</p>
+          <p className="text-xs text-muted-foreground hidden sm:block">
+            {readySources.length} ready source{readySources.length === 1 ? '' : 's'} · {STAND_UP_COMEDY_MODELS.length} models
+          </p>
         </div>
 
         {readySources.length > 0 ? (
@@ -100,6 +109,45 @@ export default function StandUpComedyPage() {
           <div className="rounded-xl border bg-card p-6 text-sm text-muted-foreground">
             No performances are ready to practice yet.
           </div>
+        )}
+
+        {pendingSources.length > 0 && (
+          <section className="mt-12 border-t border-border/60 pt-7">
+            <div className="mb-4">
+              <h2 className="text-lg font-semibold tracking-tight">Still curating</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Candidates stay here until the source, transcript, and playback timebase are dependable.</p>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+              {pendingSources.map(source => {
+                const statusLabel = source.status === 'curating' ? 'Transcript review' : 'Queued'
+                const statusClass = source.status === 'curating'
+                  ? 'bg-amber-500/10 text-amber-700 dark:text-amber-300'
+                  : 'bg-secondary text-secondary-foreground'
+
+                return (
+                  <div key={source.id} className="rounded-xl border bg-card p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-[11px] text-muted-foreground">{source.speaker}</p>
+                        <h3 className="text-sm font-semibold leading-snug mt-1">{source.sourceTitle}</h3>
+                      </div>
+                      <span className={`shrink-0 rounded-md px-2 py-1 text-[10px] font-medium ${statusClass}`}>{statusLabel}</span>
+                    </div>
+                    {source.videoId && (
+                      <a
+                        href={`https://www.youtube.com/watch?v=${source.videoId}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-3 inline-flex text-xs font-medium text-primary hover:underline"
+                      >
+                        Open source
+                      </a>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </section>
         )}
       </main>
     </div>

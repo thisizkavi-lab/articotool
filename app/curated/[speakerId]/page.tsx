@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { getCuratedSpeaker } from '@/lib/curated-library'
+import { STAND_UP_COMEDY_MODELS } from '@/lib/stand-up-comedy'
 
 function formatTime(seconds: number): string {
   const hours = Math.floor(seconds / 3600)
@@ -21,7 +22,7 @@ export default async function CuratedSpeakerPage({ params }: { params: Promise<{
   const readySources = speaker.sources.filter(source => source.status === 'ready' && source.videoId !== null)
   const readyClips = readySources.reduce((sum, source) => sum + source.segments.length, 0)
   const pendingSources = speaker.sources.filter(source => source.status !== 'ready')
-  const isPerformanceStudy = speaker.id === 'mike-birbiglia'
+  const isPerformanceStudy = STAND_UP_COMEDY_MODELS.some(model => model.id === speaker.id)
 
   return (
     <div className="min-h-screen bg-background">
