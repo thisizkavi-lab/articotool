@@ -114,7 +114,7 @@ function HomeContent() {
   const [initialized, setInitialized] = useState(false)
   const {
     videoId, error, isLoading, initialize,
-    segments, recordings, removeSegment, setSegments,
+    segments, recordings, removeSegment, setSegments, setTranscript,
     addRecording, removeRecording, videoTitle,
     notes, setNotes, loadVideo,
   } = useAppStore()
@@ -145,8 +145,20 @@ function HomeContent() {
   // Curated clip boundaries are source-controlled and should always replace session clips.
   useEffect(() => {
     if (!initialized || !curatedCollection || isLoading || videoId !== curatedCollection.videoId) return
-    setSegments(curatedCollection.segments.map(segment => ({ ...segment, lines: [] })))
-  }, [initialized, curatedCollection, videoId, isLoading, setSegments])
+    const curatedSegments = curatedCollection.segments.map(segment => ({
+      ...segment,
+      lines: [...segment.lines],
+    }))
+    setSegments(curatedSegments)
+
+    // Some performed sources do not expose captions through YouTube. A curated
+    // source can still ship with a short, reviewed transcript layer so the
+    // practice view remains shadowable while the background fetch stays optional.
+    const curatedTranscript = curatedSegments
+      .flatMap(segment => segment.lines)
+      .sort((a, b) => a.start - b.start)
+    if (curatedTranscript.length > 0) setTranscript(curatedTranscript)
+  }, [initialized, curatedCollection, videoId, isLoading, setSegments, setTranscript])
 
   const handleAddSegments = async (newSegments: any[]) => {
     const formattedSegments = newSegments.map(s => ({

@@ -1,4 +1,4 @@
-import type { Segment } from './types'
+import type { Segment, TranscriptLine } from './types'
 
 export type CuratedSourceStatus = 'ready' | 'curating' | 'queued'
 
@@ -33,6 +33,27 @@ const segment = (id: string, start: number, end: number, label: string): Segment
   end,
   label,
   lines: [],
+  createdAt: 0,
+})
+
+const transcriptLine = (text: string, start: number, duration: number): TranscriptLine => ({
+  text,
+  start,
+  duration,
+})
+
+const segmentWithLines = (
+  id: string,
+  start: number,
+  end: number,
+  label: string,
+  lines: TranscriptLine[],
+): Segment => ({
+  id,
+  start,
+  end,
+  label,
+  lines,
   createdAt: 0,
 })
 
@@ -493,6 +514,103 @@ const navalDeutschFiles2: CuratedCollection = {
   ],
 }
 
+const mikeGirlfriendsBoyfriend: CuratedCollection = {
+  id: 'mike-birbiglia-girlfriends-boyfriend',
+  speakerId: 'mike-birbiglia',
+  speaker: 'Mike Birbiglia',
+  sourceTitle: "My Girlfriend's Boyfriend · Full Show",
+  videoId: '29LxAwlGTpk',
+  videoTitle: "Mike Birbiglia: My Girlfriend's Boyfriend (Full Show)",
+  channelName: 'Punchline',
+  thumbnail: 'https://i.ytimg.com/vi/29LxAwlGTpk/hqdefault.jpg',
+  duration: 4555,
+  description: 'A long-form performed show selected for story structure, personal detail, calm delivery, callbacks, and emotional payoff. The practice set follows a complete arc: attraction, revelation, escalation, physical stakes, and a quiet resolution. Transcript snippets are anchored to a public timecoded transcript of the same special and kept short for shadowing.',
+  focus: ['Story framing', 'Personal detail', 'Calm delivery', 'Perspective shifts', 'Callbacks', 'Emotional payoff'],
+  status: 'ready',
+  segments: [
+    segmentWithLines('MGB-001', 2479, 2511, 'Story framing · first love as a story engine', [
+      transcriptLine('I remember the first time I fell in love.', 2479, 5),
+      transcriptLine("I was in high school, and it was that first time where you fall up and you're just like, 'This is it.'", 2480, 13),
+      transcriptLine("I'm seventeen years old and I'm done.", 2484, 9),
+      transcriptLine('Her name was Amanda, and she was adorable and funny.', 2493, 16),
+    ]),
+    segmentWithLines('MGB-002', 2551, 2598, 'Character detail · establish a person through specific red flags', [
+      transcriptLine('I find that when you fall in love, you tend to overlook certain red flags.', 2551, 17),
+      transcriptLine('One of them was that she would say really mean stuff to me, but then she would pull it back.', 2551, 17),
+      transcriptLine("She'd be like, 'No one likes you at all—only kidding.'", 2568, 21),
+      transcriptLine('The second red flag with Amanda was that she was a liar.', 2589, 23),
+    ]),
+    segmentWithLines('MGB-003', 2695, 2752, 'Reveal · let the audience realize the situation one step after you do', [
+      transcriptLine('She said she had another boyfriend at home, but they were in the process of breaking up.', 2695, 14),
+      transcriptLine('It was a bad time because his parents were sick, so I tried to be understanding.', 2695, 14),
+      transcriptLine("She invited me to meet her parents, and I thought, 'This is the affirmation that I need.'", 2695, 14),
+      transcriptLine("I'm going to be crowned as the main boyfriend.", 2709, 5),
+      transcriptLine('A few hours go by, and this other guy comes over. His name is Scott.', 2714, 24),
+      transcriptLine("Slowly I'm noticing similarities between Scott and things Amanda has said about her other boyfriend.", 2738, 3),
+      transcriptLine("They're both in their first year in college and they're competitive wrestlers.", 2741, 11),
+      transcriptLine("And it's dawning on me that I'm hanging out with my girlfriend's boyfriend.", 2741, 11),
+    ]),
+    segmentWithLines('MGB-004', 2765, 2800, 'Perspective shift · hold compassion and absurdity in the same frame', [
+      transcriptLine('I could totally see what she saw in him.', 2765, 12),
+      transcriptLine('There\'s some consolation that when he would go in the other room, she would hold on to my hand and say, “I wish it were just you and me here.”', 2765, 16),
+      transcriptLine('I remember thinking, “You could make that happen.”', 2781, 7),
+      transcriptLine("The way she said it was as though she weren't involved in the decision process.", 2788, 4),
+    ]),
+    segmentWithLines('MGB-005', 2800, 2846, 'Emotional contradiction · anger, then the urge to make a good impression', [
+      transcriptLine('The day took an even stranger turn when Scott suggested that we go hang out at his house and I met his parents.', 2800, 20),
+      transcriptLine("It is indescribable meeting your girlfriend's boyfriend's parents for the first time.", 2800, 20),
+      transcriptLine('Part of you is angry for obvious reasons, but then part of you still wants to make a good impression.', 2823, 6),
+      transcriptLine("Maybe if this goes well, she'll see that I'm good with adults in general.", 2831, 11),
+      transcriptLine('At one point, his dad even said to me, “How do you know Amanda?”', 2842, 4),
+    ]),
+    segmentWithLines('MGB-006', 3710, 3755, 'Escalation · move from an internal argument to a physical event', [
+      transcriptLine('This relationship is messing up my entire life.', 3710, 4),
+      transcriptLine('I know I\'m right. I gotta tell her about this in the morning.', 3714, 5),
+      transcriptLine("I drive out of Andy's small road and, in one and a half seconds, I spun around.", 3719, 15),
+      transcriptLine('I think I\'m dead. No, wait, I\'m paralyzed. And then I hear nothing.', 3734, 7),
+      transcriptLine('Twenty minutes later, I\'m sitting on the curb. That\'s when I start crying.', 3741, 14),
+    ]),
+    segmentWithLines('MGB-007', 3776, 3819, 'Vulnerability · make the stakes physical without forcing the emotion', [
+      transcriptLine("I'm looking at my totaled car in front of me and realizing that, in that moment, I might have ceased to exist.", 3776, 22),
+      transcriptLine("I don't really believe in anything, so in my mind, that would have been the end of all things I'd experienced in my life.", 3798, 21),
+      transcriptLine('Every kiss or failed kiss, or Scrambler ride, would have come to a conclusion.', 3798, 21),
+      transcriptLine('The officer comes over and he says, “What happened?”', 3798, 21),
+    ]),
+    segmentWithLines('MGB-008', 4278, 4324, 'Resolution · release the argument for the relationship', [
+      transcriptLine("Jenny says, 'Mike, you're right, but it's only hurting you.'", 4278, 23),
+      transcriptLine("I'm so glad that you're alive, and I think that we should focus on that.", 4301, 4),
+      transcriptLine('She only has to say it once and I give up the case and I pay for this guy\'s car.', 4301, 4),
+      transcriptLine('July 7, 2007, Jenny and I went to City Hall and got married.', 4324, 4),
+      transcriptLine("I still don't believe in the idea of marriage, but I believe in her, and I've given up on the idea of being right.", 4324, 4),
+    ]),
+  ],
+}
+
+const queuedMikeSource = (
+  id: string,
+  sourceTitle: string,
+  videoId: string,
+  videoTitle: string,
+  channelName: string,
+  duration: number,
+  description: string,
+  status: CuratedSourceStatus = 'curating',
+): CuratedCollection => ({
+  id,
+  speakerId: 'mike-birbiglia',
+  speaker: 'Mike Birbiglia',
+  sourceTitle,
+  videoId,
+  videoTitle,
+  channelName,
+  thumbnail: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+  duration,
+  description,
+  focus: ['Storytelling', 'Performance', 'Transcript review'],
+  status,
+  segments: [],
+})
+
 const queuedSource = (
   id: string,
   sourceTitle: string,
@@ -545,6 +663,53 @@ export const CURATED_SPEAKERS: CuratedSpeaker[] = [
       queuedSource('naval-deutsch-files-3', 'The Deutsch Files III · 2024', 'Technical conversation around AGI, Popper, misunderstanding, and explanation.', ['Scientific dialogue', 'Disagreement', 'Precision']),
       queuedSource('naval-deutsch-files-4', 'The Deutsch Files IV · 2024', 'Long-form attempt to connect Deutsch’s major theories into one coherent picture.', ['Synthesis', 'Technical questioning', 'Conceptual structure']),
       queuedSource('naval-tim-ferriss-662', 'Tim Ferriss #662 · David Deutsch + Naval Ravikant', 'Naval alongside a leading physicist discussing reality, knowledge, AGI, quantum computing, optimism, and wealth.', ['Scientific dialogue', 'Translation', 'High-level synthesis']),
+    ],
+  },
+  {
+    id: 'mike-birbiglia',
+    name: 'Mike Birbiglia',
+    description: 'Storytelling and vulnerability: a performance study in clear story structure, personal detail, calm delivery, perspective shifts, callbacks, and emotional payoff.',
+    focus: ['Storytelling', 'Vulnerability', 'Structure', 'Personal detail', 'Callbacks', 'Emotional payoff'],
+    portrait: 'https://i.ytimg.com/vi/29LxAwlGTpk/hqdefault.jpg',
+    sources: [
+      mikeGirlfriendsBoyfriend,
+      queuedMikeSource(
+        'mike-birbiglia-what-i-should-have-said',
+        'What I Should Have Said Was Nothing · Full Show',
+        'FQ0OE6dz5yI',
+        'Mike Birbiglia: What I Should Have Said Was Nothing (Full Show)',
+        'Punchline',
+        3394,
+        'Full performed show candidate. Kept in curation until the transcript and YouTube timebase are aligned for reliable practice boundaries.',
+      ),
+      queuedMikeSource(
+        'mike-birbiglia-30-minutes-girlfriends-boyfriend',
+        "30 Minutes of My Girlfriend's Boyfriend",
+        'DVLomO81nbE',
+        "Mike Birbiglia: 30 Minutes of My Girlfriend's Boyfriend",
+        'Comedy Dynamics',
+        1823,
+        'Performed long-form cut candidate. Useful if the full show needs a shorter entry point; awaiting transcript review.',
+      ),
+      queuedMikeSource(
+        'mike-birbiglia-this-american-life-live',
+        'This American Life · Live at BAM',
+        '1x1iL8cNqiw',
+        'Mike Birbiglia - This American Life - Live at BAM',
+        'This American Life',
+        671,
+        'Live performance candidate with a strong story spine; awaiting a clean, practice-ready transcript layer.',
+      ),
+      queuedMikeSource(
+        'mike-birbiglia-comedy-central-presents',
+        'Comedy Central Presents · Full Special',
+        '0q4xPU_OR6w',
+        'Mike Birbiglia: Comedy Central Presents - Full Special',
+        'Comedy Central Stand-Up',
+        1272,
+        'Performed half-hour candidate. It is currently unavailable in the curator\'s country, so it stays queued rather than being promoted.',
+        'queued',
+      ),
     ],
   },
 ]

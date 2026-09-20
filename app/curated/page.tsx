@@ -2,10 +2,14 @@ import { ArrowLeft, ArrowRight, BookOpen, Languages, Mic2, Sparkles } from 'luci
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { CURATED_SPEAKERS } from '@/lib/curated-library'
+import { CURATED_SPEAKERS, getCuratedSpeaker } from '@/lib/curated-library'
 import { STAND_UP_COMEDY_MODELS } from '@/lib/stand-up-comedy'
 
 export default function CuratedPage() {
+  const mikeSpeaker = getCuratedSpeaker('mike-birbiglia')
+  const mikeReadySources = mikeSpeaker?.sources.filter(source => source.status === 'ready') ?? []
+  const mikeReadyClips = mikeReadySources.reduce((sum, source) => sum + source.segments.length, 0)
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border/50 bg-background/95 backdrop-blur sticky top-0 z-50">
@@ -45,7 +49,7 @@ export default function CuratedPage() {
           </div>
 
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {CURATED_SPEAKERS.map(speaker => {
+            {CURATED_SPEAKERS.filter(speaker => speaker.id !== 'mike-birbiglia').map(speaker => {
               const readySources = speaker.sources.filter(source => source.status === 'ready')
               const readyClips = readySources.reduce((sum, source) => sum + source.segments.length, 0)
 
@@ -104,7 +108,7 @@ export default function CuratedPage() {
                     <div>
                       <p className="text-xs font-medium text-muted-foreground mb-1">English · performance language</p>
                       <h4 className="text-2xl font-semibold tracking-tight">Stand-up Comedy</h4>
-                      <p className="text-sm text-muted-foreground mt-1">{STAND_UP_COMEDY_MODELS.length} reference models · clip hunt ready</p>
+                      <p className="text-sm text-muted-foreground mt-1">{STAND_UP_COMEDY_MODELS.length} reference models · Mike first · {mikeReadyClips} clips ready</p>
                     </div>
                     <ArrowRight className="h-5 w-5 text-muted-foreground mt-1 transition-transform group-hover:translate-x-1" />
                   </div>
