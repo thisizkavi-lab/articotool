@@ -1,4 +1,5 @@
 import { ArrowLeft, ArrowRight, BookOpen, Languages, Sparkles } from 'lucide-react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { CURATED_SPEAKERS } from '@/lib/curated-library'
@@ -9,9 +10,9 @@ export default function CuratedPage() {
       <header className="border-b border-border/50 bg-background/95 backdrop-blur sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
-            <a href="/" aria-label="Back to practice">
+            <Link href="/" aria-label="Back to practice">
               <ArrowLeft className="h-4 w-4" />
-            </a>
+            </Link>
           </Button>
           <div>
             <h1 className="text-xl font-semibold tracking-tight">Curated</h1>
@@ -48,7 +49,7 @@ export default function CuratedPage() {
               const readyClips = readySources.reduce((sum, source) => sum + source.segments.length, 0)
 
               return (
-                <a key={speaker.id} href={`/curated/${speaker.id}`} className="block group">
+                <Link key={speaker.id} href={`/curated/${speaker.id}`} className="block group">
                   <Card className="h-full overflow-hidden transition-colors group-hover:border-primary/50">
                     <div className="aspect-[16/9] bg-secondary overflow-hidden">
                       <img
@@ -84,7 +85,7 @@ export default function CuratedPage() {
                       </div>
                     </CardContent>
                   </Card>
-                </a>
+                </Link>
               )
             })}
           </div>
@@ -100,7 +101,7 @@ export default function CuratedPage() {
           </div>
 
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            <a href="/curated/goldnrush-japanese" className="block group">
+            <Link href="/curated/goldnrush-japanese" className="block group">
               <Card className="h-full overflow-hidden transition-colors group-hover:border-primary/50">
                 <div className="aspect-[16/9] bg-secondary overflow-hidden">
                   <img
@@ -137,7 +138,7 @@ export default function CuratedPage() {
                   </div>
                 </CardContent>
               </Card>
-            </a>
+            </Link>
           </div>
         </section>
       </main>

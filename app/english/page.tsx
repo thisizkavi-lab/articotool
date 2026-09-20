@@ -1,4 +1,5 @@
 import { ArrowLeft, ArrowRight, BookOpen, MapPin, Search } from 'lucide-react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -13,9 +14,9 @@ export default function EverydayEnglishPage() {
       <header className="border-b border-border/50 bg-background/95 backdrop-blur sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
-            <a href="/" aria-label="Back to practice">
+            <Link href="/" aria-label="Back to practice">
               <ArrowLeft className="h-4 w-4" />
-            </a>
+            </Link>
           </Button>
           <div>
             <h1 className="text-xl font-semibold tracking-tight">Everyday English</h1>
@@ -81,7 +82,7 @@ export default function EverydayEnglishPage() {
             {EVERYDAY_ENGLISH_CHAPTERS.map(chapter => {
               const coreCount = chapter.phrases.filter(item => item.priority === 'core').length
               return (
-                <a key={chapter.id} href={`/english/${chapter.id}`} className="block group">
+                <Link key={chapter.id} href={`/english/${chapter.id}`} className="block group">
                   <Card className="h-full transition-colors group-hover:border-primary/50">
                     <CardContent className="p-5">
                       <div className="flex items-start justify-between gap-4">
@@ -97,7 +98,7 @@ export default function EverydayEnglishPage() {
                       </p>
                     </CardContent>
                   </Card>
-                </a>
+                </Link>
               )
             })}
           </div>

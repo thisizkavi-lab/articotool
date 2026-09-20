@@ -1,5 +1,5 @@
 import { get, set, del, keys } from 'idb-keyval';
-import type { VideoSession, Recording, Segment, TranscriptLine } from './types';
+import type { Recording, Segment, TranscriptLine } from './types';
 
 // Key for the current workspace state (active video, segments)
 const CURRENT_SESSION_KEY = 'artico-current-session';
@@ -50,6 +50,10 @@ export const StorageService = {
         await del(HISTORY_PREFIX + videoId);
     },
 
+    async getSession(videoId: string): Promise<SavedSession | undefined> {
+        return get<SavedSession>(HISTORY_PREFIX + videoId);
+    },
+
     // Load the last active session
     async loadCurrentSession(): Promise<SavedSession | undefined> {
         let session = await get<SavedSession>(CURRENT_SESSION_KEY);
@@ -69,9 +73,12 @@ export const StorageService = {
 
     // Save a large recording blob
     async saveRecording(recording: Recording): Promise<void> {
+        if (!recording.blobUrl) throw new Error('No recording is available to save.');
         if (recording.blobUrl) {
             const response = await fetch(recording.blobUrl);
+            if (!response.ok) throw new Error('Could not read the recording. Please try saving again.');
             const blob = await response.blob();
+            if (!blob.size) throw new Error('The recording is empty. Please record another take.');
 
             // Store with a specific key
             await set(RECORDINGS_PREFIX + recording.id, {
@@ -104,6 +111,17 @@ export const StorageService = {
         }
 
         return recordings.sort((a, b) => b.createdAt - a.createdAt);
+    },
+
+    async getRecordingsForVideo(videoId: string, segmentIds: string[], groupId?: string): Promise<Recording[]> {
+        const recordings = await this.getAllRecordings();
+        return recordings.filter(recording => {
+            const matches = recording.videoId
+                ? recording.videoId === videoId && recording.groupId === groupId
+                : segmentIds.includes(recording.segmentId);
+            if (!matches) URL.revokeObjectURL(recording.blobUrl);
+            return matches;
+        });
     },
 
     async deleteRecording(id: string): Promise<void> {

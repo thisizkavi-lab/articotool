@@ -70,6 +70,7 @@ export function TranscriptViewer() {
       end: endLine.start + endLine.duration,
       label: selectedLines.map(l => l.text).join(' ').slice(0, 50) + (selectedLines.map(l => l.text).join(' ').length > 50 ? '...' : ''),
       lines: selectedLines,
+      createdAt: Date.now(),
     }
 
     addSegment(segment)

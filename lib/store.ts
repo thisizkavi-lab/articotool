@@ -39,7 +39,11 @@ interface AppState {
 
   // Auth & Cloud State
   user: User | null
+  authInitialized: boolean
+  isHydrating: boolean
+  hasInitialized: boolean
   cloudSessionId: string | null
+  setUser: (user: User | null) => void
   checkAuth: () => Promise<void>
 
   // Actions
@@ -68,8 +72,8 @@ interface AppState {
   setLooping: (looping: boolean) => void
   setPlaybackSpeed: (speed: PlaybackSpeed) => void
 
-  addRecording: (recording: Recording) => void
-  removeRecording: (id: string) => void
+  addRecording: (recording: Recording) => Promise<void>
+  removeRecording: (id: string) => Promise<void>
   setActiveRecording: (id: string | null) => void
   setIsRecording: (recording: boolean) => void
 
@@ -103,8 +107,18 @@ const initialState = {
   isRecording: false,
   activeRecordingId: null,
   user: null,
+  authInitialized: false,
+  isHydrating: false,
+  hasInitialized: false,
   cloudSessionId: null,
 }
+
+let authPromise: Promise<void> | null = null
+let initializePromise: Promise<void> | null = null
+let videoLoadVersion = 0
+let localSaveQueue: Promise<void> = Promise.resolve()
+let cloudSaveQueue: Promise<void> = Promise.resolve()
+const cloudSessions = new Map<string, string>()
 
 export const useAppStore = create<AppState>((set) => ({
   ...initialState,
@@ -162,10 +176,14 @@ export const useAppStore = create<AppState>((set) => ({
   setLooping: (looping) => set({ isLooping: looping }),
   setPlaybackSpeed: (speed) => set({ playbackSpeed: speed }),
 
-  addRecording: (recording) => set((state) => ({
-    recordings: [...state.recordings, recording]
-  })),
-  removeRecording: (id) => set((state) => {
+  addRecording: async (recording) => {
+    const saved = { ...recording, videoId: recording.videoId ?? useAppStore.getState().videoId ?? undefined }
+    await StorageService.saveRecording(saved)
+    set((state) => ({ recordings: [...state.recordings, saved] }))
+  },
+  removeRecording: async (id) => {
+    await StorageService.deleteRecording(id)
+    set((state) => {
     const recording = state.recordings.find((r) => r.id === id)
     if (recording) {
       URL.revokeObjectURL(recording.blobUrl)
@@ -174,7 +192,8 @@ export const useAppStore = create<AppState>((set) => ({
       recordings: state.recordings.filter((r) => r.id !== id),
       activeRecordingId: state.activeRecordingId === id ? null : state.activeRecordingId
     }
-  }),
+    })
+  },
   setActiveRecording: (id) => set({ activeRecordingId: id }),
   setIsRecording: (recording) => set({ isRecording: recording }),
 
@@ -198,22 +217,33 @@ export const useAppStore = create<AppState>((set) => ({
     }
   },
 
+  setUser: (user) => set((state) => ({
+    user,
+    authInitialized: true,
+    hasInitialized: state.user?.id === user?.id ? state.hasInitialized : false,
+    cloudSessionId: state.user?.id === user?.id ? state.cloudSessionId : null,
+  })),
   checkAuth: async () => {
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    set({ user })
+    if (useAppStore.getState().authInitialized) return
+    if (!authPromise) {
+      authPromise = (async () => {
+        try {
+          const { data: { user } } = await createClient().auth.getUser()
+          useAppStore.getState().setUser(user)
+        } catch (error) {
+          console.error('Could not check authentication:', error)
+          set({ authInitialized: true })
+        }
+      })().finally(() => { authPromise = null })
+    }
+    await authPromise
   },
 
   saveToHistory: async () => {
     const state = useAppStore.getState()
     if (!state.videoId) return
 
-    // Cloud Sync
-    if (state.user && state.cloudSessionId) {
-      await SessionService.syncSession(state.cloudSessionId, state.segments)
-    }
-
-    // Local Sync (Always keep local backup for now?)
+    await localSaveQueue
     await StorageService.saveCurrentSession({
       videoId: state.videoId,
       videoTitle: state.videoTitle,
@@ -225,22 +255,38 @@ export const useAppStore = create<AppState>((set) => ({
   },
 
   loadVideo: async (id: string) => {
-    const { setLoading, setError, setVideoId, setTranscript, setVideoTitle, setSegments } = useAppStore.getState()
-
-    // A valid YouTube ID is enough to render the player. Metadata and transcript
-    // are enhancements only and must never turn a playable video into an error state.
-    setError(null)
-    setTranscript([])
-    setSegments([])
-    setVideoTitle('')
-    setVideoId(id)
-    setLoading(false)
-
+    const version = ++videoLoadVersion
+    const { setTranscript, setVideoTitle, user } = useAppStore.getState()
+    set({ isLoading: true, error: null })
     try {
-      const metadataRes = await fetch(`/api/youtube?videoId=${id}`)
+      await useAppStore.getState().saveToHistory()
+      const saved = await StorageService.getSession(id)
+      const cloudSessionId = user ? await SessionService.findSession(id) : null
+      const segments = saved?.segments ?? (cloudSessionId ? await SessionService.getSegments(cloudSessionId) : [])
+      if (version !== videoLoadVersion) return
+      if (user && cloudSessionId) cloudSessions.set(`${user.id}:${id}`, cloudSessionId)
+      // Switch every video-specific field in one update, so autosave can never
+      // pair the outgoing video ID with the incoming video's empty segments.
+      set({
+        videoId: id, videoTitle: saved?.videoTitle ?? '', transcript: saved?.transcript ?? [],
+        segments, notes: saved?.notes ?? '', cloudSessionId,
+        activeSegmentId: null, activeRecordingId: null, currentTime: 0,
+        selectionStart: null, selectionEnd: null, pendingSegmentStart: null,
+        segmentCreationMode: 'idle', isLoading: false,
+      })
+    } catch (error) {
+      if (version === videoLoadVersion) set({ isLoading: false, error: 'Could not save the current session. Your video has not been replaced.' })
+      console.error('Could not switch videos:', error)
+      return
+    }
+
+    // Metadata never delays a playable video, and stale requests cannot update
+    // a different video after rapid navigation.
+    void (async () => { try {
+      const metadataRes = await fetch(`/api/youtube?videoId=${encodeURIComponent(id)}`)
       if (metadataRes.ok) {
         const metadata = await metadataRes.json()
-        if (useAppStore.getState().videoId === id && metadata.video?.title) {
+        if (videoLoadVersion === version && useAppStore.getState().videoId === id && metadata.video?.title) {
           setVideoTitle(metadata.video.title)
         }
       } else {
@@ -248,7 +294,7 @@ export const useAppStore = create<AppState>((set) => ({
       }
     } catch (err) {
       console.warn('YouTube metadata lookup failed; continuing with the embedded player.', err)
-    }
+    } })()
 
     // Transcript retrieval is also optional. Keep it silent because the practice UI
     // no longer depends on transcript availability.
@@ -257,7 +303,7 @@ export const useAppStore = create<AppState>((set) => ({
         if (!res.ok) return
         const data = await res.json()
         if (
-          useAppStore.getState().videoId === id &&
+          videoLoadVersion === version && useAppStore.getState().videoId === id &&
           data.transcript &&
           data.transcript.length > 0
         ) {
@@ -270,16 +316,23 @@ export const useAppStore = create<AppState>((set) => ({
       })
   },
 
-  reset: () => set(initialState),
+  reset: () => {
+    ++videoLoadVersion
+    cloudSessions.clear()
+    set(initialState)
+  },
 
   initialize: async () => {
+    if (useAppStore.getState().hasInitialized) return
+    if (initializePromise) return initializePromise
+    initializePromise = (async () => {
     try {
-      set({ isLoading: true })
+      set({ isLoading: true, isHydrating: true, cloudSessionId: null })
+      await localSaveQueue
 
       // 1. Check Auth
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      set({ user })
+      await useAppStore.getState().checkAuth()
+      const { user } = useAppStore.getState()
 
       // 2. Load Session (Cloud vs Local)
       let loadedSession = false
@@ -295,8 +348,10 @@ export const useAppStore = create<AppState>((set) => ({
           })
 
           // We need to fetch the segments for this session
-          const segments = await SessionService.getSegments(lastSessionParams.sessionId)
-          set({ segments })
+          const cached = await StorageService.getSession(lastSessionParams.videoId)
+          const segments = cached?.segments ?? await SessionService.getSegments(lastSessionParams.sessionId)
+          cloudSessions.set(`${user.id}:${lastSessionParams.videoId}`, lastSessionParams.sessionId)
+          set({ segments, videoTitle: cached?.videoTitle ?? '', transcript: cached?.transcript ?? [], notes: cached?.notes ?? '' })
 
           // Note: We need to fetch video title/transcript separately since DB doesn't store them fully in 'sessions'.
           // We'll rely on the existing logic to fetch them or `loadVideoFromUrl` logic.
@@ -329,44 +384,60 @@ export const useAppStore = create<AppState>((set) => ({
     } catch (error) {
       console.error('Failed to initialize:', error)
     } finally {
-      set({ isLoading: false })
+      set({ isLoading: false, isHydrating: false, hasInitialized: true })
     }
+    })().finally(() => { initializePromise = null })
+    return initializePromise
   },
 }))
 
 // Auto-save subscription
 // We'll use a simple subscription to save changes
 useAppStore.subscribe((state, prevState) => {
+  if (state.isHydrating) return
   // Save session if critical data changes
   if (
     state.videoId !== prevState.videoId ||
     state.segments !== prevState.segments ||
     state.videoTitle !== prevState.videoTitle ||
-    state.notes !== prevState.notes
+    state.notes !== prevState.notes ||
+    state.transcript !== prevState.transcript
   ) {
     if (state.videoId) {
       // Local Save
-      StorageService.saveCurrentSession({
+      const snapshot = {
         videoId: state.videoId,
         videoTitle: state.videoTitle,
         transcript: state.transcript,
         segments: state.segments,
         notes: state.notes,
         lastUpdated: Date.now()
+      }
+      localSaveQueue = localSaveQueue.then(() => StorageService.saveCurrentSession(snapshot)).catch(error => {
+        console.error('Could not save session:', error)
+        useAppStore.getState().setError('Could not save your session in this browser. Please check available storage.')
       })
 
       // Cloud Save
       if (state.user) {
-        // Ensure we have a cloud session ID
-        if (!state.cloudSessionId) {
-          // Create one if missing
-          SessionService.createSession(state.videoId).then(id => {
-            if (id) useAppStore.setState({ cloudSessionId: id })
-          })
-        } else {
-          // Sync
-          SessionService.syncSession(state.cloudSessionId, state.segments)
-        }
+        const userId = state.user.id
+        const key = `${userId}:${state.videoId}`
+        if (state.cloudSessionId) cloudSessions.set(key, state.cloudSessionId)
+        cloudSaveQueue = cloudSaveQueue.then(async () => {
+          if (useAppStore.getState().user?.id !== userId) return
+          const id = cloudSessions.get(key) ?? await SessionService.createSession(snapshot.videoId)
+          if (useAppStore.getState().user?.id !== userId) return
+          if (!id) throw new Error('Could not create a cloud session')
+          cloudSessions.set(key, id)
+          const current = useAppStore.getState()
+          if (current.videoId === snapshot.videoId && current.user?.id === userId) {
+            useAppStore.setState({ cloudSessionId: id })
+          }
+          if (!await SessionService.syncSession(id, snapshot.segments)) throw new Error('Cloud sync failed')
+        }).catch(error => {
+          console.error('Could not sync session:', error)
+          useAppStore.getState().setError('Saved in this browser, but cloud sync failed. Please try again when connected.')
+        })
       }
     }
   }

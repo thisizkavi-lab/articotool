@@ -1,4 +1,5 @@
 import { ArrowLeft, CheckCircle2, CircleDashed, ExternalLink, Languages, Play, Sparkles } from 'lucide-react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
 type SourceStatus = 'ready' | 'curating' | 'queued'
@@ -88,9 +89,9 @@ export default function GoldnrushJapanesePage() {
       <header className="border-b border-border/50 bg-background/95 backdrop-blur sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
-            <a href="/curated" aria-label="Back to curated collections">
+            <Link href="/curated" aria-label="Back to curated collections">
               <ArrowLeft className="h-4 w-4" />
-            </a>
+            </Link>
           </Button>
           <div>
             <h1 className="text-xl font-semibold tracking-tight">Japanese · GOLDNRUSH</h1>
@@ -153,13 +154,13 @@ export default function GoldnrushJapanesePage() {
 
                   <div className="flex flex-wrap gap-3 mt-3">
                     {isReady && source.videoId && (
-                      <a
+                      <Link
                         href={`/?v=${source.videoId}&curated=${source.id}`}
                         className="inline-flex items-center gap-1.5 text-xs font-semibold hover:text-primary transition-colors"
                       >
                         <Play className="h-3 w-3" />
                         Start shadowing
-                      </a>
+                      </Link>
                     )}
                     {source.videoId && (
                       <a

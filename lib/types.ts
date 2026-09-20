@@ -16,6 +16,8 @@ export interface Segment {
 export interface Recording {
   id: string
   segmentId: string
+  videoId?: string
+  groupId?: string
   blobUrl: string
   createdAt: number
   type: 'audio' | 'video'
