@@ -98,7 +98,7 @@ export function UnifiedPracticeView({
     const [notesText, setNotesText] = useState(video.notes || '')
 
     const [recordAudio, setRecordAudio] = useState(true)
-    const [recordVideo, setRecordVideo] = useState(true)
+    const [recordVideo, setRecordVideo] = useState(false)
     const [isRecording, setIsRecording] = useState(false)
     const [countdown, setCountdown] = useState<number | null>(null)
     const [recordingTime, setRecordingTime] = useState(0)
@@ -191,21 +191,8 @@ export function UnifiedPracticeView({
     }, [video.id, video.notes])
 
     useEffect(() => {
-        if (panelMode !== 'record') {
-            stopPreviewCamera()
-            return
-        }
-
-        let active = true
-        ensurePreviewCamera().then(stream => {
-            if (!active && stream) stopPreviewCamera()
-        })
-
-        return () => {
-            active = false
-            stopPreviewCamera()
-        }
-    }, [panelMode, video.id, ensurePreviewCamera, stopPreviewCamera])
+        return () => stopPreviewCamera()
+    }, [stopPreviewCamera])
 
     useEffect(() => {
         return () => {
@@ -422,8 +409,8 @@ export function UnifiedPracticeView({
 
     return (
         <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6 items-stretch">
-                <Card className="p-4 border-border/50 bg-card">
+            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.8fr)] gap-6 items-stretch">
+                <Card className="min-w-0 p-4 border-border/50 bg-card">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-3">
                         <div className="min-w-0 flex-1">
                             <h3 className="font-semibold text-sm truncate">{video.title}</h3>
@@ -505,8 +492,8 @@ export function UnifiedPracticeView({
                         </div>
                     </div>
 
-                    <div className="bg-black rounded-lg overflow-hidden aspect-video">
-                        <div id="youtube-player-container" className="w-full h-full" />
+                    <div className="youtube-practice-frame relative aspect-video w-full min-w-0 overflow-hidden rounded-lg bg-black">
+                        <div id="youtube-player-container" className="absolute inset-0 h-full w-full" />
                     </div>
 
                     {activeSegment && (
@@ -557,7 +544,7 @@ export function UnifiedPracticeView({
                     </div>
                 </Card>
 
-                <Card className="overflow-hidden flex flex-col border-border/50 bg-card min-h-[430px]">
+                <Card className="min-w-0 overflow-hidden flex flex-col border-border/50 bg-card min-h-[430px]">
                     <div className="grid grid-cols-2 border-b border-border/50">
                         <button
                             className={`py-3 text-sm font-medium flex items-center justify-center gap-2 ${panelMode === 'record' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary/50'}`}
@@ -567,7 +554,11 @@ export function UnifiedPracticeView({
                         </button>
                         <button
                             className={`py-3 text-sm font-medium flex items-center justify-center gap-2 ${panelMode === 'notes' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary/50'}`}
-                            onClick={() => setPanelMode('notes')}
+                            onClick={() => {
+                                setRecordVideo(false)
+                                stopPreviewCamera()
+                                setPanelMode('notes')
+                            }}
                         >
                             <StickyNote className="h-4 w-4" /> Notes
                         </button>
@@ -617,7 +608,13 @@ export function UnifiedPracticeView({
                                             </p>
                                         </div>
                                         <span className="text-[10px] uppercase tracking-wider text-muted-foreground border border-border/60 rounded-full px-2 py-1 shrink-0">
-                                            Mirrored
+                                            {cameraStatus === 'ready'
+                                                ? 'Mirrored'
+                                                : cameraStatus === 'starting'
+                                                    ? 'Starting camera'
+                                                    : cameraStatus === 'error'
+                                                        ? 'Unavailable'
+                                                        : 'Camera off'}
                                         </span>
                                     </div>
                                 </div>
@@ -643,7 +640,16 @@ export function UnifiedPracticeView({
                                         <span className="text-xs font-medium uppercase tracking-wider">Audio</span>
                                     </label>
                                     <label className="flex items-center gap-2 cursor-pointer">
-                                        <Checkbox checked={recordVideo} onCheckedChange={value => setRecordVideo(!!value)} disabled={isRecording} />
+                                        <Checkbox
+                                            checked={recordVideo}
+                                            onCheckedChange={value => {
+                                                const enabled = !!value
+                                                setRecordVideo(enabled)
+                                                if (enabled) void ensurePreviewCamera()
+                                                else stopPreviewCamera()
+                                            }}
+                                            disabled={isRecording}
+                                        />
                                         <span className="text-xs font-medium uppercase tracking-wider">Video</span>
                                     </label>
                                 </div>
@@ -668,16 +674,49 @@ export function UnifiedPracticeView({
                                             <CameraOff className="h-9 w-9 text-white/45 mb-3" />
                                             <p className="text-sm text-white/80">Camera unavailable</p>
                                             <p className="text-xs text-white/45 mt-1 max-w-xs">{cameraError}</p>
-                                            <Button size="sm" variant="secondary" className="mt-4" onClick={() => ensurePreviewCamera()}>
+                                            <Button size="sm" variant="secondary" className="mt-4" onClick={() => {
+                                                setRecordVideo(true)
+                                                void ensurePreviewCamera()
+                                            }}>
+                                                <Camera className="h-4 w-4 mr-2" /> Enable Camera
+                                            </Button>
+                                        </div>
+                                    )}
+
+                                    {cameraStatus === 'idle' && !previewUrl && (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 bg-black">
+                                            <CameraOff className="h-9 w-9 text-white/45 mb-3" />
+                                            <p className="text-sm text-white/80">Camera is off</p>
+                                            <p className="text-xs text-white/45 mt-1 max-w-xs">
+                                                Turn it on only when you want a mirrored preview or a video take.
+                                            </p>
+                                            <Button size="sm" variant="secondary" className="mt-4" onClick={() => {
+                                                setRecordVideo(true)
+                                                void ensurePreviewCamera()
+                                            }}>
                                                 <Camera className="h-4 w-4 mr-2" /> Enable Camera
                                             </Button>
                                         </div>
                                     )}
 
                                     {cameraStatus === 'ready' && !previewUrl && (
-                                        <div className="absolute top-2 right-2 bg-black/55 backdrop-blur px-2 py-1 rounded text-[10px] text-white/70 uppercase tracking-wider">
-                                            Mirror
-                                        </div>
+                                        <>
+                                            <Button
+                                                size="sm"
+                                                variant="secondary"
+                                                className="absolute top-2 left-2 z-10 h-7 px-2 text-xs"
+                                                disabled={isRecording}
+                                                onClick={() => {
+                                                    setRecordVideo(false)
+                                                    stopPreviewCamera()
+                                                }}
+                                            >
+                                                <CameraOff className="h-3.5 w-3.5 mr-1.5" /> Turn off
+                                            </Button>
+                                            <div className="absolute top-2 right-2 bg-black/55 backdrop-blur px-2 py-1 rounded text-[10px] text-white/70 uppercase tracking-wider">
+                                                Mirror
+                                            </div>
+                                        </>
                                     )}
 
                                     {previewUrl && (
@@ -775,7 +814,7 @@ export function UnifiedPracticeView({
 
                                 {!activeSegment && (
                                     <p className="text-xs text-center text-muted-foreground">
-                                        Your camera stays live here so you can watch your posture, expression, and delivery before recording.
+                                        Audio recording is ready by default. Camera and video stay off until you enable them.
                                     </p>
                                 )}
 
