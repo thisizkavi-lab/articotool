@@ -24,7 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-function Header() {
+function Header({ onHomeClick }: { onHomeClick: () => void }) {
   const { user, isLoading } = useAppStore()
   const router = useRouter()
   const supabase = createClient()
@@ -39,7 +39,7 @@ function Header() {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-2">
         <div className="min-w-0 flex items-center gap-4">
           <h1 className="text-sm sm:text-xl font-semibold tracking-tight truncate">
-            <Link href="/" className="rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            <Link href="/" onClick={onHomeClick} className="rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
               artiCO shadowing tool
             </Link>
           </h1>
@@ -116,6 +116,7 @@ function HomeContent() {
   const urlVideoId = searchParams.get('v')
   const curatedId = searchParams.get('curated')
   const [initialized, setInitialized] = useState(false)
+  const [showHome, setShowHome] = useState(false)
   const {
     videoId, error, isLoading, initialize,
     segments, recordings, removeSegment, setSegments, setTranscript,
@@ -145,6 +146,10 @@ function HomeContent() {
       loadVideo(urlVideoId)
     }
   }, [initialized, urlVideoId, loadVideo])
+
+  useEffect(() => {
+    if (urlVideoId) setShowHome(false)
+  }, [urlVideoId])
 
   // Curated clip boundaries are source-controlled and should always replace session clips.
   useEffect(() => {
@@ -187,7 +192,7 @@ function HomeContent() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header />
+      <Header onHomeClick={() => setShowHome(true)} />
 
       <main className="flex-1 container mx-auto px-4 py-6">
         <div className="max-w-2xl mx-auto mb-10">
@@ -200,7 +205,7 @@ function HomeContent() {
           )}
         </div>
 
-        {videoId && (
+        {videoId && !showHome && (
           <UnifiedPracticeView
             key={videoId}
             video={{
@@ -227,7 +232,7 @@ function HomeContent() {
           />
         )}
 
-        {!videoId && !isLoading && (
+        {(showHome || (!videoId && !isLoading)) && (
           <div className="text-center py-20">
             <h2 className="text-2xl font-semibold mb-3">Your Personal Speaking Gym</h2>
             <p className="text-muted-foreground max-w-md mx-auto mb-6">
