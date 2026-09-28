@@ -38,7 +38,11 @@ function Header() {
     <header className="border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-2">
         <div className="min-w-0 flex items-center gap-4">
-          <h1 className="text-sm sm:text-xl font-semibold tracking-tight truncate">artiCO shadowing tool</h1>
+          <h1 className="text-sm sm:text-xl font-semibold tracking-tight truncate">
+            <Link href="/" className="rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+              artiCO shadowing tool
+            </Link>
+          </h1>
           <span className="text-xs text-muted-foreground hidden xl:block">
             Shadow. Record. Compare. Repeat.
           </span>
