@@ -1,57 +1,35 @@
 # Johnathan Bi curation status
 
-This file is the durable queue for the Artico Johnathan Bi shadowing corpus.
+Durable queue for the Artico Johnathan Bi shadowing corpus.
 
 ## Principle
 
-**God is in the details.** Do not optimize for number of clips or speed. A mediocre segment does not become useful because it is easy to add.
+**God is in the details.** Do not optimize for clip count or speed. The calibration source is **Masters vs. Slaves | Nietzsche's Genealogy of Morality Explained**. **Shadow the move, not merely the mouth.**
 
-The calibration source is **Masters vs. Slaves | Nietzsche's Genealogy of Morality Explained**. Its curation standard is the reference for every source that follows.
+## Scope and notation
 
-## Scope
+Curate solo Johnathan Bi lectures first. Exclude interviews, Q&As, guest-heavy conversations, reaction content, and anything where Johnathan is not the sustained primary speaker.
 
-Curate **solo Johnathan Bi lectures first**. Exclude interviews, Q&As, guest-heavy conversations, reaction content, and anything where Johnathan is not the sustained primary speaker. These can be reconsidered only after the solo-lecture corpus is complete.
-
-Queue notation: `[x]` complete, `[-]` excluded by scope, `[!]` verified source but blocked from promotion because the exact transcript/playback timebase could not be established reliably in the current curation pass, `[?]` queue label cannot yet be mapped defensibly to one exact primary solo source, `[ ]` pending.
+`[x]` complete · `[-]` excluded by scope · `[!]` exact source verified but promotion blocked by transcript/timebase/full-scan reliability · `[?]` queue shorthand cannot yet be mapped defensibly to one exact primary solo source · `[ ]` pending.
 
 ## Clip standard
 
-A promoted clip should usually be ~20–120 seconds and contain a complete trainable speaking move. Prefer exact boundaries over arbitrary transcript chunks.
-
-Evaluate each candidate on:
-
-1. **Structure** — a visible rhetorical move: story, contrast, definition, analogy, escalation, qualification, synthesis, reframe, objection/reply, strong ending, etc.
-2. **Naturalness** — it sounds like real high-level spoken English, not a sentence that only works because of surrounding slides/context.
-3. **Rhythm** — useful pacing, emphasis, pauses, sentence length variation, and oral architecture.
-4. **Emotional variation** — enough tonal movement to train delivery when relevant.
-5. **Reuse value** — the underlying speaking pattern can transfer to science lectures, explanation, argument, conversation, or public speaking.
-6. **Self-containment** — a learner can repeatedly shadow the clip without needing several minutes of missing setup.
-7. **Boundary quality** — start and end on natural thought boundaries. Do not cut mid-setup, mid-qualification, or before the landing.
-
-Do not fabricate timestamps. If the transcript/timebase cannot be verified reliably, keep the source unpromoted and record the blocker here.
-
-## Practice model
-
-The intended learning loop is:
-
-**Listen → Shadow → Reconstruct → Transfer**
-
-We are training rhetorical machinery, not accent mimicry alone. **Shadow the move, not merely the mouth.**
+Promoted clips should usually be ~20–120 seconds and contain a complete trainable speaking move. Rank candidates on structure, naturalness, rhythm, emotional variation, reuse value, self-containment, and exact natural boundaries. Scan the full source before promotion. Never fabricate timestamps, infer endpoints from coarse chapter markers, or promote a clip merely to show progress.
 
 ## Queue
 
 ### S tier
 
-- [x] Nietzsche Genealogy — Masters vs. Slaves / Genealogy of Morality. Calibration source. 5 clips live.
-- [-] Don't Care What Others Think — excluded from the solo-lecture corpus. The identifiable source for this line is the *Discovering the Great Books* Young Heretics interview (Johnathan's point appears around 34:52–35:14), not a standalone solo lecture. Do not promote an interview excerpt while solo-only scope is active.
-- [!] Plato — Symposium — official solo lecture verified as **Everybody Gets This Wrong in Modern Dating | Plato’s Symposium Explained** / **Embrace the Erotic | Plato's Symposium Explained**, YouTube ID `GNbrYMvwbWw`, published 2025-08-31, duration ~96:34. Johnathan's official page supplies the transcript prose and chapter anchors (2:05, 15:46, 18:59, 31:42, 33:45, 36:55, 50:59, 55:28), but the full official transcript is paywalled and the accessible transcript mirrors in this pass did not expose a trustworthy sentence-level timestamp map. Because exact natural clip boundaries cannot be verified without guessing, **0 clips promoted**. Revisit when a dependable timestamped transcript/playback surface is available.
-- [!] Marcus Aurelius — official solo lecture verified as **Think Like a Philosopher King | Stoic Wisdom from Marcus Aurelius' Meditations** / **Introduction to Stoic Philosophy | Marcus Aurelius’ Meditations Explained**, YouTube ID `KMwxrXNafK0`, published 2025-01-16, duration ~81:30. Johnathan's official page confirms it is a solo Marcus Aurelius lecture and links the full transcript. A public transcript mirror was found and the **entire ~82-minute source was scanned** with a consistent 30-second playback map. Strong candidate regions include 5:00–6:30 (misconception → gentle-kiss reframe), 9:00–10:30 (common view of money → Marcus flips it), 20:30–21:30 (Greek schools as a quarrelsome family), 31:00–33:30 (lucky/unlucky sage thought experiment), 38:00–42:30 (attachments → indifference → resilience as knowledge), 43:30–46:00 (misfortune as challenge → virtue as alchemy → F1 analogy), 47:00–50:00 (Himalayan boy/Instagram contrast → control and happiness), 50:00–58:30 (the “why not be a bum?” objection → Diogenes → preferred indifferents), 61:00–63:30 (doctor analogy), 68:00–73:00 (meaning → failed revolutionary → hard mode), 73:30–76:00 (child/death objection revisited), and 77:30–81:00 (Marcus's journal as self-therapy → friend Marcus ending). However, the mirror timestamps only every 30 seconds and frequently cuts mid-sentence; no dependable sentence-level playback surface was available in this pass. Under the calibration rule, **0 clips promoted rather than laundering 30-second bins into fake exact boundaries**. Revisit when sentence-level timing can be verified.
-- [!] Rousseau — First / Second Discourse — both planned solo lectures verified and audited. **First Discourse: Science & Art Are Poisoning You**, YouTube ID `C8ucJ29O1kM`, published 2024-06-15, duration 1:41:33. Johnathan's official transcript establishes the full argument; a public Snipd playback map confirms the full six-part structure at 00:00, 18:32, 1:03:05, 1:14:48, 1:22:07, 1:39:38 and exposes strong candidate starts including 1:22 (central thesis), 3:09 (Egypt/Greece/Rome historical escalation), 6:49 (self-interest corrupting enlightenment), 39:29 (limits of art as moral education), and 43:38 (Monopoly origin story as analogy). **Second Discourse: Why The Poor Embrace Inequality**, published 2024-09-13, duration ~1:45:29; Johnathan's official transcript was inspected across the argument, and a public chapter map gives 00:00 (paradox of American power), 2:26 (civilization's failures), 6:06 (origin/foundation of inequality), 12:40 (natural vs artificial), 17:09 (state of nature), 22:04 (amour-propre), 28:57 (golden age), 38:04 (technology and inequality), 50:47 (legitimacy), ~1:18:16 (psychological frenzy), 1:25:54 (inequality as necessary evil), 1:38:29 (good state's dependence on inequality elsewhere). These surfaces are sufficient to scan and rank the lectures but **not to verify sentence-level natural endpoints**: Snipd exposes isolated starts, and the Second Discourse map is chapter-level rather than sentence-level. **0 clips promoted** rather than inventing ends or treating chapter boundaries as shadowing boundaries. Revisit both when a dependable sentence-level transcript/playback surface is available.
-- [!] Machiavelli — Power / Violence — planned solo source verified as **You Need More Danger In Your Life | Machiavelli Explained** / podcast title **The Case for Imperialism | Machiavelli's Foreign Policy Explained**, YouTube ID `W5EeZ4i73IM`, published 2026-01-27, duration 50:29. Johnathan's official lecture page and transcript establish the argument and the official YouTube chapter anchors: 2:16 *The Sobering Power of Violence*, 5:11 *Good Can’t Stand Without Power*, 12:02 *“Startup Mode” is Uncomfortable*, 17:24 *American Expansion vs. Swiss Neutrality*, 36:07 *Fraud: The Humane Way to Conquer*, 45:35 *Tough Laws Will Save The 21st Century*, 48:04 *Tech & Commerce: The Last Domains of Expansion*. The opening transcript itself is especially strong: modern anti-conquest premise → Machiavelli inversion → “danger cleanses / war brings sobriety / violence is a moral teacher” → explicit three-part roadmap; the next section then moves from abstract necessity into the UChicago/free-speech/violence story, a strong example of thesis → concrete anecdote. The source was verified directly on YouTube and the visible page confirms title/channel/date, but its transcript panel could not be extracted through the currently available reading surface, while the official transcript becomes paywalled shortly into section 1.1. Chapter anchors verify macro-structure but not sentence-level natural endpoints. **0 clips promoted**: exact 20–120s boundaries would require guessing. Revisit when the YouTube caption timebase or another sentence-level playback map is accessible.
-- [!] The Odyssey — interpreted as the central solo Odyssey video essay **This One Sentence Explains the Entire Odyssey** / podcast title **Odysseus and the Art of Lying | Homer's Odyssey Explained**, YouTube ID `Wm6Yod-hsM0`, published 2026-07-25, duration 29:35. Official YouTube chapters are 00:00 Introduction, 00:27 Cyclops Scene, 06:07 Lying as Institution, 18:17 Hero as Man of Pain, 25:54 Socrates as Hero. Johnathan's official transcript page verifies the opening prose and argument; Podscan exposes a synchronized transcript in ~24–30s blocks through the early lecture. The opening 8 minutes already contains unusually strong candidate moves: 2:18–3:06 definition → deeper significance → synthesis of *outis/metis* as identity-flexibility; 3:06–3:59 repeated rhetorical questions → Achilles/Odysseus contrast; 3:59–4:53 textual evidence → general principle → internal contradiction; 4:53–5:46 glory motive → tactical blunder → comic “mailing address for curses” → consequence; 6:45–8:36 moral reframe → anthropological anecdote → verbal-combat explanation. However, Podscan exposes only the first portion of the transcript without sign-in, the official full transcript is paywalled, and a live-browser attempt to recover the complete YouTube transcript could not start because the browser-automation wallet had insufficient balance. Therefore the required **full-source scan could not be completed**, and **0 clips are promoted despite usable early boundaries**. This is deliberate: do not curate only the accessible first third and pretend the source was exhaustively ranked. Revisit when the complete timestamped transcript can be retrieved; the early candidates above are preserved for comparison against the full source.
-- [?] The Cost of Philosophy — **source identity unresolved; 0 clips promoted.** An exhaustive title/phrase search across Johnathan's official site, YouTube-indexed web results, transcript mirrors, and podcast indexes did not surface a solo lecture actually titled (or uniquely corresponding to) “The Cost of Philosophy.” The closest semantic match is Johnathan's recurring autobiographical argument about the worldly cost of becoming a philosopher — money/status/prestige/opportunity cost and the pull of the active life — but the clearly identifiable long-form source for that wording is the *Stoa Conversations* interview **Johnathan Bi on Nietzsche and the Validity of the Ad Hominem** (chapters 11:01 *The Life of Action VS Contemplation*, 19:58 *Philosophy as a Way Of Life*), which is excluded by the solo-only rule. Another possible thematic match is the solo short **I No Longer Fear AI Replacing Me, I Welcome It**, which contrasts philosophy-as-production with philosophy-as-cultivation, but there is not enough evidence that this is the intended queue item. Do **not** silently substitute either source. Revisit only if the original inventory can be recovered or a unique solo source mapping emerges.
-- [?] Knowledge / Sex — **source identity unresolved; 0 clips promoted.** Searches across Johnathan's official site, YouTube-indexed results, podcast/transcript indexes, and the current video corpus did not surface one solo lecture uniquely corresponding to this shorthand. The phrase plausibly conflates several distinct sources: Rousseau material on knowledge/civilization and passion; Plato material on erotic desire; and the clearly identifiable **Plato’s Critique of Hookup Culture | GRF Ferrari on the Phaedrus**, which contains sustained sex/philosophy discussion but is explicitly an interview and therefore excluded under the solo-only rule. A separate Bostrom interview also contains sex/pleasure examples, confirming that keyword overlap is not source identity. Do not silently substitute an interview or infer a video from topic similarity. Revisit only if the original inventory can be recovered or a unique solo source mapping emerges.
-- [ ] Nietzsche — The Last Man
+- [x] Nietzsche Genealogy — **Masters vs. Slaves | Nietzsche's Genealogy of Morality Explained**. Calibration source. 5 clips live.
+- [-] Don't Care What Others Think — identifiable source is the *Discovering the Great Books* Young Heretics interview, not a solo lecture.
+- [!] Plato — Symposium — solo lecture `GNbrYMvwbWw`, ~96:34. Official transcript/chapter anchors verified; no dependable sentence-level full-source timestamp map in the audit pass. 0 promoted.
+- [!] Marcus Aurelius — solo lecture `KMwxrXNafK0`, ~81:30. Full source scanned via 30-second playback map; many strong candidates preserved, but bins repeatedly cut mid-sentence. 0 promoted pending sentence-level timing.
+- [!] Rousseau — First / Second Discourse — First Discourse `C8ucJ29O1kM` (1:41:33) plus verified Second Discourse (~1:45:29). Both audited; available surfaces support macro ranking but not dependable sentence-level endpoints. 0 promoted.
+- [!] Machiavelli — Power / Violence — **You Need More Danger In Your Life | Machiavelli Explained**, `W5EeZ4i73IM`, 50:29. Full argument and chapter anchors verified; exact sentence endpoints unavailable. 0 promoted.
+- [!] The Odyssey — **This One Sentence Explains the Entire Odyssey**, `Wm6Yod-hsM0`, 29:35. Strong timestamped early candidates recovered, but complete timestamped transcript unavailable, so full-source ranking could not be completed. 0 promoted.
+- [?] The Cost of Philosophy — no unique solo lecture mapping recovered. Closest semantic long-form match is an interview and excluded. Do not silently substitute.
+- [?] Knowledge / Sex — no unique solo lecture mapping recovered. Plausible matches scatter across Rousseau/Plato/interview material. Do not silently substitute.
+- [?] Nietzsche — The Last Man — **source identity unresolved; 0 clips promoted.** Searches across Johnathan's official site, indexed YouTube/web results, podcast indexes, and Nietzsche material did not surface a distinct solo lecture uniquely corresponding to this shorthand. “Last Man” does appear in/around the already-curated *Genealogy of Morality* material: Johnathan's published Genealogy notes explicitly describe the modern “people of thinkers” as closest to the last man, and discussion under the existing Genealogy lecture uses “Nietzschean Last Man.” A separate 5-minute feed item, **Nietzsche: Embrace Elitism, Reject Equality**, exists, but available metadata does not establish that it is the intended “Last Man” queue item and it may be derivative/short-form material rather than a distinct planned solo lecture. Do not duplicate the existing Genealogy source or substitute the short by keyword resemblance. Revisit only if the original inventory or a unique source mapping emerges.
 - [ ] Tocqueville
 - [ ] Frankenstein
 - [ ] Great Thinkers
@@ -75,17 +53,6 @@ We are training rhetorical machinery, not accent mimicry alone. **Shadow the mov
 
 ## Per-source completion checklist
 
-A source is complete only when all applicable items are done:
+A source is complete only when all applicable items are done: identify and verify the exact primary YouTube source/video ID; establish a dependable transcript and playback timebase; scan the full source; generate and reject/rank candidates; verify exact natural boundaries; annotate each promoted clip by rhetorical move; add it to `lib/johnathan-bi-curated.ts`; confirm `/curated/johnathan-bi` and the practice player work; inspect typecheck/lint/tests/build; then mark `[x]`.
 
-- [ ] Identify and verify the exact official/primary YouTube source and video ID.
-- [ ] Establish a dependable transcript and playback timebase.
-- [ ] Scan the full source, not only obvious highlights.
-- [ ] Generate candidate segments and reject weak/redundant ones.
-- [ ] Verify exact start/end boundaries against the source.
-- [ ] Give every promoted clip a concise annotation naming the rhetorical move.
-- [ ] Add the source and segments to `lib/johnathan-bi-curated.ts`.
-- [ ] Confirm the source appears at `/curated/johnathan-bi` and opens in the existing practice player.
-- [ ] Run/inspect typecheck, lint, tests, and production build via the repository's GitHub Actions checks.
-- [ ] Update this queue item to `[x]` only after the implementation and checks are sound.
-
-If a video yields only 2 excellent clips, add 2. If it yields 12, add 12. Never target a quota.
+If a source yields only 2 excellent clips, add 2. If it yields 12, add 12. Never target a quota.
