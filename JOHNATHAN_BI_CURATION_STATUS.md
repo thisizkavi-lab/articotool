@@ -36,7 +36,7 @@ Promoted clips should usually be ~20–120 seconds and contain a complete traina
 
 ### A tier
 
-- [ ] Tocqueville — democracy
+- [!] Tocqueville — democracy — exact solo source verified as **Democracy with American Characteristics | Tocqueville on America's Industrial Aristocracy**, YouTube `XjhLQYGOmks`, published 2026-07-04, 1:40:00–1:40:01 across official/podcast surfaces. Johnathan is the sustained lecturer; this is explicitly his lecture at the Chateau de Tocqueville, not the companion Thomas Pangle interview. Official essay/transcript surfaces expose a rhetorically strong opening and argument architecture: historical equality → autobiographical inversion (he immigrated for inequality) → Canada/America contrast → four-part rhetorical elimination (Norway/New Zealand/Canada/Paris) → “same fire” aphoristic synthesis → Tocqueville reversal → Rome kingdom/republic/empire analogy → personal love-letter ending → mixed democratic-aristocratic reframe. The official transcript page is paywalled immediately after the introduction and supplies no sentence-level playback timestamps. Public podcast mirrors verify source identity and duration but not a complete timed transcript. A live YouTube transcript-recovery attempt could not start because the browser wallet is out of funds. Therefore the full source cannot be scanned/ranked against synchronized captions and no exact natural 20–120s endpoints can be defended. 0 promoted; timing blocked rather than infer timestamps from prose.
 - [ ] Machiavelli — danger
 - [ ] Julius Caesar
 - [ ] Stoicism
