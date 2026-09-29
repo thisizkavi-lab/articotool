@@ -38,7 +38,7 @@ Promoted clips should usually be ~20–120 seconds and contain a complete traina
 
 - [!] Tocqueville — democracy — exact solo source verified as **Democracy with American Characteristics | Tocqueville on America's Industrial Aristocracy**, YouTube `XjhLQYGOmks`, 1:40:01. Full synchronized transcript/timebase unavailable; 0 promoted.
 - [-] Machiavelli — danger — exact shorthand maps to **You Need More Danger In Your Life | Machiavelli Explained**, YouTube `W5EeZ4i73IM`, 50:29. Johnathan's own metadata lists it under the companion interviews to his solo Machiavelli lecture. Therefore it fails the SOLO/sustained-primary-speaker scope and is excluded rather than promoted. The related solo material is already represented by S-tier **The Case for Imperialism**; do not duplicate it here.
-- [ ] Julius Caesar
+- [!] Julius Caesar — exact solo lecture verified as **Shakespeare's Urgent Warning to America | The Tragedy of Julius Caesar Explained**, YouTube `wTVCgnorJFE`, ~99 min. Johnathan's official page identifies it as a lecture on Shakespeare's *Julius Caesar* and the official transcript page verifies the opening thesis. The primary video's chapter timebase is recoverable: 0:00 Introduction; 3:28 Rome and America; 12:17 Marcus Brutus; 38:25 Julius Caesar; 1:09:07 Mark Antony; 1:29:55 Fall of Brutus; 1:32:47 Will America Fall like Rome? However, the official full transcript is paywalled and the accessible chapter map is far too coarse to establish sentence-level clip boundaries or honestly rank 20–120s candidates across the full 99-minute source. 0 promoted; timing/full-scan blocked rather than inferred from chapter anchors.
 - [ ] Stoicism
 - [ ] Criticism
 - [ ] Socrates / books
