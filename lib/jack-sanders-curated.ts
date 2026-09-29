@@ -40,6 +40,18 @@ const SEGMENTS: Record<string, Segment[]> = {
     segment('JS-023', 405, 481, 'Refinement · move from the godlike ideal to realistic group wisdom'),
     segment('JS-024', 481, 527, 'Interpretation · state a reading clearly while admitting the editors disagree'),
   ],
+  'ethics-08': [
+    segment('JS-025', 90, 207, 'Continuity → problem · compress prior material into the complexity virtue ethics must solve'),
+    segment('JS-026', 207, 297, 'Analogy · ethical character begins like learning an embodied skill'),
+    segment('JS-027', 405, 509, 'Analogy with error bars · expertise still needs a scientist’s readiness to be wrong'),
+    segment('JS-028', 522, 639, 'Question repair · theory is guidance for the novice, not a substitute for practiced judgment'),
+    segment('JS-029', 752, 805, 'Epistemic seam · name an unargued presumption and invite the room to test it'),
+    segment('JS-030', 812, 887, 'Steelman · concede that professional settings can sharply constrain choice'),
+    segment('JS-031', 887, 945, 'Qualification · institutional traps are real, but they are not every case'),
+    segment('JS-032', 1243, 1329, 'Thought experiment · make freedom concrete with a gun-to-the-head choice'),
+    segment('JS-033', 1329, 1444, 'Context shift · the same choice can be abstractly free and practically forced'),
+    segment('JS-034', 1444, 1503, 'Return to application · map the thought experiment back onto whistleblowing'),
+  ],
 }
 
 const SPECS: LectureSpec[] = [
@@ -71,7 +83,7 @@ const SPECS: LectureSpec[] = [
   ['ethics-05', 'lttpXTsDsAk', 'Professional Ethics Lecture #5: Professional Standards from the Inside, Part I', 2667, 'queued'],
   ['ethics-06', 'duz9joEaTv8', 'Professional Ethics Lecture #6: Professional Standards from the Inside, Part II', 2925, 'queued'],
   ['ethics-07', 'ZXFpqsqq9_k', 'Professional Ethics Lecture #7: Ethical Character in Professional Settings', 3617, 'queued'],
-  ['ethics-08', 'Tc_VnYsnjTk', 'Professional Ethics Lecture #8: Institutional Traps, Part I', 4249, 'curating'],
+  ['ethics-08', 'Tc_VnYsnjTk', 'Professional Ethics Lecture #8: Institutional Traps, Part I', 4249, 'ready'],
   ['ethics-09', 'tOczpMwy_oY', 'Professional Ethics Lecture #9: Institutional Traps, Part II', 2799, 'queued'],
   ['ethics-10', 'JIQpjmXJJFg', 'Professional Ethics Lecture #10: Conclusion', 1987, 'queued'],
   ['social-01', 'Q5Cn8vjAhYE', 'Social and Political Philosophy Lecture #1: Introduction', 2977, 'queued'],
