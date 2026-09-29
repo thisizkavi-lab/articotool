@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { CURATED_SPEAKERS } from '@/lib/curated-library'
 import { THREEBLUE_SPEAKER } from '@/lib/threeblue-curated'
+import { JACK_SANDERS_SPEAKER } from '@/lib/jack-sanders-curated'
 import { JOHNATHAN_BI_SPEAKER } from '@/lib/johnathan-bi-curated'
 import { STAND_UP_COMEDY_MODELS } from '@/lib/stand-up-comedy'
 
@@ -15,7 +16,7 @@ export default function CuratedPage() {
   const standUpReadyModels = standUpSpeakers.filter(speaker => speaker.sources.some(source => source.status === 'ready')).length
   const englishSpeakers = CURATED_SPEAKERS
     .filter(speaker => !standUpModelIds.has(speaker.id))
-    .flatMap(speaker => speaker.id === 'naval-ravikant' ? [speaker, THREEBLUE_SPEAKER] : [speaker])
+    .flatMap(speaker => speaker.id === 'naval-ravikant' ? [speaker, JACK_SANDERS_SPEAKER, THREEBLUE_SPEAKER] : [speaker])
   const johnathanReadySources = JOHNATHAN_BI_SPEAKER.sources.filter(source => source.status === 'ready')
   const johnathanReadyClips = johnathanReadySources.reduce((sum, source) => sum + source.segments.length, 0)
 
