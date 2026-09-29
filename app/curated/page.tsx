@@ -19,6 +19,7 @@ export default function CuratedPage() {
     .flatMap(speaker => speaker.id === 'naval-ravikant' ? [speaker, JACK_SANDERS_SPEAKER, THREEBLUE_SPEAKER] : [speaker])
   const johnathanReadySources = JOHNATHAN_BI_SPEAKER.sources.filter(source => source.status === 'ready')
   const johnathanReadyClips = johnathanReadySources.reduce((sum, source) => sum + source.segments.length, 0)
+  const johnathanPipelineSources = JOHNATHAN_BI_SPEAKER.sources.filter(source => source.status !== 'ready')
 
   return (
     <div className="min-h-screen bg-background">
@@ -119,7 +120,7 @@ export default function CuratedPage() {
                       <p className="text-xs font-medium text-muted-foreground mb-1">English · philosophical speaking</p>
                       <h4 className="text-2xl font-semibold tracking-tight">Johnathan Bi</h4>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {johnathanReadySources.length} ready source{johnathanReadySources.length !== 1 ? 's' : ''} · {johnathanReadyClips} clips ready
+                        {johnathanReadySources.length} ready · {johnathanPipelineSources.length} in pipeline · {johnathanReadyClips} clips
                       </p>
                     </div>
                     <ArrowRight className="h-5 w-5 text-muted-foreground mt-1 transition-transform group-hover:translate-x-1" />
