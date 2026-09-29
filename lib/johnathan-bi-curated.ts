@@ -57,7 +57,7 @@ const unresolvedSources: CuratedCollection[] = [
 ]
 
 const plannedSources: CuratedCollection[] = [
-  pipelineSource('johnathan-bi-julius-caesar', 'Shakespeare · Julius Caesar', 'Planned solo lecture for storytelling, political argument, and dramatic explanation.', ['Queued', 'Shakespeare', 'Storytelling']),
+  pipelineSource('johnathan-bi-julius-caesar', 'Shakespeare · Julius Caesar', 'Timing blocked. Exact solo lecture verified. Chapter anchors map the full 99-minute argument, but the official full transcript is paywalled and the available chapter timebase is too coarse for sentence-level 20–120s boundaries or defensible full-source clip ranking.', ['Timing blocked', 'Shakespeare', 'Storytelling', 'Political argument'], { videoId: 'wTVCgnorJFE', videoTitle: "Shakespeare's Urgent Warning to America | The Tragedy of Julius Caesar Explained", duration: 5940, status: 'curating' }),
   pipelineSource('johnathan-bi-stoicism', 'This Drove Me Away from Stoicism', 'Planned solo source. Awaiting full-source audit and exact clip-boundary verification.', ['Queued', 'Stoicism', 'Critique']),
   pipelineSource('johnathan-bi-criticism', 'How to Handle Criticism · A Philosopher’s Guide', 'Planned compact solo source. Awaiting full-source audit and exact clip-boundary verification.', ['Queued', 'Criticism', 'Practical rhetoric']),
   pipelineSource('johnathan-bi-socrates-books', 'Why Socrates Hated Books', 'Planned solo source on books, education, and AI. Awaiting full-source audit.', ['Queued', 'Socrates', 'Books', 'AI']),
