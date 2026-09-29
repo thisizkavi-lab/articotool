@@ -39,7 +39,9 @@ export default async function CuratedSpeakerPage({ params }: { params: Promise<{
           </Button>
           <div>
             <h1 className="text-xl font-semibold tracking-tight">{speaker.name}</h1>
-            <p className="text-xs text-muted-foreground">{readySources.length} curated sources · {readyClips} shadowing clips</p>
+            <p className="text-xs text-muted-foreground">
+              {readySources.length} ready · {pendingSources.length} in pipeline · {readyClips} shadowing clips
+            </p>
           </div>
         </div>
       </header>
@@ -137,41 +139,68 @@ export default async function CuratedSpeakerPage({ params }: { params: Promise<{
           })}
         </div>
 
-        {isPerformanceStudy && pendingSources.length > 0 && (
+        {(isPerformanceStudy || isRhetoricalStudy) && pendingSources.length > 0 && (
           <section className="mt-12 border-t border-border/60 pt-7">
             <div className="mb-4">
               <h3 className="text-lg font-semibold tracking-tight">Source pipeline</h3>
-              <p className="mt-1 max-w-2xl text-xs leading-relaxed text-muted-foreground">
-                These are performed candidates, not search results. They stay out of practice until the transcript and playback boundaries are dependable.
+              <p className="mt-1 max-w-3xl text-xs leading-relaxed text-muted-foreground">
+                {isRhetoricalStudy
+                  ? 'Every planned or already-audited Johnathan source stays visible here. Timing-blocked sources have been researched but are not promoted into practice until exact natural clip boundaries are defensible. Unresolved items remain visible instead of being silently substituted.'
+                  : 'These are performed candidates, not search results. They stay out of practice until the transcript and playback boundaries are dependable.'}
               </p>
             </div>
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
               {pendingSources.map(source => {
-                const statusLabel = source.status === 'curating' ? 'Transcript review' : 'Queued'
+                const sourceUnresolved = source.focus.includes('Source unresolved')
+                const statusLabel = isRhetoricalStudy
+                  ? source.status === 'curating'
+                    ? 'Timing blocked'
+                    : sourceUnresolved
+                      ? 'Source unresolved'
+                      : 'Queued'
+                  : source.status === 'curating'
+                    ? 'Transcript review'
+                    : 'Queued'
                 const statusClass = source.status === 'curating'
                   ? 'bg-amber-500/10 text-amber-700 dark:text-amber-300'
-                  : 'bg-secondary text-secondary-foreground'
+                  : sourceUnresolved
+                    ? 'bg-rose-500/10 text-rose-700 dark:text-rose-300'
+                    : 'bg-secondary text-secondary-foreground'
 
                 return (
-                  <div key={source.id} className="rounded-xl border bg-card p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h4 className="text-sm font-semibold leading-snug">{source.sourceTitle}</h4>
-                        <p className="mt-1 text-[11px] text-muted-foreground">{source.channelName}{source.duration > 0 ? ` · ${formatTime(source.duration)}` : ''}</p>
+                  <div key={source.id} className="rounded-xl border bg-card overflow-hidden">
+                    {source.thumbnail && (
+                      <div className="aspect-video bg-secondary overflow-hidden border-b border-border/40">
+                        <img src={source.thumbnail} alt={source.videoTitle} className="h-full w-full object-cover" />
                       </div>
-                      <span className={`shrink-0 rounded-md px-2 py-1 text-[10px] font-medium ${statusClass}`}>{statusLabel}</span>
-                    </div>
-                    <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{source.description}</p>
-                    {source.videoId && (
-                      <a
-                        href={`https://www.youtube.com/watch?v=${source.videoId}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="mt-3 inline-flex text-xs font-medium text-primary hover:underline"
-                      >
-                        Open source
-                      </a>
                     )}
+                    <div className="p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h4 className="text-sm font-semibold leading-snug">{source.sourceTitle}</h4>
+                          <p className="mt-1 text-[11px] text-muted-foreground">
+                            {source.channelName || 'Johnathan Bi research queue'}{source.duration > 0 ? ` · ${formatTime(source.duration)}` : ''}
+                          </p>
+                        </div>
+                        <span className={`shrink-0 rounded-md px-2 py-1 text-[10px] font-medium ${statusClass}`}>{statusLabel}</span>
+                      </div>
+                      <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{source.description}</p>
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        {source.focus.filter(item => !['Timing blocked', 'Source unresolved', 'Queued'].includes(item)).slice(0, 3).map(item => (
+                          <span key={item} className="rounded-md bg-secondary px-2 py-1 text-[10px] text-secondary-foreground">{item}</span>
+                        ))}
+                      </div>
+                      {source.videoId && (
+                        <a
+                          href={`https://www.youtube.com/watch?v=${source.videoId}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-3 inline-flex text-xs font-medium text-primary hover:underline"
+                        >
+                          Open source
+                        </a>
+                      )}
+                    </div>
                   </div>
                 )
               })}
