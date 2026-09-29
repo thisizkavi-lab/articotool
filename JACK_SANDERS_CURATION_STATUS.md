@@ -5,10 +5,10 @@
 ## Snapshot
 
 - Full lecture corpus accounted for: **56 lectures across 5 courses** (~60.9 hours).
-- Transcript-audited and playable now: **6 sources / 39 clips**.
-- The remaining lecture inventory is queued; no unaudited source is promoted into practice.
-- Music / road-tape uploads are deliberately excluded: they are not part of the lecture-method corpus.
-- Ready sources now sample six different teaching conditions: course opening, abstract personal identity, philosophy of science, symbolic logic, political-thought reconstruction, and applied professional ethics.
+- Transcript-audited and playable now: **14 sources / 86 clips**.
+- The ready set now spans conceptual explanation, historical reconstruction, scientific reasoning, applied ethics, argument analysis, and formal symbolic procedure.
+- Two useful sources are currently **transcript-blocked** rather than silently guessed: Introduction #5 (Ontological Argument) and Social & Political #5 (John Locke).
+- Music / road-tape uploads remain deliberately excluded: they are not part of the lecture-method corpus.
 
 ## What we are actually studying
 
@@ -18,19 +18,33 @@ Three resolutions are kept separate:
 - **Meso (3–10 min):** an explanatory episode: question → candidate → counterexample → clarification → example → consequence.
 - **Micro (20–120 sec):** the shadowing unit: wording, qualification, repetition, question handling, transition, analogy, and visible self-correction.
 
-## Confirmed Sanders machinery so far
+Two teaching loops now survive across very different subject matter:
+
+- **Conceptual loop:** prior picture → pressure → intellectual need → candidate answer → complication → refinement.
+- **Procedural loop:** purpose → smallest solvable case → rule → one explicit step → worked example → learner turn.
+
+The second loop matters because Sanders keeps the same epistemic style even when teaching formal derivations where historical narrative and broad analogy are unavailable.
+
+## Confirmed Sanders machinery
 
 1. **Earn the definition.** In both *Introduction to Philosophy #1* and *Symbolic Logic #1*, Sanders asks students what philosophy is, treats answers as hypotheses, then pressure-tests them. He does not hand over a definition; weaker definitions collapse until a stronger one is needed.
 2. **Create necessity before naming the idea.** *Falsificationism* starts from verificationism, its problems, and Popper’s response before settling into the new term. The concept arrives as a repair, not as vocabulary.
-3. **Continuity beats reset.** New lectures often begin by carrying the unresolved structure of the previous lecture forward. Hobbes is introduced through Aristotle; professional-ethics material is introduced by compressing the conflicting pressures built in earlier sessions.
+3. **Continuity beats reset.** New lectures often begin by carrying the unresolved structure of the previous lecture forward. Hobbes is introduced through Aristotle; Mill begins by reconstructing Locke; professional-ethics material compresses pressures built in earlier sessions.
 4. **Make epistemic seams visible.** Sanders publicly qualifies claims, corrects himself, separates his reading from the editors’ reading, states when he lacks specialist knowledge, and labels unargued assumptions. Accuracy is performed in real time.
-5. **Counterexamples are teaching engines.** The PhD title, the phrase “good in theory,” edge cases in political government, and professional constraints are used to break insufficient formulations rather than merely decorate explanations.
-6. **Analogies come with failure conditions.** In Professional Ethics #8, skill learning explains ethical character; Sanders then immediately warns that expertise can become blindness and adds the scientist’s readiness to revise. He teaches both the model and its error bars.
+5. **Counterexamples are teaching engines.** The PhD title, “good in theory,” the false proof that 2=1, political edge cases, and professional constraints break insufficient formulations rather than merely decorate explanations.
+6. **Analogies come with failure conditions.** In Professional Ethics #8, skill learning explains ethical character; Sanders then warns that expertise can become blindness and adds the scientist’s readiness to revise. He teaches both the model and its error bars.
 7. **Student interaction is part of the argument.** A student answer is rarely treated as interruption. Sanders restates it, locates the true part, shows what it fails to explain, and uses the failure as the next step.
-8. **Concrete → abstract → concrete.** Professional Ethics #8 moves from free-will language to a gun-to-the-head thought experiment, then back to institutional traps and whistleblowing. The example is not the destination; it is a bridge.
+8. **Concrete → abstract → concrete.** Professional Ethics #8 moves from free-will language to a gun-to-the-head thought experiment, then back to institutional traps and whistleblowing. The example is a bridge, not the destination.
 9. **Historical figures are reconstructed as problem-solvers.** He tends to teach why a view could make sense under its problem and context before judging it.
-10. **Plain language outranks prestige language.** In Personal Identity #9, Sanders introduces the technical topic and immediately translates it into the ordinary question “what kind of thing is a person?”, then presents mentalism explicitly as a first attempted answer rather than a settled doctrine.
-11. **Spoken thought is allowed to look spoken.** Fillers, restarts, and small repetitions coexist with unusually careful conceptual distinctions. The transferable lesson is not the fillers; it is visible reasoning without false polish.
+10. **Plain language outranks prestige language.** In Personal Identity #9, the technical topic becomes the ordinary question “what kind of thing is a person?” Mentalism is introduced as a first attempted answer, not as a doctrine to memorize.
+11. **Purpose precedes formal machinery.** In Symbolic Logic #5, derivations are introduced as the point where earlier tools finally become reasoning. He starts with an answer that feels obvious, then slows it into explicit licensed steps.
+12. **Rigor is built from the ground up.** In Symbolic Logic #2, Sanders repairs a nearly-right definition of validity, separates validity from soundness, narrows what “sentence” means, and explains why recursive formalism earns reliable shortcuts later.
+13. **Teach the misuse of a concept.** Institutional Traps II does not merely review forced decisions. Sanders asks the class to attack the concept and discover how easily it could become an excuse. A tool is not fully taught until its failure mode is taught.
+14. **Separate scaffolding from the argument.** In the Locke review, Sanders distinguishes Locke’s theological grounding from the practical reasoning that can survive without it. This is a powerful general move for teaching old theories to modern audiences.
+15. **Steelman the foil before using it.** The Rawls lecture explicitly admits that Hayek is being positioned pedagogically, reconstructs Hayek’s strongest practical case, and only then lets Rawls turn the market promise into an empirical test.
+16. **Problem first, taxonomy second.** Scientific Explanation opens with “what is an explanation?” and whether one or several models are needed; Aristotle’s four causes arrive as a historical map for that live question.
+17. **Distinctions are often taught by making one impossible.** Science and Value Judgments defines one intuitive form of objectivity as standing apart from the observed system, then uses quantum measurement to show why that separation cannot literally hold.
+18. **Spoken thought is allowed to look spoken.** Fillers, restarts, and small repetitions coexist with careful distinctions. The transferable lesson is not the fillers; it is visible reasoning without false polish.
 
 ## Sanders Canon / Signature / Baggage
 
@@ -45,6 +59,9 @@ Three resolutions are kept separate:
 - State assumptions and interpretive choices as assumptions and choices.
 - Treat questions from the room as diagnostic data.
 - Give an analogy, then show where it stops working.
+- Teach how a useful concept can be misused.
+- When teaching procedure, begin with the smallest case whose answer already feels intuitive.
+- Make every formal step earn its place before introducing shortcuts.
 - Return from the example to the abstraction and then to application.
 
 ### Signature — observe before copying
@@ -55,21 +72,30 @@ Three resolutions are kept separate:
 - Frequent first-person epistemic markers: what he thinks, knows, does not know, or is about to revise.
 
 ### Baggage — hypotheses to test, not verdicts
-- Some segments may be longer than a modern lecture series needs.
-- A live room can tolerate conversational redundancy that recorded material may not.
-- Board-dependent explanation may need stronger visual design for a contemporary science lecture.
+- Some segments are longer than a modern recorded lecture needs.
+- A live room tolerates conversational redundancy that asynchronous video may not.
+- Board-dependent explanation will need stronger visual design for a contemporary science lecture.
 - His fillers make thought visible, but copying them literally would be cargo culting.
+- Some lecture openings spend substantial time on course mechanics; the transferable principle is responsiveness, not the administrative detail itself.
 
 ## Ready practice sources
 
 | Source | YouTube ID | Clips | What it isolates |
 |---|---|---:|---|
-| Introduction to Philosophy Lecture #1: Introduction | `tY2njfpWC8g` | 7 | Definition by pressure-test; audience diagnosis; course framing; self-critique. |
-| Introduction to Philosophy Lecture #9: The Problem of Personal Identity | `xf_AAcBmifQ` | 5 | Plain-language framing; tentative models; first-person intuition; audience edge cases. |
-| Philosophy of Science Lecture #3: Falsificationism | `mOOFYZWAdhA` | 6 | Problem → replacement theory; clarification; necessary/sufficient; epistemic humility. |
-| Symbolic Logic Lecture #1: Basic Concepts of Logic | `ExE8ucCfmH0` | 5 | Same definition routine under a technical-course condition; student answers as hypotheses. |
-| Social and Political Philosophy Lecture #4: Thomas Hobbes | `LQm-s2vzsdw` | 6 | Continuity, historical context, counterfactual reasoning, interpretive qualification. |
-| Professional Ethics Lecture #8: Institutional Traps, Part I | `Tc_VnYsnjTk` | 10 | Complexity → virtue; analogy + failure condition; thought experiment → application. |
+| Introduction to Philosophy #1: Introduction | `tY2njfpWC8g` | 7 | Definition by pressure-test; audience diagnosis; course framing; self-critique. |
+| Introduction to Philosophy #6: Cosmological/Teleological Arguments | `q-brjiXMzR4` | 7 | Hidden logic curriculum; false proof; argument audit; protected discovery. |
+| Introduction to Philosophy #9: Personal Identity | `xf_AAcBmifQ` | 5 | Plain-language framing; tentative models; first-person intuition; audience edge cases. |
+| Philosophy of Science #3: Falsificationism | `mOOFYZWAdhA` | 6 | Problem → replacement theory; clarification; necessary/sufficient; epistemic humility. |
+| Philosophy of Science #8: Scientific Explanation | `5-be4lH1_PI` | 6 | Problem framing; roadmap; historical scaffold; term repair; explanatory continuity. |
+| Philosophy of Science #10: Science and Value Judgments | `Kr9792nXmHM` | 5 | Objectivity; observer interaction; vivid physical model; scope control. |
+| Professional Ethics #8: Institutional Traps I | `Tc_VnYsnjTk` | 10 | Complexity → virtue; analogy + failure condition; thought experiment → application. |
+| Professional Ethics #9: Institutional Traps II | `tOczpMwy_oY` | 6 | Retrieval; moral relevance; adversarial critique; burden of proof; responsibility. |
+| Social & Political #4: Thomas Hobbes | `LQm-s2vzsdw` | 6 | Continuity; context; counterfactual reasoning; interpretive qualification. |
+| Social & Political #6: John Stuart Mill | `SP96yGHzW7s` | 6 | Locke retrieval; productive puzzle; secular/theological separation; honest conflict. |
+| Social & Political #9: John Rawls | `P_PF5EAnN9E` | 6 | Pedagogical transparency; steelman; mechanism; foil; empirical criterion. |
+| Symbolic Logic #1: Basic Concepts | `ExE8ucCfmH0` | 5 | Definition routine under a technical-course condition; student answers as hypotheses. |
+| Symbolic Logic #2: Introduction to Sentence Logic | `gMGVS3aUu4A` | 5 | Retrieval correction; distinctions; term boundaries; rigor; recursive construction. |
+| Symbolic Logic #5: Derivations in SL I | `l2KfqpN_xJ8` | 6 | Purpose before procedure; smallest case; rule anatomy; worked move; one-step rigor. |
 
 ## Corpus inventory
 
@@ -80,8 +106,8 @@ Three resolutions are kept separate:
 | 2 | Political and Social Philosophy - Plato, Part I | `pG1pGGGDs6M` | queued |
 | 3 | Ethics, Epistemology, & Logic - Plato, Part II | `5LQzMlX-rMY` | queued |
 | 4 | Metaphysics & Philosophy of Science - Aristotle | `dxEn9SUnkpw` | queued |
-| 5 | Philosophy of Religion & Logic - The Ontological Argument | `8f-QrB2lEzs` | queued |
-| 6 | Philosophy of Religion/Logic - Cosmological/Teleological Arguments | `q-brjiXMzR4` | queued |
+| 5 | Philosophy of Religion & Logic - The Ontological Argument | `8f-QrB2lEzs` | queued · transcript blocked |
+| 6 | Philosophy of Religion/Logic - Cosmological/Teleological Arguments | `q-brjiXMzR4` | ready |
 | 7 | Epistemology & Philosophy of Science - Descartes | `V3yW4MtD1DQ` | queued |
 | 8 | Epistemology & Logic - Rationalism versus Empiricism | `BweGI6TK5pQ` | queued |
 | 9 | The Problem of Personal Identity | `xf_AAcBmifQ` | ready |
@@ -97,9 +123,9 @@ Three resolutions are kept separate:
 | 5 | Scientific Research Programs | `aGJN9Ra4-ts` | queued |
 | 6 | Constructivism | `RgwRVUmAVKM` | queued |
 | 7 | Realism and Conventionalism | `WnxeUXoV4T4` | queued |
-| 8 | Scientific Explanation | `5-be4lH1_PI` | queued |
+| 8 | Scientific Explanation | `5-be4lH1_PI` | ready |
 | 9 | The Strange Case of Quantum Theory | `A2dJsYkzPZY` | queued |
-| 10 | Science and Value Judgments | `Kr9792nXmHM` | queued |
+| 10 | Science and Value Judgments | `Kr9792nXmHM` | ready |
 | 11 | Conclusion | `Oc3VtmVsgDE` | queued |
 
 ### Professional Ethics
@@ -113,7 +139,7 @@ Three resolutions are kept separate:
 | 6 | Professional Standards from the Inside, Part II | `duz9joEaTv8` | queued |
 | 7 | Ethical Character in Professional Settings | `ZXFpqsqq9_k` | queued |
 | 8 | Institutional Traps, Part I | `Tc_VnYsnjTk` | ready |
-| 9 | Institutional Traps, Part II | `tOczpMwy_oY` | queued |
+| 9 | Institutional Traps, Part II | `tOczpMwy_oY` | ready |
 | 10 | Conclusion | `JIQpjmXJJFg` | queued |
 
 ### Social & Political Philosophy
@@ -123,21 +149,21 @@ Three resolutions are kept separate:
 | 2 | Plato | `8RnQyE0WCsE` | queued |
 | 3 | Aristotle | `GwEXJwCu8Xg` | queued |
 | 4 | Thomas Hobbes | `LQm-s2vzsdw` | ready |
-| 5 | John Locke | `EqAiU4f_YOg` | queued |
-| 6 | John Stuart Mill | `SP96yGHzW7s` | queued |
+| 5 | John Locke | `EqAiU4f_YOg` | queued · transcript blocked |
+| 6 | John Stuart Mill | `SP96yGHzW7s` | ready |
 | 7 | Karl Marx & Friedrich Engels | `nt_961GRNhM` | queued |
 | 8 | Friedrich Hayek | `BA8RrrBexsI` | queued |
-| 9 | John Rawls | `P_PF5EAnN9E` | queued |
+| 9 | John Rawls | `P_PF5EAnN9E` | ready |
 | 10 | Conclusion | `MLMgJQ6frqw` | queued |
 
 ### Symbolic Logic
 | # | Video | YouTube ID | Status |
 |---:|---|---|---|
 | 1 | Basic Concepts of Logic | `ExE8ucCfmH0` | ready |
-| 2 | An Introduction to Sentence Logic | `gMGVS3aUu4A` | queued |
+| 2 | An Introduction to Sentence Logic | `gMGVS3aUu4A` | ready |
 | 3 | SL, Truth Tables and the Concepts of Logic | `EuLb5XrBR-I` | queued |
 | 4 | Symbolization in SL | `HBgdj7Lk0aY` | queued |
-| 5 | Derivations in SL, part I | `l2KfqpN_xJ8` | queued |
+| 5 | Derivations in SL, part I | `l2KfqpN_xJ8` | ready |
 | 6 | Derivations in SL, part II | `gqaFBRciojM` | queued |
 | 7 | Derivations in SL, part III | `7gneVqf0ROM` | queued |
 | 8 | Predicate Logic; an introduction to PL | `zt0l3PcPDZw` | queued |
@@ -149,16 +175,32 @@ Three resolutions are kept separate:
 | 14 | Predicate Logic with Identity, Part II | `CIk0HRw86tE` | queued |
 | 15 | Conclusion | `RYXv1ZPDWAE` | queued |
 
+## Transcript blockers
+
+Two videos have now been tested across multiple free transcript services and the Artico transcript endpoint without yielding timestamped captions:
+
+- Introduction #5 — Ontological Argument (`8f-QrB2lEzs`)
+- Social & Political #5 — John Locke (`EqAiU4f_YOg`)
+
+These remain in the corpus but **not** in practice. Solving them requires an actual audio-transcription path; inventing clip boundaries would violate the curation rule.
+
 ## Selection rule
 
 A clip is promoted only when it teaches a reusable move. Fame, quotability, or philosophical importance are not enough. The target is the machinery between **“the learner does not yet see why this matters”** and **“the learner now has a reason to see it.”**
 
 ## Next audit priorities
 
-1. Philosophy of Science #8, Scientific Explanation — how Sanders explains explanation itself.
-2. Symbolic Logic derivation lectures — whether the method survives procedural formalism.
-3. Professional Ethics #9 — continuation of institutional traps and case reasoning.
-4. Social & Political #5/#6/#9 — Locke, Mill, Rawls for comparative reconstruction of thinkers.
-5. Introduction #5/#6 — argument-heavy philosophy of religion as a test of objection handling.
+1. Philosophy of Science #9, Quantum Theory — test conceptual teaching under genuinely difficult physics.
+2. Symbolic Logic #6/#7 and Predicate Logic #10 — test whether procedural loop remains stable as derivations become nontrivial.
+3. Professional Ethics #2/#3 — test how Sanders compares whole ethical theories rather than local cases.
+4. Social & Political #7/#8 — compare Marx and Hayek without relying only on the Rawls transition.
+5. Introduction #7/#8 — epistemology and rationalism/empiricism as another definition/contrast stress test.
+6. Establish an audio-transcription route for captionless sources before promoting Introduction #5 or Locke.
 
-The working hypothesis remains: **Sanders’s fundamental teaching unit is not concept → definition → examples. It is prior picture → pressure → intellectual need → candidate answer → complication → refinement.** The corpus now supports that hypothesis across introductory, abstract, technical, historical, scientific, and applied-ethical teaching, but later audits should keep trying to falsify it.
+The strongest current model is no longer a single formula. Sanders appears to switch between two related architectures:
+
+**Conceptual:** prior picture → pressure → intellectual need → candidate answer → complication → refinement.
+
+**Procedural:** purpose → smallest solvable case → rule → one explicit step → worked example → learner turn.
+
+Both share the same deeper principle: **do not ask the learner to accept an abstraction before they can see what intellectual work it is doing.**
