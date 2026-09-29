@@ -12,6 +12,17 @@ function formatTime(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`
 }
 
+const canon = [
+  'Make the audience need the idea before naming it.',
+  'Let candidate definitions fail in public.',
+  'Use counterexamples to sharpen, not decorate.',
+  'Translate technical labels into ordinary questions.',
+  'Give an analogy, then teach where it stops working.',
+  'Treat audience answers as diagnostic data.',
+  'Expose assumptions, uncertainty, and interpretive choices.',
+  'Return from the example to the abstraction and application.',
+]
+
 export default function JackSandersPage() {
   const speaker = JACK_SANDERS_SPEAKER
   const readySources = speaker.sources.filter(source => source.status === 'ready' && source.videoId !== null)
@@ -55,6 +66,33 @@ export default function JackSandersPage() {
                 </span>
               ))}
             </div>
+          </div>
+        </section>
+
+        <section className="mb-10">
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold tracking-tight">The machinery</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">Two recurring loops survive across conceptual, historical, scientific, ethical, and formal teaching.</p>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2 mb-4">
+            <div className="rounded-xl border border-border/50 bg-card p-4">
+              <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground mb-2">Conceptual loop</p>
+              <p className="text-sm font-medium leading-relaxed">prior picture → pressure → intellectual need → candidate answer → complication → refinement</p>
+            </div>
+            <div className="rounded-xl border border-border/50 bg-card p-4">
+              <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground mb-2">Procedural loop</p>
+              <p className="text-sm font-medium leading-relaxed">purpose → smallest solvable case → rule → one explicit step → worked example → learner turn</p>
+            </div>
+          </div>
+
+          <div className="grid gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
+            {canon.map(item => (
+              <div key={item} className="flex gap-2 text-xs leading-relaxed text-muted-foreground">
+                <span className="mt-[0.45rem] h-1 w-1 shrink-0 rounded-full bg-foreground/50" />
+                <span>{item}</span>
+              </div>
+            ))}
           </div>
         </section>
 
