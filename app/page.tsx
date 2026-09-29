@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { UnifiedPracticeView } from '@/components/unified-practice-view'
 import { getCuratedCollection } from '@/lib/curated-library'
 import { getThreeBlueCollection } from '@/lib/threeblue-curated'
+import { getJackSandersCollection } from '@/lib/jack-sanders-curated'
 import { getJohnathanBiCollection } from '@/lib/johnathan-bi-curated'
 import { getGoldnrushCollection } from '@/lib/goldnrush-curated'
 import { getEverydayEnglishCollection } from '@/lib/everyday-english-clips'
@@ -127,7 +128,7 @@ function HomeContent() {
   } = useAppStore()
 
   const curatedCollection = useMemo(
-    () => getCuratedCollection(curatedId) || getThreeBlueCollection(curatedId) || getJohnathanBiCollection(curatedId) || getGoldnrushCollection(curatedId) || getEverydayEnglishCollection(curatedId),
+    () => getCuratedCollection(curatedId) || getThreeBlueCollection(curatedId) || getJackSandersCollection(curatedId) || getJohnathanBiCollection(curatedId) || getGoldnrushCollection(curatedId) || getEverydayEnglishCollection(curatedId),
     [curatedId],
   )
 
