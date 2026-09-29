@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { CURATED_SPEAKERS } from '@/lib/curated-library'
 import { THREEBLUE_SPEAKER } from '@/lib/threeblue-curated'
+import { JOHNATHAN_BI_SPEAKER } from '@/lib/johnathan-bi-curated'
 import { STAND_UP_COMEDY_MODELS } from '@/lib/stand-up-comedy'
 
 export default function CuratedPage() {
@@ -15,6 +16,8 @@ export default function CuratedPage() {
   const englishSpeakers = CURATED_SPEAKERS
     .filter(speaker => !standUpModelIds.has(speaker.id))
     .flatMap(speaker => speaker.id === 'naval-ravikant' ? [speaker, THREEBLUE_SPEAKER] : [speaker])
+  const johnathanReadySources = JOHNATHAN_BI_SPEAKER.sources.filter(source => source.status === 'ready')
+  const johnathanReadyClips = johnathanReadySources.reduce((sum, source) => sum + source.segments.length, 0)
 
   return (
     <div className="min-h-screen bg-background">
@@ -99,6 +102,47 @@ export default function CuratedPage() {
                 </Link>
               )
             })}
+
+            <Link href="/curated/johnathan-bi" className="block group">
+              <Card className="h-full overflow-hidden transition-colors group-hover:border-primary/50">
+                <div className="aspect-[16/9] bg-secondary overflow-hidden">
+                  <img
+                    src={JOHNATHAN_BI_SPEAKER.portrait}
+                    alt="Johnathan Bi"
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                  />
+                </div>
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground mb-1">English · philosophical speaking</p>
+                      <h4 className="text-2xl font-semibold tracking-tight">Johnathan Bi</h4>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {johnathanReadySources.length} ready source{johnathanReadySources.length !== 1 ? 's' : ''} · {johnathanReadyClips} clips ready
+                      </p>
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-muted-foreground mt-1 transition-transform group-hover:translate-x-1" />
+                  </div>
+
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                    Shadow the move, not merely the mouth: story, contrast, analogy, escalation, and qualification.
+                  </p>
+
+                  <div className="flex flex-wrap gap-2 mb-5">
+                    {['Story', 'Contrast', 'Analogy', 'Qualification'].map(item => (
+                      <span key={item} className="text-xs px-2.5 py-1 rounded-md bg-secondary text-secondary-foreground">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <BookOpen className="h-4 w-4" />
+                    Open speaking collection
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
 
             <Link href="/curated/stand-up-comedy" className="block group">
               <Card className="h-full overflow-hidden transition-colors group-hover:border-primary/50">
