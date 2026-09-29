@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { CURATED_SPEAKERS } from '@/lib/curated-library'
+import { THREEBLUE_SPEAKER } from '@/lib/threeblue-curated'
 import { STAND_UP_COMEDY_MODELS } from '@/lib/stand-up-comedy'
 
 export default function CuratedPage() {
@@ -11,6 +12,9 @@ export default function CuratedPage() {
   const standUpReadySources = standUpSpeakers.flatMap(speaker => speaker.sources.filter(source => source.status === 'ready'))
   const standUpReadyClips = standUpReadySources.reduce((sum, source) => sum + source.segments.length, 0)
   const standUpReadyModels = standUpSpeakers.filter(speaker => speaker.sources.some(source => source.status === 'ready')).length
+  const englishSpeakers = CURATED_SPEAKERS
+    .filter(speaker => !standUpModelIds.has(speaker.id))
+    .flatMap(speaker => speaker.id === 'naval-ravikant' ? [speaker, THREEBLUE_SPEAKER] : [speaker])
 
   return (
     <div className="min-h-screen bg-background">
@@ -51,7 +55,7 @@ export default function CuratedPage() {
           </div>
 
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {CURATED_SPEAKERS.filter(speaker => !standUpModelIds.has(speaker.id)).map(speaker => {
+            {englishSpeakers.map(speaker => {
               const readySources = speaker.sources.filter(source => source.status === 'ready')
               const readyClips = readySources.reduce((sum, source) => sum + source.segments.length, 0)
 
