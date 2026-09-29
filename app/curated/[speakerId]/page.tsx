@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { getCuratedSpeaker } from '@/lib/curated-library'
+import { getThreeBlueSpeaker } from '@/lib/threeblue-curated'
 import { STAND_UP_COMEDY_MODELS } from '@/lib/stand-up-comedy'
 
 function formatTime(seconds: number): string {
@@ -16,13 +17,14 @@ function formatTime(seconds: number): string {
 
 export default async function CuratedSpeakerPage({ params }: { params: Promise<{ speakerId: string }> }) {
   const { speakerId } = await params
-  const speaker = getCuratedSpeaker(speakerId)
+  const speaker = getCuratedSpeaker(speakerId) || getThreeBlueSpeaker(speakerId)
   if (!speaker) notFound()
 
   const readySources = speaker.sources.filter(source => source.status === 'ready' && source.videoId !== null)
   const readyClips = readySources.reduce((sum, source) => sum + source.segments.length, 0)
   const pendingSources = speaker.sources.filter(source => source.status !== 'ready')
   const isPerformanceStudy = STAND_UP_COMEDY_MODELS.some(model => model.id === speaker.id)
+  const isExplanationStudy = speaker.id === 'grant-sanderson'
 
   return (
     <div className="min-h-screen bg-background">
@@ -48,10 +50,10 @@ export default async function CuratedSpeakerPage({ params }: { params: Promise<{
           <div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
               <Sparkles className="h-3.5 w-3.5" />
-              {isPerformanceStudy ? 'Performance study' : 'Articulation study'}
+              {isPerformanceStudy ? 'Performance study' : isExplanationStudy ? 'Explanation study' : 'Articulation study'}
             </div>
             <h2 className="text-2xl font-semibold tracking-tight mb-2">
-              {isPerformanceStudy ? 'Shadow the finished set; keep the queue honest.' : 'Only finished sources belong here.'}
+              {isPerformanceStudy ? 'Shadow the finished set; keep the queue honest.' : isExplanationStudy ? 'Study the move, not just the sentence.' : 'Only finished sources belong here.'}
             </h2>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-3xl mb-4">{speaker.description}</p>
             <div className="flex flex-wrap gap-1.5">
@@ -110,7 +112,7 @@ export default async function CuratedSpeakerPage({ params }: { params: Promise<{
                       {source.sourceTitle}
                     </h4>
                     <p className="text-[11px] text-muted-foreground mt-1 truncate">
-                      {source.channelName || 'Naval corpus'}
+                      {source.channelName || 'Curated corpus'}
                     </p>
                     <div className="flex items-center gap-2 mt-1.5 text-[11px] text-muted-foreground">
                       <span>{source.segments.length} clips</span>
@@ -147,7 +149,7 @@ export default async function CuratedSpeakerPage({ params }: { params: Promise<{
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <h4 className="text-sm font-semibold leading-snug">{source.sourceTitle}</h4>
-                        <p className="mt-1 text-[11px] text-muted-foreground">{source.channelName} · {formatTime(source.duration)}</p>
+                        <p className="mt-1 text-[11px] text-muted-foreground">{source.channelName}{source.duration > 0 ? ` · ${formatTime(source.duration)}` : ''}</p>
                       </div>
                       <span className={`shrink-0 rounded-md px-2 py-1 text-[10px] font-medium ${statusClass}`}>{statusLabel}</span>
                     </div>
@@ -159,7 +161,7 @@ export default async function CuratedSpeakerPage({ params }: { params: Promise<{
                         rel="noreferrer"
                         className="mt-3 inline-flex text-xs font-medium text-primary hover:underline"
                       >
-                        Open performed source
+                        Open source
                       </a>
                     )}
                   </div>
