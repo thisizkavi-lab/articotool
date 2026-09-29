@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { getCuratedSpeaker } from '@/lib/curated-library'
 import { getThreeBlueSpeaker } from '@/lib/threeblue-curated'
+import { getJohnathanBiSpeaker } from '@/lib/johnathan-bi-curated'
 import { STAND_UP_COMEDY_MODELS } from '@/lib/stand-up-comedy'
 
 function formatTime(seconds: number): string {
@@ -17,7 +18,7 @@ function formatTime(seconds: number): string {
 
 export default async function CuratedSpeakerPage({ params }: { params: Promise<{ speakerId: string }> }) {
   const { speakerId } = await params
-  const speaker = getCuratedSpeaker(speakerId) || getThreeBlueSpeaker(speakerId)
+  const speaker = getCuratedSpeaker(speakerId) || getThreeBlueSpeaker(speakerId) || getJohnathanBiSpeaker(speakerId)
   if (!speaker) notFound()
 
   const readySources = speaker.sources.filter(source => source.status === 'ready' && source.videoId !== null)
@@ -25,6 +26,7 @@ export default async function CuratedSpeakerPage({ params }: { params: Promise<{
   const pendingSources = speaker.sources.filter(source => source.status !== 'ready')
   const isPerformanceStudy = STAND_UP_COMEDY_MODELS.some(model => model.id === speaker.id)
   const isExplanationStudy = speaker.id === 'grant-sanderson'
+  const isRhetoricalStudy = speaker.id === 'johnathan-bi'
 
   return (
     <div className="min-h-screen bg-background">
@@ -50,10 +52,16 @@ export default async function CuratedSpeakerPage({ params }: { params: Promise<{
           <div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
               <Sparkles className="h-3.5 w-3.5" />
-              {isPerformanceStudy ? 'Performance study' : isExplanationStudy ? 'Explanation study' : 'Articulation study'}
+              {isPerformanceStudy ? 'Performance study' : isExplanationStudy ? 'Explanation study' : isRhetoricalStudy ? 'Rhetorical study' : 'Articulation study'}
             </div>
             <h2 className="text-2xl font-semibold tracking-tight mb-2">
-              {isPerformanceStudy ? 'Shadow the finished set; keep the queue honest.' : isExplanationStudy ? 'Study the move, not just the sentence.' : 'Only finished sources belong here.'}
+              {isPerformanceStudy
+                ? 'Shadow the finished set; keep the queue honest.'
+                : isExplanationStudy
+                  ? 'Study the move, not just the sentence.'
+                  : isRhetoricalStudy
+                    ? 'Shadow the move, not merely the mouth.'
+                    : 'Only finished sources belong here.'}
             </h2>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-3xl mb-4">{speaker.description}</p>
             <div className="flex flex-wrap gap-1.5">
