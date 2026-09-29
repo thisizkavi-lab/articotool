@@ -5,10 +5,10 @@
 ## Snapshot
 
 - Full lecture corpus accounted for: **56 lectures across 5 courses** (~60.9 hours).
-- Transcript-audited and playable now: **5 sources / 34 clips**.
-- One additional diagnostic source is actively marked `curating`; the remaining lecture inventory is queued.
+- Transcript-audited and playable now: **6 sources / 39 clips**.
+- The remaining lecture inventory is queued; no unaudited source is promoted into practice.
 - Music / road-tape uploads are deliberately excluded: they are not part of the lecture-method corpus.
-- Ready sources sample five different teaching conditions: course opening, philosophy of science, symbolic logic, political-thought reconstruction, and applied professional ethics.
+- Ready sources now sample six different teaching conditions: course opening, abstract personal identity, philosophy of science, symbolic logic, political-thought reconstruction, and applied professional ethics.
 
 ## What we are actually studying
 
@@ -29,7 +29,8 @@ Three resolutions are kept separate:
 7. **Student interaction is part of the argument.** A student answer is rarely treated as interruption. Sanders restates it, locates the true part, shows what it fails to explain, and uses the failure as the next step.
 8. **Concrete → abstract → concrete.** Professional Ethics #8 moves from free-will language to a gun-to-the-head thought experiment, then back to institutional traps and whistleblowing. The example is not the destination; it is a bridge.
 9. **Historical figures are reconstructed as problem-solvers.** He tends to teach why a view could make sense under its problem and context before judging it.
-10. **Spoken thought is allowed to look spoken.** Fillers, restarts, and small repetitions coexist with unusually careful conceptual distinctions. The transferable lesson is not the fillers; it is visible reasoning without false polish.
+10. **Plain language outranks prestige language.** In Personal Identity #9, Sanders introduces the technical topic and immediately translates it into the ordinary question “what kind of thing is a person?”, then presents mentalism explicitly as a first attempted answer rather than a settled doctrine.
+11. **Spoken thought is allowed to look spoken.** Fillers, restarts, and small repetitions coexist with unusually careful conceptual distinctions. The transferable lesson is not the fillers; it is visible reasoning without false polish.
 
 ## Sanders Canon / Signature / Baggage
 
@@ -38,6 +39,7 @@ Three resolutions are kept separate:
 - Start from what they already believe or what the previous lecture established.
 - Let candidate definitions fail in public.
 - Use counterexamples to sharpen, not merely to entertain.
+- Translate technical labels into ordinary questions before building on them.
 - Clarify terms at the moment ambiguity becomes consequential.
 - Qualify claims without dissolving them into vagueness.
 - State assumptions and interpretive choices as assumptions and choices.
@@ -63,6 +65,7 @@ Three resolutions are kept separate:
 | Source | YouTube ID | Clips | What it isolates |
 |---|---|---:|---|
 | Introduction to Philosophy Lecture #1: Introduction | `tY2njfpWC8g` | 7 | Definition by pressure-test; audience diagnosis; course framing; self-critique. |
+| Introduction to Philosophy Lecture #9: The Problem of Personal Identity | `xf_AAcBmifQ` | 5 | Plain-language framing; tentative models; first-person intuition; audience edge cases. |
 | Philosophy of Science Lecture #3: Falsificationism | `mOOFYZWAdhA` | 6 | Problem → replacement theory; clarification; necessary/sufficient; epistemic humility. |
 | Symbolic Logic Lecture #1: Basic Concepts of Logic | `ExE8ucCfmH0` | 5 | Same definition routine under a technical-course condition; student answers as hypotheses. |
 | Social and Political Philosophy Lecture #4: Thomas Hobbes | `LQm-s2vzsdw` | 6 | Continuity, historical context, counterfactual reasoning, interpretive qualification. |
@@ -81,7 +84,7 @@ Three resolutions are kept separate:
 | 6 | Philosophy of Religion/Logic - Cosmological/Teleological Arguments | `q-brjiXMzR4` | queued |
 | 7 | Epistemology & Philosophy of Science - Descartes | `V3yW4MtD1DQ` | queued |
 | 8 | Epistemology & Logic - Rationalism versus Empiricism | `BweGI6TK5pQ` | queued |
-| 9 | The Problem of Personal Identity | `xf_AAcBmifQ` | curating |
+| 9 | The Problem of Personal Identity | `xf_AAcBmifQ` | ready |
 | 10 | Conclusion | `9aohi2p_Ruw` | queued |
 
 ### Philosophy of Science
@@ -152,10 +155,10 @@ A clip is promoted only when it teaches a reusable move. Fame, quotability, or p
 
 ## Next audit priorities
 
-1. Personal Identity (#9) — abstract concept taught through intuitive cases.
-2. Philosophy of Science #8, Scientific Explanation — how Sanders explains explanation itself.
-3. Symbolic Logic derivation lectures — whether the method survives procedural formalism.
-4. Professional Ethics #9 — continuation of institutional traps and case reasoning.
-5. Social & Political #5/#6/#9 — Locke, Mill, Rawls for comparative reconstruction of thinkers.
+1. Philosophy of Science #8, Scientific Explanation — how Sanders explains explanation itself.
+2. Symbolic Logic derivation lectures — whether the method survives procedural formalism.
+3. Professional Ethics #9 — continuation of institutional traps and case reasoning.
+4. Social & Political #5/#6/#9 — Locke, Mill, Rawls for comparative reconstruction of thinkers.
+5. Introduction #5/#6 — argument-heavy philosophy of religion as a test of objection handling.
 
-The working hypothesis remains: **Sanders’s fundamental teaching unit is not concept → definition → examples. It is prior picture → pressure → intellectual need → candidate answer → complication → refinement.** The corpus now supports that hypothesis across introductory, technical, historical, scientific, and applied-ethical teaching, but later audits should keep trying to falsify it.
+The working hypothesis remains: **Sanders’s fundamental teaching unit is not concept → definition → examples. It is prior picture → pressure → intellectual need → candidate answer → complication → refinement.** The corpus now supports that hypothesis across introductory, abstract, technical, historical, scientific, and applied-ethical teaching, but later audits should keep trying to falsify it.
