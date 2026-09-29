@@ -12,6 +12,8 @@ The calibration source is **Masters vs. Slaves | Nietzsche's Genealogy of Morali
 
 Curate **solo Johnathan Bi lectures first**. Exclude interviews, Q&As, guest-heavy conversations, reaction content, and anything where Johnathan is not the sustained primary speaker. These can be reconsidered only after the solo-lecture corpus is complete.
 
+Queue notation: `[x]` complete, `[-]` excluded by scope, `[!]` verified source but blocked from promotion because the exact transcript/playback timebase could not be established reliably in the current curation pass, `[ ]` pending.
+
 ## Clip standard
 
 A promoted clip should usually be ~20–120 seconds and contain a complete trainable speaking move. Prefer exact boundaries over arbitrary transcript chunks.
@@ -41,8 +43,8 @@ We are training rhetorical machinery, not accent mimicry alone. **Shadow the mov
 ### S tier
 
 - [x] Nietzsche Genealogy — Masters vs. Slaves / Genealogy of Morality. Calibration source. 5 clips live.
-- [ ] Don't Care What Others Think
-- [ ] Plato — Symposium
+- [-] Don't Care What Others Think — excluded from the solo-lecture corpus. The identifiable source for this line is the *Discovering the Great Books* Young Heretics interview (Johnathan's point appears around 34:52–35:14), not a standalone solo lecture. Do not promote an interview excerpt while solo-only scope is active.
+- [!] Plato — Symposium — official solo lecture verified as **Everybody Gets This Wrong in Modern Dating | Plato’s Symposium Explained** / **Embrace the Erotic | Plato's Symposium Explained**, YouTube ID `GNbrYMvwbWw`, published 2025-08-31, duration ~96:34. Johnathan's official page supplies the transcript prose and chapter anchors (2:05, 15:46, 18:59, 31:42, 33:45, 36:55, 50:59, 55:28), but the full official transcript is paywalled and the accessible transcript mirrors in this pass did not expose a trustworthy sentence-level timestamp map. Because exact natural clip boundaries cannot be verified without guessing, **0 clips promoted**. Revisit when a dependable timestamped transcript/playback surface is available.
 - [ ] Marcus Aurelius
 - [ ] Rousseau — First / Second Discourse
 - [ ] Machiavelli — Power / Violence
