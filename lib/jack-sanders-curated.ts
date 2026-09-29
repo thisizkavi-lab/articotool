@@ -52,6 +52,13 @@ const SEGMENTS: Record<string, Segment[]> = {
     segment('JS-033', 1329, 1444, 'Context shift · the same choice can be abstractly free and practically forced'),
     segment('JS-034', 1444, 1503, 'Return to application · map the thought experiment back onto whistleblowing'),
   ],
+  'intro-09': [
+    segment('JS-035', 75, 122, 'Plain-language framing · translate “personal identity” into the question “what kind of thing is a person?”'),
+    segment('JS-036', 122, 179, 'First attempted model · make mentalism concrete with the driver-and-vehicle picture'),
+    segment('JS-037', 179, 244, 'Intuition before theory · begin from first-person experience of the self'),
+    segment('JS-038', 244, 312, 'Consequence tracing · let the inner-self intuition open into a soul/body distinction'),
+    segment('JS-039', 374, 469, 'Audience objection · animals pressure-test the soul model and expose boundary choices'),
+  ],
 }
 
 const SPECS: LectureSpec[] = [
@@ -63,7 +70,7 @@ const SPECS: LectureSpec[] = [
   ['intro-06', 'q-brjiXMzR4', 'Introduction to Philosophy Lecture #6: Philosophy of Religion/Logic - Cosmological/Teleological Arguments', 6303, 'queued'],
   ['intro-07', 'V3yW4MtD1DQ', 'Introduction to Philosophy Lecture #7: Epistemology & Philosophy of Science - Descartes', 5115, 'queued'],
   ['intro-08', 'BweGI6TK5pQ', 'Introduction to Philosophy Lecture #8: Epistemology & Logic - Rationalism versus Empiricism', 4829, 'queued'],
-  ['intro-09', 'xf_AAcBmifQ', 'Introduction to Philosophy Lecture #9: The Problem of Personal Identity', 6954, 'curating'],
+  ['intro-09', 'xf_AAcBmifQ', 'Introduction to Philosophy Lecture #9: The Problem of Personal Identity', 6954, 'ready'],
   ['intro-10', '9aohi2p_Ruw', 'Introduction to Philosophy Lecture #10: Conclusion', 2880, 'queued'],
   ['science-01', 'SINmPJsfqCA', 'Philosophy of Science Lecture #1: Introduction', 2987, 'queued'],
   ['science-02', 'X0XuAzL7ES4', 'Philosophy of Science Lecture #2: Verificationism', 2814, 'queued'],
