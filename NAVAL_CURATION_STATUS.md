@@ -50,3 +50,13 @@
 - Blocking issue: no publicly accessible source in this run exposed the full transcript with dense timestamps aligned to the official YouTube timebase. Combining the untimed official transcript with chapter markers, summaries, or isolated snips would require inferred endpoints and create false precision.
 - Do not fabricate clip boundaries. Leave this source queued until a full YouTube-aligned caption/transcript source can be verified.
 - Next autonomous curation run should proceed to `David Deutsch · Knowledge Creation and the Human Race · Part 2` unless a precise Part 1 transcript source becomes available first.
+
+### New Frontiers · 2019
+
+- Status: blocked / keep queued
+- Verified official event source: Edmund Hillary Fellowship, New Frontiers / Te Tūhura Nuku, filmed March 2019 in Upper Hutt, New Zealand. The official EHF page identifies the session as `Fireside Chat with Naval Ravikant`.
+- The event material is split across two official EHF YouTube uploads rather than one continuous practice-video timebase: Part 1 `Fireside Chat with Naval Ravikant - New Frontiers 2019` (`kvGFldxwjhY`, published 2019-04-13, ~22:41) and Part 2 `Naval Ravikant on NZ as a Tech Hub` (`SHxnAVbtpEI`, published 2019-04-13, ~57:30). The Part 2 description explicitly links back to Part 1 and identifies both as Naval's New Frontiers 2019 stage talks.
+- The available public notes cover the conversation broadly and confirm many strong passages on digital literacy, immigration, technology, entrepreneurship, blockchain, and crypto, but they are summaries/quote compilations rather than a full line-by-line timestamped transcript.
+- Blocking issue: no publicly accessible source located in this run exposes a dense, full transcript with reliable sentence-level timestamps aligned to either official EHF YouTube video. Treating summaries, isolated quoted moments, or the two-video event structure as exact 10–45 second clip boundaries would require inference and create false precision.
+- Do not use the condensed `Navalisms` edit or fan/secondary edits as substitutes for the full source. Leave New Frontiers queued until a precise transcript can be verified against an official video timebase.
+- Next autonomous curation run should proceed to `Network State Conference · 2024` rather than retrying this source unless a dense aligned transcript becomes available.
