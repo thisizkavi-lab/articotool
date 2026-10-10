@@ -8,9 +8,24 @@ import './globals.css'
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
+const SITE_DESCRIPTION =
+  'Study how great speakers think out loud. Shadow curated clips from Naval, 3Blue1Brown and more, or any YouTube video. Record yourself and compare. Recordings stay in your browser.'
+
 export const metadata: Metadata = {
+  metadataBase: new URL('https://articotool.vercel.app'),
   title: 'artiCO shadowing tool',
-  description: 'Practice speaking by shadowing YouTube videos. Segment, record, compare, repeat.',
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    type: 'website',
+    siteName: 'artiCO',
+    title: 'artiCO: shadow great speakers',
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: 'summary',
+    title: 'artiCO: shadow great speakers',
+    description: SITE_DESCRIPTION,
+  },
   generator: 'v0.app',
   icons: {
     icon: [

@@ -1,14 +1,16 @@
 "use client"
 
-import { useEffect, useMemo, useState, Suspense } from 'react'
+import { useEffect, useMemo, useState, Suspense, type ReactNode } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from "@/utils/supabase/client"
 import { LogOut, User as UserIcon, AlertCircle, Menu } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { VideoLoader } from '@/components/video-loader'
 import { KeyboardHelp } from '@/components/keyboard-help'
+import { FeaturedCollections, LandingHero } from '@/components/home-landing'
 import { useAppStore } from '@/lib/store'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { UnifiedPracticeView } from '@/components/unified-practice-view'
@@ -27,16 +29,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-function Header({ onHomeClick }: { onHomeClick: () => void }) {
-  const { user, isLoading } = useAppStore()
-  const router = useRouter()
-  const supabase = createClient()
+// Curated leads: it's the clearest entry point for a first-time visitor.
+const NAV_LINKS = [
+  ['Curated', '/curated'],
+  ['Explore', '/explore'],
+  ['Library', '/library'],
+  ['History', '/history'],
+] as const
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    window.location.reload()
-  }
-
+// Brand + navigation. Hook-free so it can also render in the server fallback.
+function HeaderFrame({ onHomeClick, children }: { onHomeClick?: () => void; children?: ReactNode }) {
   return (
     <header className="border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-2">
@@ -52,19 +54,12 @@ function Header({ onHomeClick }: { onHomeClick: () => void }) {
         </div>
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           <nav aria-label="Main navigation" className="hidden md:flex items-center gap-2">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/library" className="text-xs">Library</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/curated" className="text-xs">Curated</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/explore" className="text-xs">Explore</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/history" className="text-xs">History</Link>
-          </Button>
-          <div className="h-4 w-[1px] bg-border mx-2" />
+            {NAV_LINKS.map(([label, href]) => (
+              <Button key={href} variant="ghost" size="sm" asChild>
+                <Link href={href} className="text-xs">{label}</Link>
+              </Button>
+            ))}
+            <div className="h-4 w-[1px] bg-border mx-2" />
           </nav>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -75,42 +70,92 @@ function Header({ onHomeClick }: { onHomeClick: () => void }) {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Practice</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {[['Library', '/library'], ['Curated', '/curated'], ['Explore', '/explore'], ['History', '/history']].map(([label, href]) => (
+              {NAV_LINKS.map(([label, href]) => (
                 <DropdownMenuItem key={href} asChild><Link href={href}>{label}</Link></DropdownMenuItem>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-
-          {isLoading ? (
-            <Button variant="ghost" size="sm" disabled>
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            </Button>
-          ) : user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full" aria-label="Account menu">
-                  <div className="bg-primary/10 w-8 h-8 rounded-full flex items-center justify-center">
-                    <UserIcon className="h-4 w-4 text-primary" />
-                  </div>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Button variant="default" size="sm" onClick={() => router.push('/login')}>Login</Button>
-          )}
-
-          <KeyboardHelp />
+          {children}
         </div>
       </div>
     </header>
+  )
+}
+
+function Header({ onHomeClick }: { onHomeClick: () => void }) {
+  const { user, isLoading } = useAppStore()
+  const router = useRouter()
+  const supabase = createClient()
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    window.location.reload()
+  }
+
+  return (
+    <HeaderFrame onHomeClick={onHomeClick}>
+      {isLoading ? (
+        <Button variant="ghost" size="sm" disabled>
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        </Button>
+      ) : user ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="rounded-full" aria-label="Account menu">
+              <div className="bg-primary/10 w-8 h-8 rounded-full flex items-center justify-center">
+                <UserIcon className="h-4 w-4 text-primary" />
+              </div>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : (
+        <Button variant="default" size="sm" onClick={() => router.push('/login')}>Login</Button>
+      )}
+
+      <KeyboardHelp />
+    </HeaderFrame>
+  )
+}
+
+const PRIVACY_NOTE = 'All recordings stay in your browser. Nothing is uploaded.'
+
+/*
+ * Server-rendered first paint. HomeContent reads search params, so Next renders
+ * this fallback as static HTML: visitors (and link previews / crawlers) get the
+ * real landing page instead of a bare "Loading...".
+ */
+function HomeFallback() {
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <HeaderFrame />
+      <main className="flex-1 container mx-auto px-4 pt-14 pb-16">
+        <div className="max-w-2xl mx-auto mb-12">
+          <LandingHero />
+          <div className="flex gap-3">
+            <Input
+              type="text"
+              placeholder="Paste YouTube URL..."
+              aria-label="YouTube URL"
+              className="flex-1 bg-secondary/50 border-border/50"
+              disabled
+            />
+            <Button disabled className="min-w-[100px]">Load Video</Button>
+          </div>
+        </div>
+        <FeaturedCollections />
+      </main>
+      <footer className="border-t border-border/50 py-4 text-center text-xs text-muted-foreground">
+        <p>{PRIVACY_NOTE}</p>
+      </footer>
+    </div>
   )
 }
 
@@ -193,12 +238,18 @@ function HomeContent() {
 
   const blockingError = error?.startsWith('No transcript available') ? null : error
 
+  // Landing doesn't wait on hydration: it matches the server-rendered fallback,
+  // so first-time visitors never see a blank flash. A restored session or a
+  // ?v= link swaps it for the practice view.
+  const showLanding = showHome || (!videoId && !urlVideoId)
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header onHomeClick={() => setShowHome(true)} />
 
-      <main className="flex-1 container mx-auto px-4 py-6">
-        <div className="max-w-2xl mx-auto mb-10">
+      <main className={`flex-1 container mx-auto px-4 ${showLanding ? 'pt-14 pb-16' : 'py-6'}`}>
+        <div className={`max-w-2xl mx-auto ${showLanding ? 'mb-12' : 'mb-10'}`}>
+          {showLanding && <LandingHero />}
           <VideoLoader />
           {blockingError && (
             <Alert variant="destructive" className="mt-3">
@@ -235,23 +286,11 @@ function HomeContent() {
           />
         )}
 
-        {(showHome || (!videoId && !isLoading)) && (
-          <div className="text-center py-20">
-            <h2 className="text-2xl font-semibold mb-3">Your Personal Speaking Gym</h2>
-            <p className="text-muted-foreground max-w-md mx-auto mb-6">
-              Paste a YouTube URL, choose a segment, shadow the speaker, record yourself, and compare.
-            </p>
-            <div className="flex flex-wrap justify-center gap-3 text-sm text-muted-foreground">
-              <span className="px-3 py-1 bg-secondary/50 rounded">Focused</span>
-              <span className="px-3 py-1 bg-secondary/50 rounded">Local Recording</span>
-              <span className="px-3 py-1 bg-secondary/50 rounded">Loop Practice</span>
-            </div>
-          </div>
-        )}
+        {showLanding && <FeaturedCollections />}
       </main>
 
       <footer className="border-t border-border/50 py-4 text-center text-xs text-muted-foreground">
-        <p>All recordings stay in your browser. Nothing is uploaded.</p>
+        <p>{PRIVACY_NOTE}</p>
       </footer>
     </div>
   )
@@ -259,7 +298,7 @@ function HomeContent() {
 
 export default function Home() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<HomeFallback />}>
       <HomeContent />
     </Suspense>
   )
